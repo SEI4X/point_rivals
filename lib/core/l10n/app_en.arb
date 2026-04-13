@@ -1,0 +1,19 @@
+{
+  "@@locale": "en",
+  "appTitle": "Point Rivals",
+  "@appTitle": {
+    "description": "Application title."
+  },
+  "homeTitle": "Point Rivals",
+  "@homeTitle": {
+    "description": "Home screen app bar title."
+  },
+  "homeHeadline": "Ready for the next match",
+  "@homeHeadline": {
+    "description": "Primary message on the home screen."
+  },
+  "homeBody": "Build every feature in small, tested layers.",
+  "@homeBody": {
+    "description": "Supporting message on the home screen."
+  }
+}

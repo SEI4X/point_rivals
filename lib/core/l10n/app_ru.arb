@@ -1,0 +1,19 @@
+{
+  "@@locale": "ru",
+  "appTitle": "Point Rivals",
+  "@appTitle": {
+    "description": "Название приложения."
+  },
+  "homeTitle": "Point Rivals",
+  "@homeTitle": {
+    "description": "Заголовок главного экрана."
+  },
+  "homeHeadline": "Готовы к следующему матчу",
+  "@homeHeadline": {
+    "description": "Основное сообщение на главном экране."
+  },
+  "homeBody": "Каждая функция создается маленькими тестируемыми слоями.",
+  "@homeBody": {
+    "description": "Дополнительное сообщение на главном экране."
+  }
+}
