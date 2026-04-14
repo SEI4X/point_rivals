@@ -14,6 +14,7 @@ abstract final class GroupMemberMapper {
       tokenBalance: _int(data['tokenBalance']),
       weeklyTokensEarned: _int(data['weeklyTokensEarned']),
       weeklyScorePeriodId: _string(data['weeklyScorePeriodId']) ?? '',
+      dailyTokenBuckets: _intMap(data['dailyTokenBuckets']),
       allTimeTokensEarned: _int(data['allTimeTokensEarned']),
       xp: _int(data['xp']),
       totalWagers: _int(data['totalWagers']),
@@ -36,6 +37,7 @@ abstract final class GroupMemberMapper {
       'tokenBalance': initialTokenBalance,
       'weeklyTokensEarned': 0,
       'weeklyScorePeriodId': '',
+      'dailyTokenBuckets': <String, int>{},
       'allTimeTokensEarned': 0,
       'xp': xp,
       'totalWagers': 0,
@@ -49,6 +51,17 @@ abstract final class GroupMemberMapper {
   static String? _string(Object? value) => value is String ? value : null;
 
   static int _int(Object? value) => value is int ? value : 0;
+
+  static Map<String, int> _intMap(Object? value) {
+    if (value is! Map) {
+      return const {};
+    }
+
+    return value.map((key, item) {
+      final normalizedKey = key is String ? key : key.toString();
+      return MapEntry(normalizedKey, item is int ? item : 0);
+    });
+  }
 
   static GroupMemberRole _role(Object? value) {
     return GroupMemberRole.values.firstWhere(

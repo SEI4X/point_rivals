@@ -137,6 +137,18 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     title: l10n.onboardingTitle,
                     body: l10n.onboardingBody,
                     notice: l10n.onboardingGameNotice,
+                    primarySignal: _Signal(
+                      color: Theme.of(context).colorScheme.primary,
+                      icon: Icons.assignment_rounded,
+                      title: '+10',
+                      label: l10n.onboardingTaskSignal,
+                    ),
+                    secondarySignal: _Signal(
+                      color: Theme.of(context).colorScheme.secondary,
+                      icon: Icons.verified_rounded,
+                      title: l10n.groupAdminBadge,
+                      label: l10n.onboardingJudgeSignal,
+                    ),
                     action: FilledButton(
                       onPressed: _next,
                       child: Text(l10n.onboardingNext),
@@ -146,6 +158,18 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     icon: Icons.lock_rounded,
                     title: l10n.onboardingAuthTitle,
                     body: l10n.onboardingAuthBody,
+                    primarySignal: _Signal(
+                      color: Theme.of(context).colorScheme.primary,
+                      icon: Icons.stars_rounded,
+                      title: 'XP',
+                      label: l10n.onboardingAuthSignal,
+                    ),
+                    secondarySignal: _Signal(
+                      color: Theme.of(context).colorScheme.secondary,
+                      icon: Icons.groups_2_rounded,
+                      title: l10n.navGroups,
+                      label: l10n.groupsEmptyBody,
+                    ),
                     action: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -174,6 +198,18 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     title: l10n.onboardingNotificationsTitle,
                     body: l10n.onboardingNotificationsBody,
                     notice: l10n.onboardingGameNotice,
+                    primarySignal: _Signal(
+                      color: Theme.of(context).colorScheme.primary,
+                      icon: Icons.notifications_active_rounded,
+                      title: l10n.groupTasksTab,
+                      label: l10n.onboardingNotifySignal,
+                    ),
+                    secondarySignal: _Signal(
+                      color: Theme.of(context).colorScheme.secondary,
+                      icon: Icons.sports_score_rounded,
+                      title: l10n.groupWagersTab,
+                      label: l10n.onboardingNotificationsBody,
+                    ),
                     action: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -229,6 +265,8 @@ class _OnboardingStep extends StatelessWidget {
     required this.title,
     required this.body,
     required this.action,
+    required this.primarySignal,
+    required this.secondarySignal,
     this.notice,
   });
 
@@ -236,6 +274,8 @@ class _OnboardingStep extends StatelessWidget {
   final String title;
   final String body;
   final String? notice;
+  final _Signal primarySignal;
+  final _Signal secondarySignal;
   final Widget action;
 
   @override
@@ -243,64 +283,106 @@ class _OnboardingStep extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: colors.surfaceContainer,
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: colors.primary,
-                      borderRadius: BorderRadius.circular(18),
+    return TweenAnimationBuilder<double>(
+      key: ValueKey(title),
+      tween: Tween(begin: 0, end: 1),
+      duration: const Duration(milliseconds: 360),
+      curve: Curves.easeOutCubic,
+      builder: (context, value, child) {
+        return Opacity(
+          opacity: value,
+          child: Transform.translate(
+            offset: Offset(0, 18 * (1 - value)),
+            child: child,
+          ),
+        );
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: colors.surfaceContainer,
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(18),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight - 36,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: colors.primary,
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: Icon(
+                                icon,
+                                color: colors.onPrimary,
+                                size: 24,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 28),
+                          Text(title, style: textTheme.headlineMedium),
+                          const SizedBox(height: 12),
+                          Text(
+                            body,
+                            style: textTheme.bodyLarge?.copyWith(
+                              color: colors.onSurfaceVariant,
+                              height: 1.35,
+                            ),
+                          ),
+                          const SizedBox(height: 28),
+                          _SignalCard(
+                            color: primarySignal.color,
+                            icon: primarySignal.icon,
+                            title: primarySignal.title,
+                            label: primarySignal.label,
+                          ),
+                          const SizedBox(height: 10),
+                          _SignalCard(
+                            color: secondarySignal.color,
+                            icon: secondarySignal.icon,
+                            title: secondarySignal.title,
+                            label: secondarySignal.label,
+                          ),
+                        ],
+                      ),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: Icon(icon, color: colors.onPrimary, size: 24),
-                    ),
                   ),
-                  const SizedBox(height: 28),
-                  Text(title, style: textTheme.headlineMedium),
-                  const SizedBox(height: 12),
-                  Text(
-                    body,
-                    style: textTheme.bodyLarge?.copyWith(
-                      color: colors.onSurfaceVariant,
-                      height: 1.35,
-                    ),
-                  ),
-                  const Spacer(),
-                  _SignalCard(
-                    color: colors.primary,
-                    icon: Icons.sports_score_rounded,
-                    title: '2.40x',
-                    label: notice ?? body,
-                  ),
-                  const SizedBox(height: 10),
-                  _SignalCard(
-                    color: colors.secondary,
-                    icon: Icons.local_fire_department_rounded,
-                    title: '12 : 9',
-                    label: body,
-                  ),
-                ],
-              ),
+                );
+              },
             ),
           ),
-        ),
-        const SizedBox(height: 18),
-        action,
-      ],
+          const SizedBox(height: 18),
+          action,
+        ],
+      ),
     );
   }
+}
+
+final class _Signal {
+  const _Signal({
+    required this.color,
+    required this.icon,
+    required this.title,
+    required this.label,
+  });
+
+  final Color color;
+  final IconData icon;
+  final String title;
+  final String label;
 }
 
 class _SignalCard extends StatelessWidget {
@@ -341,7 +423,7 @@ class _SignalCard extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                maxLines: 1,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(
                   context,

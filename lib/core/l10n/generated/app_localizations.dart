@@ -137,19 +137,19 @@ abstract class AppLocalizations {
   /// Onboarding headline.
   ///
   /// In en, this message translates to:
-  /// **'Friendly wagers, no money'**
+  /// **'Tasks and wagers for points'**
   String get onboardingTitle;
 
   /// Onboarding body explaining the app.
   ///
   /// In en, this message translates to:
-  /// **'Create a group, bet group chips on real-life outcomes, and let admins confirm the result.'**
+  /// **'Create group tasks, assign owners, finish them for points, and keep friendly wagers for match-day calls.'**
   String get onboardingBody;
 
   /// Notice explaining wagers are not money.
   ///
   /// In en, this message translates to:
-  /// **'Chips stay inside each group. Point Rivals is a game, not gambling.'**
+  /// **'Points stay inside each group. Admins judge completed tasks and wager results.'**
   String get onboardingGameNotice;
 
   /// Apple sign-in button.
@@ -203,7 +203,7 @@ abstract class AppLocalizations {
   /// Onboarding authorization step body.
   ///
   /// In en, this message translates to:
-  /// **'Sign in so your groups, chips, and XP stay synced.'**
+  /// **'Sign in so your groups, tasks, points, and XP stay synced.'**
   String get onboardingAuthBody;
 
   /// Onboarding notifications step title.
@@ -215,8 +215,32 @@ abstract class AppLocalizations {
   /// Onboarding notifications step body.
   ///
   /// In en, this message translates to:
-  /// **'Get a heads-up when a wager is resolved or a group needs you.'**
+  /// **'Get a heads-up when a task is assigned to you or a wager is resolved.'**
   String get onboardingNotificationsBody;
+
+  /// Onboarding task signal text.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a task, pick points, and assign an owner.'**
+  String get onboardingTaskSignal;
+
+  /// Onboarding admin judge signal text.
+  ///
+  /// In en, this message translates to:
+  /// **'Admins confirm done work and settle wagers.'**
+  String get onboardingJudgeSignal;
+
+  /// Onboarding auth signal text.
+  ///
+  /// In en, this message translates to:
+  /// **'Your points, groups, and wins follow your account.'**
+  String get onboardingAuthSignal;
+
+  /// Onboarding notification signal text.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned tasks arrive as notifications.'**
+  String get onboardingNotifySignal;
 
   /// Groups screen title.
   ///
@@ -416,6 +440,12 @@ abstract class AppLocalizations {
   /// **'Wager resolved'**
   String get activityResolvedTitle;
 
+  /// Activity title for a completed task.
+  ///
+  /// In en, this message translates to:
+  /// **'Task completed'**
+  String get activityTaskCompletedTitle;
+
   /// Activity title for a cancelled wager.
   ///
   /// In en, this message translates to:
@@ -596,23 +626,17 @@ abstract class AppLocalizations {
   /// **'{count, plural, one {{count} participant} other {{count} participants}}'**
   String groupMembers(int count);
 
-  /// Weekly group leaderboard title.
+  /// Group leaderboard title for the current calendar month.
   ///
   /// In en, this message translates to:
-  /// **'Weekly leaders'**
-  String get groupWeeklyLeaders;
+  /// **'Leaders (current month)'**
+  String get groupMonthLeaders;
 
-  /// Short label for the weekly leaderboard tab.
+  /// Short label for the monthly leaderboard tab.
   ///
   /// In en, this message translates to:
-  /// **'Week'**
-  String get groupWeeklyTab;
-
-  /// Group leaderboard title for the configured weekly window.
-  ///
-  /// In en, this message translates to:
-  /// **'{weeks, plural, one {Leaders this week} other {Leaders over {weeks} weeks}}'**
-  String groupWindowLeaders(int weeks);
+  /// **'Month'**
+  String get groupMonthTab;
 
   /// All-time group leaderboard title.
   ///
@@ -638,41 +662,29 @@ abstract class AppLocalizations {
   /// **'Active wagers'**
   String get groupActiveWagers;
 
-  /// Group leaderboard period setting title.
+  /// Group work switcher wagers tab.
   ///
   /// In en, this message translates to:
-  /// **'Weekly leader window'**
-  String get groupLeaderboardWindowTitle;
+  /// **'Wagers'**
+  String get groupWagersTab;
 
-  /// Group leaderboard period setting body.
+  /// Group work switcher tasks tab.
   ///
   /// In en, this message translates to:
-  /// **'Choose how many weeks one sprint lasts. Multi-week sprints start from the anchor date.'**
-  String get groupLeaderboardWindowBody;
-
-  /// Group leaderboard window length.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, one {{count} week} other {{count} weeks}}'**
-  String groupLeaderboardWindowWeeks(int count);
-
-  /// Action for choosing the leaderboard sprint anchor date.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose sprint start'**
-  String get groupLeaderboardAnchorDateAction;
-
-  /// Selected leaderboard sprint anchor date.
-  ///
-  /// In en, this message translates to:
-  /// **'Sprint start: {value}'**
-  String groupLeaderboardAnchorDateValue(String value);
+  /// **'Tasks'**
+  String get groupTasksTab;
 
   /// Empty state for active wagers list.
   ///
   /// In en, this message translates to:
   /// **'No active wagers yet.'**
   String get groupNoActiveWagers;
+
+  /// Empty state for active task list.
+  ///
+  /// In en, this message translates to:
+  /// **'No active tasks yet.'**
+  String get groupNoActiveTasks;
 
   /// Admin badge label.
   ///
@@ -685,6 +697,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Create wager'**
   String get groupCreateWager;
+
+  /// Create task action.
+  ///
+  /// In en, this message translates to:
+  /// **'Create task'**
+  String get groupCreateTask;
 
   /// Group settings title.
   ///
@@ -1022,6 +1040,96 @@ abstract class AppLocalizations {
   /// **'Wager was not created. Please try again.'**
   String get createWagerError;
 
+  /// Create task screen title.
+  ///
+  /// In en, this message translates to:
+  /// **'Create task'**
+  String get createTaskTitle;
+
+  /// Task title input label.
+  ///
+  /// In en, this message translates to:
+  /// **'Task name'**
+  String get createTaskTitleLabel;
+
+  /// Validation error for missing task title.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a task name.'**
+  String get createTaskTitleRequired;
+
+  /// Validation error for long task title.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the name under {max} characters.'**
+  String createTaskTitleTooLong(int max);
+
+  /// Optional task description input label.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get createTaskDescriptionLabel;
+
+  /// Validation error for long task description.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the description under {max} characters.'**
+  String createTaskDescriptionTooLong(int max);
+
+  /// Task assignee selector label.
+  ///
+  /// In en, this message translates to:
+  /// **'Assignee'**
+  String get createTaskAssigneeLabel;
+
+  /// Create task assignee empty choice.
+  ///
+  /// In en, this message translates to:
+  /// **'No assignee'**
+  String get createTaskUnassigned;
+
+  /// Task reward points input label.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward points'**
+  String get createTaskRewardPointsLabel;
+
+  /// Task reward helper text.
+  ///
+  /// In en, this message translates to:
+  /// **'The assignee receives these points after admin approval.'**
+  String get createTaskRewardPointsHelper;
+
+  /// Validation error when task reward is too high.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum reward is {max} points.'**
+  String createTaskRewardPointsTooHigh(int max);
+
+  /// Create task due date picker action.
+  ///
+  /// In en, this message translates to:
+  /// **'Add due date'**
+  String get createTaskDueDateAction;
+
+  /// Selected task due date.
+  ///
+  /// In en, this message translates to:
+  /// **'Due {value}'**
+  String createTaskDueDateValue(String value);
+
+  /// Clear task due date action.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear due date'**
+  String get createTaskClearDueDate;
+
+  /// Create task failure message.
+  ///
+  /// In en, this message translates to:
+  /// **'Task was not created. Please try again.'**
+  String get createTaskError;
+
   /// Generic save action.
   ///
   /// In en, this message translates to:
@@ -1279,6 +1387,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No one has staked yet.'**
   String get wagerDetailsNoStakes;
+
+  /// Task details screen title.
+  ///
+  /// In en, this message translates to:
+  /// **'Task details'**
+  String get taskDetailsTitle;
+
+  /// Active task status.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get taskStatusActive;
+
+  /// Completed task status.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get taskStatusCompleted;
+
+  /// Task reward points label.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount, plural, one {{amount} point} other {{amount} points}}'**
+  String taskRewardPoints(int amount);
+
+  /// Task due date label.
+  ///
+  /// In en, this message translates to:
+  /// **'Due {value}'**
+  String taskDueDate(String value);
+
+  /// Task without due date label.
+  ///
+  /// In en, this message translates to:
+  /// **'No due date'**
+  String get taskNoDueDate;
+
+  /// Task assignee label.
+  ///
+  /// In en, this message translates to:
+  /// **'Assignee'**
+  String get taskAssignee;
+
+  /// Task unassigned label.
+  ///
+  /// In en, this message translates to:
+  /// **'Unassigned'**
+  String get taskUnassigned;
+
+  /// Task assigned label.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned'**
+  String get taskAssigned;
+
+  /// Self assign task action.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign to me'**
+  String get taskAssignSelf;
+
+  /// Task assignment error.
+  ///
+  /// In en, this message translates to:
+  /// **'Task was not assigned. Please try again.'**
+  String get taskAssignError;
+
+  /// Admin complete task action.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark complete'**
+  String get taskCompleteAction;
+
+  /// Task completion success message.
+  ///
+  /// In en, this message translates to:
+  /// **'Task completed.'**
+  String get taskCompleteSuccess;
+
+  /// Task completion error.
+  ///
+  /// In en, this message translates to:
+  /// **'Task was not completed. Please try again.'**
+  String get taskCompleteError;
 
   /// Resolved wager archive empty state.
   ///

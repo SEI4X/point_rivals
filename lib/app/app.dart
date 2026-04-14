@@ -42,6 +42,7 @@ class _PointRivalsAppState extends State<PointRivalsApp> {
   StreamSubscription<IncomingNotification>? _foregroundNotificationSubscription;
   AndroidForegroundNotifications? _androidForegroundNotifications;
   String? _registeredNotificationUserId;
+  String? _pendingNotificationGroupId;
 
   @override
   void initState() {
@@ -92,6 +93,11 @@ class _PointRivalsAppState extends State<PointRivalsApp> {
   }
 
   void _openGroup(String groupId) {
+    if (!_sessionController.isSignedIn) {
+      _pendingNotificationGroupId = groupId;
+      return;
+    }
+
     _router.go(AppRoutes.group(groupId));
   }
 
@@ -124,6 +130,7 @@ class _PointRivalsAppState extends State<PointRivalsApp> {
   }
 
   void _syncNotificationRegistration() {
+    _openPendingNotificationGroup();
     final user = _sessionController.currentUser;
     if (user == null || !user.notificationsEnabled) {
       _registeredNotificationUserId = null;
@@ -136,6 +143,20 @@ class _PointRivalsAppState extends State<PointRivalsApp> {
 
     _registeredNotificationUserId = user.id;
     unawaited(_registerNotificationToken(user.id));
+  }
+
+  void _openPendingNotificationGroup() {
+    if (!_sessionController.isSignedIn) {
+      return;
+    }
+
+    final groupId = _pendingNotificationGroupId;
+    if (groupId == null) {
+      return;
+    }
+
+    _pendingNotificationGroupId = null;
+    _router.go(AppRoutes.group(groupId));
   }
 
   Future<void> _registerNotificationToken(String userId) async {

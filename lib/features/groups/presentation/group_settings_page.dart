@@ -90,46 +90,6 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
     }
   }
 
-  Future<void> _updateLeaderboardWindowWeeks(int weeks) async {
-    final l10n = context.l10n;
-    final messenger = ScaffoldMessenger.of(context);
-    try {
-      await AppDependenciesScope.of(
-        context,
-      ).groupRepository.updateGroupLeaderboardWindowWeeks(
-        groupId: widget.groupId,
-        weeks: weeks,
-      );
-    } on Object {
-      if (mounted) {
-        showAppSnackBarOnMessenger(
-          messenger: messenger,
-          message: l10n.groupSaveError,
-        );
-      }
-    }
-  }
-
-  Future<void> _updateLeaderboardAnchorDate(DateTime anchorDate) async {
-    final l10n = context.l10n;
-    final messenger = ScaffoldMessenger.of(context);
-    try {
-      await AppDependenciesScope.of(
-        context,
-      ).groupRepository.updateGroupLeaderboardPeriodAnchorDate(
-        groupId: widget.groupId,
-        anchorDate: anchorDate,
-      );
-    } on Object {
-      if (mounted) {
-        showAppSnackBarOnMessenger(
-          messenger: messenger,
-          message: l10n.groupSaveError,
-        );
-      }
-    }
-  }
-
   Future<void> _updateMemberRole(
     GroupMember member,
     GroupMemberRole role,
@@ -315,12 +275,6 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                                 _isColorDirty = true;
                               });
                             },
-                          ),
-                          const SizedBox(height: 16),
-                          _LeaderboardWindowCard(
-                            group: group,
-                            onChanged: _updateLeaderboardWindowWeeks,
-                            onAnchorDateChanged: _updateLeaderboardAnchorDate,
                           ),
                           const SizedBox(height: 16),
                           _InviteCard(group: group),
@@ -739,97 +693,6 @@ class _InviteCard extends StatelessWidget {
         ),
       ),
     );
-  }
-}
-
-class _LeaderboardWindowCard extends StatelessWidget {
-  const _LeaderboardWindowCard({
-    required this.group,
-    required this.onChanged,
-    required this.onAnchorDateChanged,
-  });
-
-  final RivalGroup group;
-  final ValueChanged<int> onChanged;
-  final ValueChanged<DateTime> onAnchorDateChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final weeks = group.leaderboardWindowWeeks.clamp(1, 52);
-    final anchorDate = group.leaderboardPeriodAnchorDate;
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              l10n.groupLeaderboardWindowTitle,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              l10n.groupLeaderboardWindowBody,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 12),
-            SegmentedButton<int>(
-              segments: [
-                ButtonSegment(
-                  value: 1,
-                  label: Text(l10n.groupLeaderboardWindowWeeks(1)),
-                ),
-                ButtonSegment(
-                  value: 2,
-                  label: Text(l10n.groupLeaderboardWindowWeeks(2)),
-                ),
-                ButtonSegment(
-                  value: 4,
-                  label: Text(l10n.groupLeaderboardWindowWeeks(4)),
-                ),
-              ],
-              selected: {weeks == 1 || weeks == 2 || weeks == 4 ? weeks : 1},
-              onSelectionChanged: (selection) => onChanged(selection.single),
-            ),
-            if (weeks > 1) ...[
-              const SizedBox(height: 12),
-              OutlinedButton.icon(
-                onPressed: () async {
-                  final now = DateTime.now();
-                  final selected = await showDatePicker(
-                    context: context,
-                    initialDate: anchorDate ?? now,
-                    firstDate: DateTime(now.year - 2),
-                    lastDate: DateTime(now.year + 2),
-                  );
-                  if (selected != null) {
-                    onAnchorDateChanged(selected);
-                  }
-                },
-                icon: const Icon(Icons.event_rounded),
-                label: Text(
-                  anchorDate == null
-                      ? l10n.groupLeaderboardAnchorDateAction
-                      : l10n.groupLeaderboardAnchorDateValue(
-                          _dateLabel(anchorDate),
-                        ),
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  static String _dateLabel(DateTime value) {
-    final month = value.month.toString().padLeft(2, '0');
-    final day = value.day.toString().padLeft(2, '0');
-    return '${value.year}-$month-$day';
   }
 }
 

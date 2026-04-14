@@ -16,9 +16,9 @@ abstract final class GroupMapper {
       activeWagerCount: _int(data['activeWagerCount']),
       myTokenBalance: myTokenBalance,
       leaderboardWindowWeeks: _positiveInt(data['leaderboardWindowWeeks'], 1),
-      leaderboardPeriodAnchorDate: _dateTime(
-        data['leaderboardPeriodAnchorDate'],
-      ),
+      leaderboardPeriodAnchorDate: data['leaderboardUsesCustomAnchor'] == true
+          ? _dateTime(data['leaderboardPeriodAnchorDate'])
+          : null,
       accentColorValue: GroupAccentColors.normalize(
         _intOrNull(data['accentColor']),
       ),
@@ -37,7 +37,8 @@ abstract final class GroupMapper {
       'memberCount': 1,
       'activeWagerCount': 0,
       'leaderboardWindowWeeks': 1,
-      'leaderboardPeriodAnchorDate': FieldValue.serverTimestamp(),
+      'leaderboardPeriodAnchorDate': null,
+      'leaderboardUsesCustomAnchor': false,
       'accentColor': GroupAccentColors.defaultValue,
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
@@ -52,11 +53,15 @@ abstract final class GroupMapper {
 
   static DateTime? _dateTime(Object? value) {
     if (value is Timestamp) {
-      return value.toDate();
+      final date = value.toDate().toUtc();
+      return DateTime.utc(date.year, date.month, date.day);
     }
 
     if (value is String) {
-      return DateTime.tryParse(value);
+      final date = DateTime.tryParse(value)?.toUtc();
+      return date == null
+          ? null
+          : DateTime.utc(date.year, date.month, date.day);
     }
 
     return null;

@@ -28,15 +28,15 @@ class AppLocalizationsRu extends AppLocalizations {
   String get navProfile => 'Профиль';
 
   @override
-  String get onboardingTitle => 'Дружеские ставки без денег';
+  String get onboardingTitle => 'Задания и ставки за баллы';
 
   @override
   String get onboardingBody =>
-      'Создайте группу, ставьте фишки на реальные исходы и доверяйте админам подтверждать результат.';
+      'Создавайте задания в группе, назначайте исполнителей, закрывайте их за баллы и оставляйте ставки для спортивных прогнозов.';
 
   @override
   String get onboardingGameNotice =>
-      'Фишки остаются внутри группы. Point Rivals - это игра, а не азартные ставки.';
+      'Баллы остаются внутри группы. Админы судят задания и результаты ставок.';
 
   @override
   String get onboardingAppleButton => 'Продолжить с Apple';
@@ -64,14 +64,30 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get onboardingAuthBody =>
-      'Войдите, чтобы группы, фишки и XP синхронизировались.';
+      'Войдите, чтобы группы, задания, баллы и XP синхронизировались.';
 
   @override
   String get onboardingNotificationsTitle => 'Будьте в курсе';
 
   @override
   String get onboardingNotificationsBody =>
-      'Получайте уведомления, когда ставка завершена или группа ждет вас.';
+      'Получайте уведомления, когда вам назначили задание или ставка завершена.';
+
+  @override
+  String get onboardingTaskSignal =>
+      'Создайте задание, выберите баллы и назначьте исполнителя.';
+
+  @override
+  String get onboardingJudgeSignal =>
+      'Админы подтверждают работу и закрывают ставки.';
+
+  @override
+  String get onboardingAuthSignal =>
+      'Баллы, группы и победы привязаны к аккаунту.';
+
+  @override
+  String get onboardingNotifySignal =>
+      'Назначенные задания приходят уведомлениями.';
 
   @override
   String get groupsTitle => 'Группы';
@@ -205,6 +221,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get activityResolvedTitle => 'Ставка завершена';
 
   @override
+  String get activityTaskCompletedTitle => 'Задание выполнено';
+
+  @override
   String get activityCancelledTitle => 'Ставка отменена';
 
   @override
@@ -318,23 +337,10 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get groupWeeklyLeaders => 'Лидеры недели';
+  String get groupMonthLeaders => 'Лидеры (текущий месяц)';
 
   @override
-  String get groupWeeklyTab => 'Неделя';
-
-  @override
-  String groupWindowLeaders(int weeks) {
-    String _temp0 = intl.Intl.pluralLogic(
-      weeks,
-      locale: localeName,
-      other: 'Лидеры за $weeks недели',
-      many: 'Лидеры за $weeks недель',
-      few: 'Лидеры за $weeks недели',
-      one: 'Лидеры недели',
-    );
-    return '$_temp0';
-  }
+  String get groupMonthTab => 'Месяц';
 
   @override
   String get groupAllTimeLeaders => 'Лидеры за все время';
@@ -349,41 +355,25 @@ class AppLocalizationsRu extends AppLocalizations {
   String get groupActiveWagers => 'Активные ставки';
 
   @override
-  String get groupLeaderboardWindowTitle => 'Период недельных лидеров';
+  String get groupWagersTab => 'Ставки';
 
   @override
-  String get groupLeaderboardWindowBody =>
-      'Выберите длину спринта. Для 2 или 4 недель спринты идут подряд от даты старта.';
-
-  @override
-  String groupLeaderboardWindowWeeks(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count недели',
-      many: '$count недель',
-      few: '$count недели',
-      one: '$count неделя',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get groupLeaderboardAnchorDateAction => 'Выбрать старт спринта';
-
-  @override
-  String groupLeaderboardAnchorDateValue(String value) {
-    return 'Старт спринта: $value';
-  }
+  String get groupTasksTab => 'Задания';
 
   @override
   String get groupNoActiveWagers => 'Активных ставок пока нет.';
+
+  @override
+  String get groupNoActiveTasks => 'Активных заданий пока нет.';
 
   @override
   String get groupAdminBadge => 'Админ';
 
   @override
   String get groupCreateWager => 'Создать ставку';
+
+  @override
+  String get groupCreateTask => 'Создать задание';
 
   @override
   String get groupSettingsTitle => 'Настройки группы';
@@ -595,6 +585,60 @@ class AppLocalizationsRu extends AppLocalizations {
   String get createWagerError => 'Ставка не создана. Попробуйте еще раз.';
 
   @override
+  String get createTaskTitle => 'Создать задание';
+
+  @override
+  String get createTaskTitleLabel => 'Название задания';
+
+  @override
+  String get createTaskTitleRequired => 'Введите название задания.';
+
+  @override
+  String createTaskTitleTooLong(int max) {
+    return 'Название должно быть до $max символов.';
+  }
+
+  @override
+  String get createTaskDescriptionLabel => 'Описание';
+
+  @override
+  String createTaskDescriptionTooLong(int max) {
+    return 'Описание должно быть до $max символов.';
+  }
+
+  @override
+  String get createTaskAssigneeLabel => 'Исполнитель';
+
+  @override
+  String get createTaskUnassigned => 'Без исполнителя';
+
+  @override
+  String get createTaskRewardPointsLabel => 'Награда в баллах';
+
+  @override
+  String get createTaskRewardPointsHelper =>
+      'Исполнитель получит эти баллы после подтверждения админом.';
+
+  @override
+  String createTaskRewardPointsTooHigh(int max) {
+    return 'Максимальная награда — $max баллов.';
+  }
+
+  @override
+  String get createTaskDueDateAction => 'Добавить срок';
+
+  @override
+  String createTaskDueDateValue(String value) {
+    return 'Срок: $value';
+  }
+
+  @override
+  String get createTaskClearDueDate => 'Убрать срок';
+
+  @override
+  String get createTaskError => 'Задание не создано. Попробуйте еще раз.';
+
+  @override
   String get commonSave => 'Сохранить';
 
   @override
@@ -743,6 +787,60 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get wagerDetailsNoStakes => 'Пока никто не поставил.';
+
+  @override
+  String get taskDetailsTitle => 'Детали задания';
+
+  @override
+  String get taskStatusActive => 'Активно';
+
+  @override
+  String get taskStatusCompleted => 'Завершено';
+
+  @override
+  String taskRewardPoints(int amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      amount,
+      locale: localeName,
+      other: '$amount балла',
+      many: '$amount баллов',
+      few: '$amount балла',
+      one: '$amount балл',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String taskDueDate(String value) {
+    return 'Срок: $value';
+  }
+
+  @override
+  String get taskNoDueDate => 'Без срока';
+
+  @override
+  String get taskAssignee => 'Исполнитель';
+
+  @override
+  String get taskUnassigned => 'Не назначено';
+
+  @override
+  String get taskAssigned => 'Назначено';
+
+  @override
+  String get taskAssignSelf => 'Назначить себя';
+
+  @override
+  String get taskAssignError => 'Задание не назначено. Попробуйте еще раз.';
+
+  @override
+  String get taskCompleteAction => 'Завершить';
+
+  @override
+  String get taskCompleteSuccess => 'Задание завершено.';
+
+  @override
+  String get taskCompleteError => 'Задание не завершено. Попробуйте еще раз.';
 
   @override
   String get wagerArchiveEmpty => 'Завершенных ставок пока нет.';

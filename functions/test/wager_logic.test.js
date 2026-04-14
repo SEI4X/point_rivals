@@ -5,6 +5,7 @@ const test = require("node:test");
 const {
   currentLeaderboardPeriodId,
   currentIsoWeekPeriodId,
+  currentScoreDateId,
   refundsForStakes,
   settlementForStakes,
   weeklyTokensEarnedUpdate,
@@ -19,6 +20,13 @@ test("settlementForStakes pays the configured reward", () => {
   assert.equal(result.totalPool, 20);
   assert.equal(result.winningSideTotal, 1);
   assert.deepEqual(result.payouts, {a: 10, b: 0});
+});
+
+test("currentScoreDateId uses UTC date buckets", () => {
+  assert.equal(
+    currentScoreDateId(new Date(Date.UTC(2026, 3, 14, 23, 30))),
+    "20260414",
+  );
 });
 
 test("settlementForStakes pays 1.5x for unpopular correct picks", () => {

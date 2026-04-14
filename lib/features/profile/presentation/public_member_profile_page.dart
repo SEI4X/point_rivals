@@ -10,7 +10,82 @@ import 'package:point_rivals/features/profile/domain/xp_progression.dart';
 final class PublicMemberProfile {
   const PublicMemberProfile({required this.member});
 
+  factory PublicMemberProfile.fromJson(Map<String, Object?> json) {
+    final memberJson = json['member'];
+    if (memberJson is! Map) {
+      throw const FormatException('Public member profile is missing member.');
+    }
+
+    return PublicMemberProfile(
+      member: GroupMember(
+        userId: memberJson['userId'] as String,
+        displayName: memberJson['displayName'] as String,
+        avatarUrl: memberJson['avatarUrl'] as String?,
+        role: GroupMemberRole.values.byName(memberJson['role'] as String),
+        tokenBalance: memberJson['tokenBalance'] as int,
+        weeklyTokensEarned: memberJson['weeklyTokensEarned'] as int,
+        weeklyScorePeriodId: memberJson['weeklyScorePeriodId'] as String,
+        dailyTokenBuckets: _dailyTokenBucketsFromJson(
+          memberJson['dailyTokenBuckets'],
+        ),
+        allTimeTokensEarned: memberJson['allTimeTokensEarned'] as int,
+        xp: memberJson['xp'] as int,
+        totalWagers: memberJson['totalWagers'] as int,
+        correctWagers: memberJson['correctWagers'] as int,
+        totalTokensEarned: memberJson['totalTokensEarned'] as int,
+      ),
+    );
+  }
+
   final GroupMember member;
+
+  Map<String, Object?> toJson() => {
+    'member': {
+      'userId': member.userId,
+      'displayName': member.displayName,
+      'avatarUrl': member.avatarUrl,
+      'role': member.role.name,
+      'tokenBalance': member.tokenBalance,
+      'weeklyTokensEarned': member.weeklyTokensEarned,
+      'weeklyScorePeriodId': member.weeklyScorePeriodId,
+      'dailyTokenBuckets': member.dailyTokenBuckets,
+      'allTimeTokensEarned': member.allTimeTokensEarned,
+      'xp': member.xp,
+      'totalWagers': member.totalWagers,
+      'correctWagers': member.correctWagers,
+      'totalTokensEarned': member.totalTokensEarned,
+    },
+  };
+}
+
+Map<String, int> _dailyTokenBucketsFromJson(Object? value) {
+  if (value is! Map) {
+    return const {};
+  }
+
+  return value.map((key, item) {
+    final normalizedKey = key is String ? key : key.toString();
+    return MapEntry(normalizedKey, item is int ? item : 0);
+  });
+}
+
+PublicMemberProfile? publicMemberProfileFromExtra(Object? extra) {
+  if (extra is PublicMemberProfile) {
+    return extra;
+  }
+  if (extra is Map<String, Object?>) {
+    try {
+      return PublicMemberProfile.fromJson(extra);
+    } on FormatException {
+      return null;
+    } on TypeError {
+      return null;
+    } on ArgumentError {
+      return null;
+    }
+  }
+
+  return null;
 }
 
 class PublicMemberProfilePage extends StatelessWidget {
@@ -26,6 +101,17 @@ class PublicMemberProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final memberData = member?.member;
+    if (memberData != null) {
+      return _PublicMemberProfileContent(
+        data: _PublicMemberViewData.from(
+          userId: userId,
+          member: memberData,
+          profile: null,
+        )!,
+      );
+    }
+
     final repository = AppDependenciesScope.of(context).publicProfileRepository;
 
     return StreamBuilder<UserProfile?>(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:point_rivals/app/session/app_session_controller.dart';
 import 'package:point_rivals/core/l10n/l10n.dart';
+import 'package:point_rivals/core/widgets/app_shell_layout.dart';
 import 'package:point_rivals/features/achievements/presentation/achievements_page.dart';
 import 'package:point_rivals/features/activity/presentation/activity_page.dart';
 import 'package:point_rivals/features/groups/domain/group_models.dart';
@@ -14,6 +15,8 @@ import 'package:point_rivals/features/onboarding/presentation/onboarding_page.da
 import 'package:point_rivals/features/profile/presentation/profile_page.dart';
 import 'package:point_rivals/features/profile/presentation/public_member_profile_page.dart';
 import 'package:point_rivals/features/settings/presentation/settings_page.dart';
+import 'package:point_rivals/features/tasks/presentation/create_task_page.dart';
+import 'package:point_rivals/features/tasks/presentation/task_details_page.dart';
 import 'package:point_rivals/features/wagers/presentation/create_wager_page.dart';
 import 'package:point_rivals/features/wagers/presentation/my_wagers_page.dart';
 import 'package:point_rivals/features/wagers/presentation/wager_archive_page.dart';
@@ -43,7 +46,51 @@ abstract final class AppRoutes {
   static String wagerDetails(String groupId, String wagerId) =>
       '/groups/$groupId/wagers/$wagerId';
 
+  static String createTask(String groupId) => '/groups/$groupId/tasks/create';
+
+  static String taskDetails(String groupId, String taskId) =>
+      '/groups/$groupId/tasks/$taskId';
+
   static String memberProfile(String userId) => '/members/$userId';
+}
+
+Map<String, Object?> rivalGroupRouteExtra(RivalGroup group) => {
+  'id': group.id,
+  'name': group.name,
+  'inviteCode': group.inviteCode,
+  'memberCount': group.memberCount,
+  'activeWagerCount': group.activeWagerCount,
+  'myTokenBalance': group.myTokenBalance,
+  'accentColorValue': group.accentColorValue,
+};
+
+RivalGroup? rivalGroupFromRouteExtra(Object? extra) {
+  if (extra is RivalGroup) {
+    return extra;
+  }
+  if (extra is Map<String, Object?>) {
+    try {
+      return RivalGroup(
+        id: extra['id'] as String,
+        name: extra['name'] as String,
+        inviteCode: extra['inviteCode'] as String,
+        memberCount: extra['memberCount'] as int,
+        activeWagerCount: extra['activeWagerCount'] as int,
+        myTokenBalance: extra['myTokenBalance'] as int,
+        leaderboardWindowWeeks: 1,
+        leaderboardPeriodAnchorDate: null,
+        accentColorValue: extra['accentColorValue'] as int,
+      );
+    } on FormatException {
+      return null;
+    } on TypeError {
+      return null;
+    } on ArgumentError {
+      return null;
+    }
+  }
+
+  return null;
 }
 
 GoRouter createAppRouter(AppSessionController sessionController) {
@@ -74,7 +121,12 @@ GoRouter createAppRouter(AppSessionController sessionController) {
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
-          return AppShell(navigationShell: navigationShell);
+          return AppShell(
+            navigationShell: navigationShell,
+            showTabBar:
+                state.uri.path == AppRoutes.groups ||
+                state.uri.path == AppRoutes.profile,
+          );
         },
         branches: [
           StatefulShellBranch(
@@ -82,6 +134,69 @@ GoRouter createAppRouter(AppSessionController sessionController) {
               GoRoute(
                 path: AppRoutes.groups,
                 builder: (context, state) => const GroupsPage(),
+                routes: [
+                  GoRoute(
+                    path: ':groupId',
+                    builder: (context, state) {
+                      return GroupPage(
+                        groupId: state.pathParameters['groupId']!,
+                        previewGroup: rivalGroupFromRouteExtra(state.extra),
+                      );
+                    },
+                    routes: [
+                      GoRoute(
+                        path: 'settings',
+                        builder: (context, state) {
+                          return GroupSettingsPage(
+                            groupId: state.pathParameters['groupId']!,
+                          );
+                        },
+                      ),
+                      GoRoute(
+                        path: 'wagers/archive',
+                        builder: (context, state) {
+                          return WagerArchivePage(
+                            groupId: state.pathParameters['groupId']!,
+                          );
+                        },
+                      ),
+                      GoRoute(
+                        path: 'wagers/create',
+                        builder: (context, state) {
+                          return CreateWagerPage(
+                            groupId: state.pathParameters['groupId']!,
+                          );
+                        },
+                      ),
+                      GoRoute(
+                        path: 'wagers/:wagerId',
+                        builder: (context, state) {
+                          return WagerDetailsPage(
+                            groupId: state.pathParameters['groupId']!,
+                            wagerId: state.pathParameters['wagerId']!,
+                          );
+                        },
+                      ),
+                      GoRoute(
+                        path: 'tasks/create',
+                        builder: (context, state) {
+                          return CreateTaskPage(
+                            groupId: state.pathParameters['groupId']!,
+                          );
+                        },
+                      ),
+                      GoRoute(
+                        path: 'tasks/:taskId',
+                        builder: (context, state) {
+                          return TaskDetailsPage(
+                            groupId: state.pathParameters['groupId']!,
+                            taskId: state.pathParameters['taskId']!,
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),
@@ -104,44 +219,6 @@ GoRouter createAppRouter(AppSessionController sessionController) {
         builder: (context, state) => const JoinGroupScannerPage(),
       ),
       GoRoute(
-        path: '/groups/:groupId',
-        builder: (context, state) {
-          return GroupPage(
-            groupId: state.pathParameters['groupId']!,
-            previewGroup: state.extra is RivalGroup
-                ? state.extra! as RivalGroup
-                : null,
-          );
-        },
-      ),
-      GoRoute(
-        path: '/groups/:groupId/settings',
-        builder: (context, state) {
-          return GroupSettingsPage(groupId: state.pathParameters['groupId']!);
-        },
-      ),
-      GoRoute(
-        path: '/groups/:groupId/wagers/archive',
-        builder: (context, state) {
-          return WagerArchivePage(groupId: state.pathParameters['groupId']!);
-        },
-      ),
-      GoRoute(
-        path: '/groups/:groupId/wagers/create',
-        builder: (context, state) {
-          return CreateWagerPage(groupId: state.pathParameters['groupId']!);
-        },
-      ),
-      GoRoute(
-        path: '/groups/:groupId/wagers/:wagerId',
-        builder: (context, state) {
-          return WagerDetailsPage(
-            groupId: state.pathParameters['groupId']!,
-            wagerId: state.pathParameters['wagerId']!,
-          );
-        },
-      ),
-      GoRoute(
         path: AppRoutes.settings,
         builder: (context, state) => const SettingsPage(),
       ),
@@ -162,9 +239,7 @@ GoRouter createAppRouter(AppSessionController sessionController) {
         builder: (context, state) {
           return PublicMemberProfilePage(
             userId: state.pathParameters['userId']!,
-            member: state.extra is PublicMemberProfile
-                ? state.extra! as PublicMemberProfile
-                : null,
+            member: publicMemberProfileFromExtra(state.extra),
           );
         },
       ),
@@ -182,9 +257,14 @@ class _SplashPage extends StatelessWidget {
 }
 
 class AppShell extends StatelessWidget {
-  const AppShell({required this.navigationShell, super.key});
+  const AppShell({
+    required this.navigationShell,
+    required this.showTabBar,
+    super.key,
+  });
 
   final StatefulNavigationShell navigationShell;
+  final bool showTabBar;
 
   @override
   Widget build(BuildContext context) {
@@ -196,49 +276,53 @@ class AppShell extends StatelessWidget {
         clipBehavior: Clip.none,
         children: [
           Positioned.fill(child: navigationShell),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: SafeArea(
-              minimum: const EdgeInsets.only(bottom: 14),
-              top: false,
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 252),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceContainer,
-                      border: Border.all(
-                        color: Theme.of(context).colorScheme.outlineVariant,
+          if (showTabBar)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: SafeArea(
+                minimum: const EdgeInsets.only(
+                  bottom: AppShellLayout.tabBarBottomMargin,
+                ),
+                top: false,
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 252),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surfaceContainer,
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.outlineVariant,
+                        ),
+                        borderRadius: BorderRadius.circular(999),
                       ),
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(999),
-                      child: SizedBox(
-                        height: 52,
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: _CapsuleTabItem(
-                                icon: Icons.groups_2_rounded,
-                                label: l10n.navGroups,
-                                isSelected: navigationShell.currentIndex == 0,
-                                onTap: () => navigationShell.goBranch(0),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(999),
+                        child: SizedBox(
+                          height: AppShellLayout.tabBarHeight,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: _CapsuleTabItem(
+                                  icon: Icons.groups_2_rounded,
+                                  label: l10n.navGroups,
+                                  isSelected: navigationShell.currentIndex == 0,
+                                  onTap: () => navigationShell.goBranch(0),
+                                ),
                               ),
-                            ),
-                            Expanded(
-                              child: _CapsuleTabItem(
-                                icon: navigationShell.currentIndex == 1
-                                    ? Icons.person_rounded
-                                    : Icons.person_outline_rounded,
-                                label: l10n.navProfile,
-                                isSelected: navigationShell.currentIndex == 1,
-                                onTap: () => navigationShell.goBranch(1),
+                              Expanded(
+                                child: _CapsuleTabItem(
+                                  icon: navigationShell.currentIndex == 1
+                                      ? Icons.person_rounded
+                                      : Icons.person_outline_rounded,
+                                  label: l10n.navProfile,
+                                  isSelected: navigationShell.currentIndex == 1,
+                                  onTap: () => navigationShell.goBranch(1),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -246,7 +330,6 @@ class AppShell extends StatelessWidget {
                 ),
               ),
             ),
-          ),
         ],
       ),
     );

@@ -33,6 +33,7 @@ final class GroupMember {
     required this.tokenBalance,
     required this.weeklyTokensEarned,
     required this.weeklyScorePeriodId,
+    required this.dailyTokenBuckets,
     required this.allTimeTokensEarned,
     required this.xp,
     required this.totalWagers,
@@ -47,6 +48,7 @@ final class GroupMember {
   final int tokenBalance;
   final int weeklyTokensEarned;
   final String weeklyScorePeriodId;
+  final Map<String, int> dailyTokenBuckets;
   final int allTimeTokensEarned;
   final int xp;
   final int totalWagers;
@@ -77,6 +79,7 @@ final class GroupMember {
       tokenBalance: tokenBalance,
       weeklyTokensEarned: weeklyTokensEarned,
       weeklyScorePeriodId: weeklyScorePeriodId,
+      dailyTokenBuckets: dailyTokenBuckets,
       allTimeTokensEarned: allTimeTokensEarned,
       xp: xp ?? this.xp,
       totalWagers: totalWagers ?? this.totalWagers,

@@ -24,15 +24,15 @@
   "@navProfile": {
     "description": "Bottom navigation label for profile."
   },
-  "onboardingTitle": "Friendly wagers, no money",
+  "onboardingTitle": "Tasks and wagers for points",
   "@onboardingTitle": {
     "description": "Onboarding headline."
   },
-  "onboardingBody": "Create a group, bet group chips on real-life outcomes, and let admins confirm the result.",
+  "onboardingBody": "Create group tasks, assign owners, finish them for points, and keep friendly wagers for match-day calls.",
   "@onboardingBody": {
     "description": "Onboarding body explaining the app."
   },
-  "onboardingGameNotice": "Chips stay inside each group. Point Rivals is a game, not gambling.",
+  "onboardingGameNotice": "Points stay inside each group. Admins judge completed tasks and wager results.",
   "@onboardingGameNotice": {
     "description": "Notice explaining wagers are not money."
   },
@@ -68,7 +68,7 @@
   "@onboardingAuthTitle": {
     "description": "Onboarding authorization step title."
   },
-  "onboardingAuthBody": "Sign in so your groups, chips, and XP stay synced.",
+  "onboardingAuthBody": "Sign in so your groups, tasks, points, and XP stay synced.",
   "@onboardingAuthBody": {
     "description": "Onboarding authorization step body."
   },
@@ -76,9 +76,25 @@
   "@onboardingNotificationsTitle": {
     "description": "Onboarding notifications step title."
   },
-  "onboardingNotificationsBody": "Get a heads-up when a wager is resolved or a group needs you.",
+  "onboardingNotificationsBody": "Get a heads-up when a task is assigned to you or a wager is resolved.",
   "@onboardingNotificationsBody": {
     "description": "Onboarding notifications step body."
+  },
+  "onboardingTaskSignal": "Create a task, pick points, and assign an owner.",
+  "@onboardingTaskSignal": {
+    "description": "Onboarding task signal text."
+  },
+  "onboardingJudgeSignal": "Admins confirm done work and settle wagers.",
+  "@onboardingJudgeSignal": {
+    "description": "Onboarding admin judge signal text."
+  },
+  "onboardingAuthSignal": "Your points, groups, and wins follow your account.",
+  "@onboardingAuthSignal": {
+    "description": "Onboarding auth signal text."
+  },
+  "onboardingNotifySignal": "Assigned tasks arrive as notifications.",
+  "@onboardingNotifySignal": {
+    "description": "Onboarding notification signal text."
   },
   "groupsTitle": "Groups",
   "@groupsTitle": {
@@ -250,6 +266,10 @@
   "@activityResolvedTitle": {
     "description": "Activity title for a resolved wager without payout."
   },
+  "activityTaskCompletedTitle": "Task completed",
+  "@activityTaskCompletedTitle": {
+    "description": "Activity title for a completed task."
+  },
   "activityCancelledTitle": "Wager cancelled",
   "@activityCancelledTitle": {
     "description": "Activity title for a cancelled wager."
@@ -395,22 +415,13 @@
       }
     }
   },
-  "groupWeeklyLeaders": "Weekly leaders",
-  "@groupWeeklyLeaders": {
-    "description": "Weekly group leaderboard title."
+  "groupMonthLeaders": "Leaders (current month)",
+  "@groupMonthLeaders": {
+    "description": "Group leaderboard title for the current calendar month."
   },
-  "groupWeeklyTab": "Week",
-  "@groupWeeklyTab": {
-    "description": "Short label for the weekly leaderboard tab."
-  },
-  "groupWindowLeaders": "{weeks, plural, one {Leaders this week} other {Leaders over {weeks} weeks}}",
-  "@groupWindowLeaders": {
-    "description": "Group leaderboard title for the configured weekly window.",
-    "placeholders": {
-      "weeks": {
-        "type": "int"
-      }
-    }
+  "groupMonthTab": "Month",
+  "@groupMonthTab": {
+    "description": "Short label for the monthly leaderboard tab."
   },
   "groupAllTimeLeaders": "All-time leaders",
   "@groupAllTimeLeaders": {
@@ -428,39 +439,21 @@
   "@groupActiveWagers": {
     "description": "Active wagers section title."
   },
-  "groupLeaderboardWindowTitle": "Weekly leader window",
-  "@groupLeaderboardWindowTitle": {
-    "description": "Group leaderboard period setting title."
+  "groupWagersTab": "Wagers",
+  "@groupWagersTab": {
+    "description": "Group work switcher wagers tab."
   },
-  "groupLeaderboardWindowBody": "Choose how many weeks one sprint lasts. Multi-week sprints start from the anchor date.",
-  "@groupLeaderboardWindowBody": {
-    "description": "Group leaderboard period setting body."
-  },
-  "groupLeaderboardWindowWeeks": "{count, plural, one {{count} week} other {{count} weeks}}",
-  "@groupLeaderboardWindowWeeks": {
-    "description": "Group leaderboard window length.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "groupLeaderboardAnchorDateAction": "Choose sprint start",
-  "@groupLeaderboardAnchorDateAction": {
-    "description": "Action for choosing the leaderboard sprint anchor date."
-  },
-  "groupLeaderboardAnchorDateValue": "Sprint start: {value}",
-  "@groupLeaderboardAnchorDateValue": {
-    "description": "Selected leaderboard sprint anchor date.",
-    "placeholders": {
-      "value": {
-        "type": "String"
-      }
-    }
+  "groupTasksTab": "Tasks",
+  "@groupTasksTab": {
+    "description": "Group work switcher tasks tab."
   },
   "groupNoActiveWagers": "No active wagers yet.",
   "@groupNoActiveWagers": {
     "description": "Empty state for active wagers list."
+  },
+  "groupNoActiveTasks": "No active tasks yet.",
+  "@groupNoActiveTasks": {
+    "description": "Empty state for active task list."
   },
   "groupAdminBadge": "Admin",
   "@groupAdminBadge": {
@@ -469,6 +462,10 @@
   "groupCreateWager": "Create wager",
   "@groupCreateWager": {
     "description": "Create wager action."
+  },
+  "groupCreateTask": "Create task",
+  "@groupCreateTask": {
+    "description": "Create task action."
   },
   "groupSettingsTitle": "Group settings",
   "@groupSettingsTitle": {
@@ -735,6 +732,86 @@
   "@createWagerError": {
     "description": "Create wager failure message."
   },
+  "createTaskTitle": "Create task",
+  "@createTaskTitle": {
+    "description": "Create task screen title."
+  },
+  "createTaskTitleLabel": "Task name",
+  "@createTaskTitleLabel": {
+    "description": "Task title input label."
+  },
+  "createTaskTitleRequired": "Enter a task name.",
+  "@createTaskTitleRequired": {
+    "description": "Validation error for missing task title."
+  },
+  "createTaskTitleTooLong": "Keep the name under {max} characters.",
+  "@createTaskTitleTooLong": {
+    "description": "Validation error for long task title.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "createTaskDescriptionLabel": "Description",
+  "@createTaskDescriptionLabel": {
+    "description": "Optional task description input label."
+  },
+  "createTaskDescriptionTooLong": "Keep the description under {max} characters.",
+  "@createTaskDescriptionTooLong": {
+    "description": "Validation error for long task description.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "createTaskAssigneeLabel": "Assignee",
+  "@createTaskAssigneeLabel": {
+    "description": "Task assignee selector label."
+  },
+  "createTaskUnassigned": "No assignee",
+  "@createTaskUnassigned": {
+    "description": "Create task assignee empty choice."
+  },
+  "createTaskRewardPointsLabel": "Reward points",
+  "@createTaskRewardPointsLabel": {
+    "description": "Task reward points input label."
+  },
+  "createTaskRewardPointsHelper": "The assignee receives these points after admin approval.",
+  "@createTaskRewardPointsHelper": {
+    "description": "Task reward helper text."
+  },
+  "createTaskRewardPointsTooHigh": "Maximum reward is {max} points.",
+  "@createTaskRewardPointsTooHigh": {
+    "description": "Validation error when task reward is too high.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "createTaskDueDateAction": "Add due date",
+  "@createTaskDueDateAction": {
+    "description": "Create task due date picker action."
+  },
+  "createTaskDueDateValue": "Due {value}",
+  "@createTaskDueDateValue": {
+    "description": "Selected task due date.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "createTaskClearDueDate": "Clear due date",
+  "@createTaskClearDueDate": {
+    "description": "Clear task due date action."
+  },
+  "createTaskError": "Task was not created. Please try again.",
+  "@createTaskError": {
+    "description": "Create task failure message."
+  },
   "commonSave": "Save",
   "@commonSave": {
     "description": "Generic save action."
@@ -949,6 +1026,72 @@
   "wagerDetailsNoStakes": "No one has staked yet.",
   "@wagerDetailsNoStakes": {
     "description": "Empty state for wager stakes."
+  },
+  "taskDetailsTitle": "Task details",
+  "@taskDetailsTitle": {
+    "description": "Task details screen title."
+  },
+  "taskStatusActive": "Active",
+  "@taskStatusActive": {
+    "description": "Active task status."
+  },
+  "taskStatusCompleted": "Completed",
+  "@taskStatusCompleted": {
+    "description": "Completed task status."
+  },
+  "taskRewardPoints": "{amount, plural, one {{amount} point} other {{amount} points}}",
+  "@taskRewardPoints": {
+    "description": "Task reward points label.",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "taskDueDate": "Due {value}",
+  "@taskDueDate": {
+    "description": "Task due date label.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "taskNoDueDate": "No due date",
+  "@taskNoDueDate": {
+    "description": "Task without due date label."
+  },
+  "taskAssignee": "Assignee",
+  "@taskAssignee": {
+    "description": "Task assignee label."
+  },
+  "taskUnassigned": "Unassigned",
+  "@taskUnassigned": {
+    "description": "Task unassigned label."
+  },
+  "taskAssigned": "Assigned",
+  "@taskAssigned": {
+    "description": "Task assigned label."
+  },
+  "taskAssignSelf": "Assign to me",
+  "@taskAssignSelf": {
+    "description": "Self assign task action."
+  },
+  "taskAssignError": "Task was not assigned. Please try again.",
+  "@taskAssignError": {
+    "description": "Task assignment error."
+  },
+  "taskCompleteAction": "Mark complete",
+  "@taskCompleteAction": {
+    "description": "Admin complete task action."
+  },
+  "taskCompleteSuccess": "Task completed.",
+  "@taskCompleteSuccess": {
+    "description": "Task completion success message."
+  },
+  "taskCompleteError": "Task was not completed. Please try again.",
+  "@taskCompleteError": {
+    "description": "Task completion error."
   },
   "wagerArchiveEmpty": "No resolved wagers yet.",
   "@wagerArchiveEmpty": {

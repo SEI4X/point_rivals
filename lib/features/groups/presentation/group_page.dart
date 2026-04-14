@@ -17,7 +17,10 @@ import 'package:point_rivals/features/groups/presentation/group_accent_color.dar
 import 'package:point_rivals/features/profile/domain/profile_models.dart';
 import 'package:point_rivals/features/profile/domain/xp_progression.dart';
 import 'package:point_rivals/features/profile/presentation/public_member_profile_page.dart';
+import 'package:point_rivals/features/tasks/domain/task_models.dart';
 import 'package:point_rivals/features/wagers/domain/wager_models.dart';
+
+enum _GroupWorkTab { wagers, tasks }
 
 class GroupPage extends StatefulWidget {
   const GroupPage({required this.groupId, this.previewGroup, super.key});
@@ -32,7 +35,8 @@ class GroupPage extends StatefulWidget {
 class _GroupPageState extends State<GroupPage> {
   static const LeaderboardCalculator _leaderboardCalculator =
       LeaderboardCalculator();
-  LeaderboardPeriod _leaderboardPeriod = LeaderboardPeriod.weekly;
+  LeaderboardPeriod _leaderboardPeriod = LeaderboardPeriod.month;
+  _GroupWorkTab _workTab = _GroupWorkTab.wagers;
   RivalGroup? _previewGroup;
   bool _isJoining = false;
 
@@ -53,6 +57,7 @@ class _GroupPageState extends State<GroupPage> {
     if (user == null) {
       return const Scaffold(
         body: SafeArea(
+          bottom: false,
           minimum: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: AppSkeletonList(),
         ),
@@ -88,138 +93,203 @@ class _GroupPageState extends State<GroupPage> {
           builder: (context, groupSnapshot) {
             final group = groupSnapshot.data;
             final accentColor = group?.accentColor;
-            final leaderboardWindowWeeks =
-                group?.leaderboardWindowWeeks.clamp(1, 52) ?? 1;
-            final weeklyPeriodId = currentLeaderboardPeriodId(
-              windowWeeks: leaderboardWindowWeeks,
-              anchorDate: group?.leaderboardPeriodAnchorDate,
-            );
-            final leaders = _leaderboardCalculator.topMembers(
-              members: members,
-              period: _leaderboardPeriod,
-              weeklyPeriodId: weeklyPeriodId,
-            );
-            final scaffold = Scaffold(
-              appBar: AppBar(
-                actions: [
-                  if (!isAdmin)
-                    IconButton(
-                      tooltip: l10n.groupLeaveAction,
-                      onPressed: () => _confirmLeaveGroup(context),
-                      icon: const Icon(Icons.logout_rounded),
-                    )
-                  else
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          tooltip: l10n.groupLeaveAction,
-                          onPressed: () => _confirmLeaveGroup(context),
-                          icon: const Icon(Icons.logout_rounded),
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            unawaited(
-                              context.push(
-                                AppRoutes.groupSettings(widget.groupId),
-                              ),
-                            );
-                          },
-                          icon: const Icon(Icons.settings_rounded),
-                        ),
-                      ],
-                    ),
-                ],
+            final monthPeriodId = currentLeaderboardMonthId();
+            final monthStart = currentLeaderboardMonthStart();
+            final activeDateIds = currentMonthDateIds();
+            final legacyWeeklyPeriodIds = currentMonthIsoWeekPeriodIds();
+            return StreamBuilder<List<Wager>>(
+              stream: dependencies.wagerRepository.watchResolvedWagersSince(
+                groupId: widget.groupId,
+                since: monthStart,
               ),
-              floatingActionButton: FloatingActionButton.extended(
-                onPressed: () =>
-                    context.push(AppRoutes.createWager(widget.groupId)),
-                icon: const Icon(Icons.add_rounded),
-                label: Text(l10n.groupCreateWager),
-              ),
-              body: SafeArea(
-                minimum: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                child: AppRefreshIndicator(
-                  child: ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: EdgeInsets.only(
-                      bottom: 24 + MediaQuery.paddingOf(context).bottom,
-                    ),
-                    children: [
-                      _GroupHeroCard(
-                        group: group,
-                        members: members,
-                        currentMember: currentMember,
-                        onMembersPressed: members.isEmpty
-                            ? null
-                            : () => _showMembers(context, members),
-                      ),
-                      const SizedBox(height: 12),
-                      _LeaderboardSwitcher(
-                        period: _leaderboardPeriod,
-                        onChanged: (period) {
-                          setState(() => _leaderboardPeriod = period);
-                        },
-                        child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 240),
-                          switchInCurve: Curves.easeOutCubic,
-                          switchOutCurve: Curves.easeOutCubic,
-                          child: _Leaderboard(
-                            key: ValueKey(
-                              '$_leaderboardPeriod-$weeklyPeriodId',
+              builder: (context, resolvedWagersSnapshot) {
+                return StreamBuilder<List<RivalTask>>(
+                  stream: dependencies.taskRepository.watchCompletedTasksSince(
+                    groupId: widget.groupId,
+                    since: monthStart,
+                  ),
+                  builder: (context, completedTasksSnapshot) {
+                    final reconstructedMonthScores = _reconstructedMonthScores(
+                      resolvedWagers:
+                          resolvedWagersSnapshot.data ?? const <Wager>[],
+                      completedTasks:
+                          completedTasksSnapshot.data ?? const <RivalTask>[],
+                    );
+                    final leaders = _leaderboardCalculator.topMembers(
+                      members: members,
+                      period: _leaderboardPeriod,
+                      monthPeriodId: monthPeriodId,
+                      activeDateIds: activeDateIds,
+                      legacyWeeklyPeriodIds: legacyWeeklyPeriodIds,
+                      reconstructedMonthScores: reconstructedMonthScores,
+                    );
+                    final scaffold = Scaffold(
+                      appBar: AppBar(
+                        actions: [
+                          if (!isAdmin)
+                            IconButton(
+                              tooltip: l10n.groupLeaveAction,
+                              onPressed: () => _confirmLeaveGroup(context),
+                              icon: const Icon(Icons.logout_rounded),
+                            )
+                          else
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  tooltip: l10n.groupLeaveAction,
+                                  onPressed: () => _confirmLeaveGroup(context),
+                                  icon: const Icon(Icons.logout_rounded),
+                                ),
+                                IconButton(
+                                  onPressed: () {
+                                    unawaited(
+                                      context.push(
+                                        AppRoutes.groupSettings(widget.groupId),
+                                      ),
+                                    );
+                                  },
+                                  icon: const Icon(Icons.settings_rounded),
+                                ),
+                              ],
                             ),
-                            title:
-                                _leaderboardPeriod == LeaderboardPeriod.weekly
-                                ? l10n.groupWindowLeaders(
-                                    leaderboardWindowWeeks,
-                                  )
-                                : l10n.groupAllTimeLeaders,
-                            members: leaders,
-                            period: _leaderboardPeriod,
-                            weeklyPeriodId: weeklyPeriodId,
+                        ],
+                      ),
+                      floatingActionButton: FloatingActionButton.extended(
+                        onPressed: () => context.push(
+                          _workTab == _GroupWorkTab.wagers
+                              ? AppRoutes.createWager(widget.groupId)
+                              : AppRoutes.createTask(widget.groupId),
+                        ),
+                        icon: const Icon(Icons.add_rounded),
+                        label: Text(
+                          _workTab == _GroupWorkTab.wagers
+                              ? l10n.groupCreateWager
+                              : l10n.groupCreateTask,
+                        ),
+                      ),
+                      body: SafeArea(
+                        bottom: false,
+                        minimum: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        child: AppRefreshIndicator(
+                          child: ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: EdgeInsets.only(
+                              bottom:
+                                  96 + MediaQuery.viewPaddingOf(context).bottom,
+                            ),
+                            children: [
+                              _GroupHeroCard(
+                                group: group,
+                                members: members,
+                                currentMember: currentMember,
+                                onMembersPressed: members.isEmpty
+                                    ? null
+                                    : () => _showMembers(context, members),
+                              ),
+                              const SizedBox(height: 12),
+                              _LeaderboardSwitcher(
+                                period: _leaderboardPeriod,
+                                onChanged: (period) {
+                                  setState(() => _leaderboardPeriod = period);
+                                },
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 240),
+                                  switchInCurve: Curves.easeOutCubic,
+                                  switchOutCurve: Curves.easeOutCubic,
+                                  child: _Leaderboard(
+                                    key: ValueKey(
+                                      '$_leaderboardPeriod-$monthPeriodId',
+                                    ),
+                                    title:
+                                        _leaderboardPeriod ==
+                                            LeaderboardPeriod.month
+                                        ? l10n.groupMonthLeaders
+                                        : l10n.groupAllTimeLeaders,
+                                    members: leaders,
+                                    period: _leaderboardPeriod,
+                                    monthPeriodId: monthPeriodId,
+                                    activeDateIds: activeDateIds,
+                                    legacyWeeklyPeriodIds:
+                                        legacyWeeklyPeriodIds,
+                                    reconstructedMonthScores:
+                                        reconstructedMonthScores,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              OutlinedButton.icon(
+                                onPressed: () {
+                                  unawaited(
+                                    context.push(
+                                      AppRoutes.wagerArchive(widget.groupId),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.archive_rounded),
+                                label: Text(l10n.groupWagerArchive),
+                              ),
+                              const SizedBox(height: 20),
+                              SegmentedButton<_GroupWorkTab>(
+                                segments: [
+                                  ButtonSegment(
+                                    value: _GroupWorkTab.wagers,
+                                    label: Text(l10n.groupWagersTab),
+                                    icon: const Icon(
+                                      Icons.sports_score_rounded,
+                                    ),
+                                  ),
+                                  ButtonSegment(
+                                    value: _GroupWorkTab.tasks,
+                                    label: Text(l10n.groupTasksTab),
+                                    icon: const Icon(Icons.assignment_rounded),
+                                  ),
+                                ],
+                                selected: {_workTab},
+                                onSelectionChanged: (selection) {
+                                  setState(() => _workTab = selection.single);
+                                },
+                              ),
+                              const SizedBox(height: 12),
+                              AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 220),
+                                switchInCurve: Curves.easeOutCubic,
+                                switchOutCurve: Curves.easeOutCubic,
+                                child: _workTab == _GroupWorkTab.wagers
+                                    ? _ActiveWagersList(
+                                        key: const ValueKey('active-wagers'),
+                                        groupId: widget.groupId,
+                                        currentMember: currentMember,
+                                        isAdmin: isAdmin,
+                                        accentColor: accentColor,
+                                      )
+                                    : _ActiveTasksList(
+                                        key: const ValueKey('active-tasks'),
+                                        groupId: widget.groupId,
+                                        currentMember: currentMember,
+                                        isAdmin: isAdmin,
+                                      ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      OutlinedButton.icon(
-                        onPressed: () {
-                          unawaited(
-                            context.push(
-                              AppRoutes.wagerArchive(widget.groupId),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.archive_rounded),
-                        label: Text(l10n.groupWagerArchive),
-                      ),
-                      const SizedBox(height: 20),
-                      Text(
-                        l10n.groupActiveWagers,
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      const SizedBox(height: 12),
-                      _ActiveWagersList(
-                        groupId: widget.groupId,
-                        currentMember: currentMember,
-                        isAdmin: isAdmin,
-                        accentColor: accentColor,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
+                    );
 
-            if (accentColor == null) {
-              return scaffold;
-            }
+                    if (accentColor == null) {
+                      return scaffold;
+                    }
 
-            return Theme(
-              data: groupAccentTheme(context, accentColor),
-              child: scaffold,
+                    return Theme(
+                      data: groupAccentTheme(context, accentColor),
+                      child: scaffold,
+                    );
+                  },
+                );
+              },
             );
           },
         );
@@ -375,6 +445,41 @@ class _GroupPageState extends State<GroupPage> {
     return context.l10n.profileLevel(
       const XpProgression().levelForXp(member.xp),
     );
+  }
+
+  Map<String, int> _reconstructedMonthScores({
+    required List<Wager> resolvedWagers,
+    required List<RivalTask> completedTasks,
+  }) {
+    final scores = <String, int>{};
+
+    for (final wager in resolvedWagers) {
+      final payouts = wager.settlement?.payouts ?? const <String, int>{};
+      for (final entry in payouts.entries) {
+        if (entry.value > 0) {
+          scores.update(
+            entry.key,
+            (value) => value + entry.value,
+            ifAbsent: () => entry.value,
+          );
+        }
+      }
+    }
+
+    for (final task in completedTasks) {
+      final assignedUserId = task.assignedUserId;
+      if (assignedUserId == null || task.rewardPoints <= 0) {
+        continue;
+      }
+
+      scores.update(
+        assignedUserId,
+        (value) => value + task.rewardPoints,
+        ifAbsent: () => task.rewardPoints,
+      );
+    }
+
+    return scores;
   }
 }
 
@@ -554,11 +659,15 @@ class _GroupPreviewScaffold extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(),
       body: SafeArea(
+        bottom: false,
         minimum: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: AppRefreshIndicator(
           onRefresh: onRefresh,
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
+            padding: EdgeInsets.only(
+              bottom: 24 + MediaQuery.viewPaddingOf(context).bottom,
+            ),
             children: [
               Card(
                 child: Padding(
@@ -614,14 +723,20 @@ class _Leaderboard extends StatelessWidget {
     required this.title,
     required this.members,
     required this.period,
-    required this.weeklyPeriodId,
+    required this.monthPeriodId,
+    required this.activeDateIds,
+    required this.legacyWeeklyPeriodIds,
+    required this.reconstructedMonthScores,
     super.key,
   });
 
   final String title;
   final List<GroupMember> members;
   final LeaderboardPeriod period;
-  final String weeklyPeriodId;
+  final String monthPeriodId;
+  final List<String> activeDateIds;
+  final Set<String> legacyWeeklyPeriodIds;
+  final Map<String, int> reconstructedMonthScores;
   static const LeaderboardCalculator _leaderboardCalculator =
       LeaderboardCalculator();
 
@@ -664,7 +779,10 @@ class _Leaderboard extends StatelessWidget {
                         .scoreFor(
                           entry.$2,
                           period,
-                          weeklyPeriodId: weeklyPeriodId,
+                          monthPeriodId: monthPeriodId,
+                          activeDateIds: activeDateIds,
+                          legacyWeeklyPeriodIds: legacyWeeklyPeriodIds,
+                          reconstructedMonthScores: reconstructedMonthScores,
                         )
                         .toString(),
                     style: Theme.of(
@@ -753,9 +871,9 @@ class _LeaderboardSwitcher extends StatelessWidget {
         SegmentedButton<LeaderboardPeriod>(
           segments: [
             ButtonSegment(
-              value: LeaderboardPeriod.weekly,
-              label: Text(l10n.groupWeeklyTab),
-              icon: const Icon(Icons.calendar_view_week_rounded),
+              value: LeaderboardPeriod.month,
+              label: Text(l10n.groupMonthTab),
+              icon: const Icon(Icons.calendar_month_rounded),
             ),
             ButtonSegment(
               value: LeaderboardPeriod.allTime,
@@ -779,6 +897,7 @@ class _ActiveWagersList extends StatelessWidget {
     required this.currentMember,
     required this.isAdmin,
     required this.accentColor,
+    super.key,
   });
 
   final String groupId;
@@ -843,6 +962,229 @@ class _ActiveWagersList extends StatelessWidget {
         );
       },
     );
+  }
+}
+
+class _ActiveTasksList extends StatelessWidget {
+  const _ActiveTasksList({
+    required this.groupId,
+    required this.currentMember,
+    required this.isAdmin,
+    super.key,
+  });
+
+  final String groupId;
+  final GroupMember? currentMember;
+  final bool isAdmin;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final dependencies = AppDependenciesScope.of(context);
+
+    return StreamBuilder<List<RivalTask>>(
+      stream: dependencies.taskRepository.watchActiveTasks(groupId),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Card(
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Text(
+                l10n.groupsLoadError,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          );
+        }
+
+        if (!snapshot.hasData) {
+          return const AppShimmer(child: AppSkeletonCard(height: 128));
+        }
+
+        final tasks = snapshot.data!;
+        if (tasks.isEmpty) {
+          return Card(
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Text(
+                l10n.groupNoActiveTasks,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          );
+        }
+
+        return Column(
+          children: [
+            for (final task in tasks) ...[
+              _ActiveTaskCard(
+                groupId: groupId,
+                task: task,
+                currentMember: currentMember,
+                isAdmin: isAdmin,
+              ),
+              const SizedBox(height: 12),
+            ],
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _ActiveTaskCard extends StatefulWidget {
+  const _ActiveTaskCard({
+    required this.groupId,
+    required this.task,
+    required this.currentMember,
+    required this.isAdmin,
+  });
+
+  final String groupId;
+  final RivalTask task;
+  final GroupMember? currentMember;
+  final bool isAdmin;
+
+  @override
+  State<_ActiveTaskCard> createState() => _ActiveTaskCardState();
+}
+
+class _ActiveTaskCardState extends State<_ActiveTaskCard> {
+  bool _isUpdating = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final colors = Theme.of(context).colorScheme;
+    final member = widget.currentMember;
+    final canAssignSelf =
+        member != null && widget.task.canAssignSelf(member.userId);
+
+    return Card(
+      child: InkWell(
+        onTap: () =>
+            context.push(AppRoutes.taskDetails(widget.groupId, widget.task.id)),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.assignment_rounded, color: colors.primary),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      widget.task.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: colors.onSurfaceVariant,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _InfoPill(
+                    label: l10n.taskRewardPoints(widget.task.rewardPoints),
+                  ),
+                  _InfoPill(
+                    label: widget.task.dueAt == null
+                        ? l10n.taskNoDueDate
+                        : l10n.taskDueDate(
+                            formatAppDateTime(context, widget.task.dueAt),
+                          ),
+                  ),
+                  _InfoPill(
+                    label: widget.task.assignedUserId == null
+                        ? l10n.taskUnassigned
+                        : l10n.taskAssigned,
+                  ),
+                ],
+              ),
+              if (canAssignSelf || widget.isAdmin) ...[
+                const SizedBox(height: 12),
+                if (canAssignSelf)
+                  FilledButton.icon(
+                    onPressed: _isUpdating ? null : _assignSelf,
+                    icon: const Icon(Icons.person_add_alt_1_rounded),
+                    label: Text(l10n.taskAssignSelf),
+                  ),
+                if (widget.isAdmin)
+                  TextButton.icon(
+                    onPressed: _isUpdating || widget.task.assignedUserId == null
+                        ? null
+                        : _completeTask,
+                    icon: const Icon(Icons.verified_rounded),
+                    label: Text(l10n.taskCompleteAction),
+                  ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _assignSelf() async {
+    final member = widget.currentMember;
+    if (member == null || _isUpdating) {
+      return;
+    }
+
+    final l10n = context.l10n;
+    setState(() => _isUpdating = true);
+    try {
+      await AppDependenciesScope.of(context).taskRepository.assignTaskToSelf(
+        groupId: widget.groupId,
+        taskId: widget.task.id,
+        userId: member.userId,
+      );
+    } on Object {
+      if (mounted) {
+        showAppSnackBar(context: context, message: l10n.taskAssignError);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isUpdating = false);
+      }
+    }
+  }
+
+  Future<void> _completeTask() async {
+    final member = widget.currentMember;
+    if (member == null || _isUpdating) {
+      return;
+    }
+
+    final l10n = context.l10n;
+    setState(() => _isUpdating = true);
+    try {
+      await AppDependenciesScope.of(context).taskRepository.completeTask(
+        groupId: widget.groupId,
+        taskId: widget.task.id,
+        adminUserId: member.userId,
+      );
+    } on Object {
+      if (mounted) {
+        showAppSnackBar(context: context, message: l10n.taskCompleteError);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isUpdating = false);
+      }
+    }
   }
 }
 

@@ -7,6 +7,7 @@ import 'package:point_rivals/app/session/app_session_controller.dart';
 import 'package:point_rivals/core/l10n/l10n.dart';
 import 'package:point_rivals/core/routing/app_router.dart';
 import 'package:point_rivals/core/widgets/app_refresh_indicator.dart';
+import 'package:point_rivals/core/widgets/app_shell_layout.dart';
 import 'package:point_rivals/core/widgets/app_shimmer.dart';
 import 'package:point_rivals/core/widgets/app_snack_bar.dart';
 import 'package:point_rivals/features/groups/domain/group_models.dart';
@@ -35,6 +36,7 @@ class GroupsPage extends StatelessWidget {
         ],
       ),
       body: SafeArea(
+        bottom: false,
         minimum: const EdgeInsets.symmetric(horizontal: 16),
         child: user == null
             ? const AppSkeletonList(showHeader: true)
@@ -60,7 +62,9 @@ class GroupsPage extends StatelessWidget {
                       child: ListView(
                         physics: const AlwaysScrollableScrollPhysics(),
                         padding: EdgeInsets.only(
-                          bottom: 24 + MediaQuery.paddingOf(context).bottom,
+                          bottom:
+                              AppShellLayout.scrollBottomPadding +
+                              MediaQuery.viewPaddingOf(context).bottom,
                         ),
                         children: [
                           if (groups.isEmpty)
@@ -170,7 +174,12 @@ class _JoinGroupSheetState extends State<_JoinGroupSheet> {
 
       if (mounted) {
         Navigator.of(context).pop();
-        unawaited(context.push(AppRoutes.group(group.id), extra: group));
+        unawaited(
+          context.push(
+            AppRoutes.group(group.id),
+            extra: rivalGroupRouteExtra(group),
+          ),
+        );
       }
     } on Object {
       if (mounted) {
