@@ -15,6 +15,8 @@ import 'package:point_rivals/features/groups/domain/group_accent_colors.dart';
 import 'package:point_rivals/features/groups/domain/group_models.dart';
 import 'package:point_rivals/features/profile/data/firebase_public_profile_repository.dart';
 import 'package:point_rivals/features/profile/domain/profile_models.dart';
+import 'package:point_rivals/features/tasks/data/firebase_task_repository.dart';
+import 'package:point_rivals/features/tasks/domain/task_models.dart';
 import 'package:point_rivals/features/wagers/data/firebase_wager_repository.dart';
 import 'package:point_rivals/features/wagers/domain/wager_models.dart';
 
@@ -23,6 +25,7 @@ final class AppDependencies {
     required this.authRepository,
     required this.groupRepository,
     required this.wagerRepository,
+    required this.taskRepository,
     required this.notificationRepository,
     required this.profileMediaRepository,
     required this.activityRepository,
@@ -35,6 +38,7 @@ final class AppDependencies {
       authRepository: FirebaseAuthRepository(),
       groupRepository: FirebaseGroupRepository(),
       wagerRepository: FirebaseWagerRepository(),
+      taskRepository: FirebaseTaskRepository(),
       notificationRepository: FirebaseNotificationRepository(),
       profileMediaRepository: FirebaseProfileMediaRepository(),
       activityRepository: FirebaseActivityRepository(),
@@ -48,6 +52,7 @@ final class AppDependencies {
       authRepository: MemoryAuthRepository(),
       groupRepository: MemoryGroupRepository(),
       wagerRepository: MemoryWagerRepository(),
+      taskRepository: MemoryTaskRepository(),
       notificationRepository: MemoryNotificationRepository(),
       profileMediaRepository: MemoryProfileMediaRepository(),
       activityRepository: MemoryActivityRepository(),
@@ -59,6 +64,7 @@ final class AppDependencies {
   final AuthRepository authRepository;
   final GroupRepository groupRepository;
   final WagerRepository wagerRepository;
+  final TaskRepository taskRepository;
   final NotificationRepository notificationRepository;
   final ProfileMediaRepository profileMediaRepository;
   final ActivityRepository activityRepository;
@@ -190,7 +196,7 @@ class MemoryGroupRepository implements GroupRepository {
       activeWagerCount: 0,
       myTokenBalance: 0,
       leaderboardWindowWeeks: 1,
-      leaderboardPeriodAnchorDate: DateTime.now().toUtc(),
+      leaderboardPeriodAnchorDate: null,
       accentColorValue: GroupAccentColors.defaultValue,
     );
     _groups.add(group);
@@ -216,7 +222,7 @@ class MemoryGroupRepository implements GroupRepository {
       activeWagerCount: 0,
       myTokenBalance: 0,
       leaderboardWindowWeeks: 1,
-      leaderboardPeriodAnchorDate: DateTime.now().toUtc(),
+      leaderboardPeriodAnchorDate: null,
       accentColorValue: GroupAccentColors.defaultValue,
     );
     _groups.add(group);
@@ -287,56 +293,6 @@ class MemoryGroupRepository implements GroupRepository {
   }) async {}
 
   @override
-  Future<void> updateGroupLeaderboardWindowWeeks({
-    required String groupId,
-    required int weeks,
-  }) async {
-    final index = _groups.indexWhere((group) => group.id == groupId);
-    if (index < 0) {
-      return;
-    }
-
-    final group = _groups[index];
-    _groups[index] = RivalGroup(
-      id: group.id,
-      name: group.name,
-      inviteCode: group.inviteCode,
-      memberCount: group.memberCount,
-      activeWagerCount: group.activeWagerCount,
-      myTokenBalance: group.myTokenBalance,
-      leaderboardWindowWeeks: weeks,
-      leaderboardPeriodAnchorDate: DateTime.now().toUtc(),
-      accentColorValue: group.accentColorValue,
-    );
-    _groupsController.add(List.unmodifiable(_groups));
-  }
-
-  @override
-  Future<void> updateGroupLeaderboardPeriodAnchorDate({
-    required String groupId,
-    required DateTime anchorDate,
-  }) async {
-    final index = _groups.indexWhere((group) => group.id == groupId);
-    if (index < 0) {
-      return;
-    }
-
-    final group = _groups[index];
-    _groups[index] = RivalGroup(
-      id: group.id,
-      name: group.name,
-      inviteCode: group.inviteCode,
-      memberCount: group.memberCount,
-      activeWagerCount: group.activeWagerCount,
-      myTokenBalance: group.myTokenBalance,
-      leaderboardWindowWeeks: group.leaderboardWindowWeeks,
-      leaderboardPeriodAnchorDate: anchorDate,
-      accentColorValue: group.accentColorValue,
-    );
-    _groupsController.add(List.unmodifiable(_groups));
-  }
-
-  @override
   Future<void> removeMember({
     required String groupId,
     required String userId,
@@ -352,7 +308,7 @@ class MemoryGroupRepository implements GroupRepository {
       activeWagerCount: 0,
       myTokenBalance: 0,
       leaderboardWindowWeeks: 1,
-      leaderboardPeriodAnchorDate: DateTime.now().toUtc(),
+      leaderboardPeriodAnchorDate: null,
       accentColorValue: GroupAccentColors.defaultValue,
     );
   }
@@ -378,7 +334,7 @@ class MemoryGroupRepository implements GroupRepository {
         activeWagerCount: 0,
         myTokenBalance: 0,
         leaderboardWindowWeeks: 1,
-        leaderboardPeriodAnchorDate: DateTime.now().toUtc(),
+        leaderboardPeriodAnchorDate: null,
         accentColorValue: GroupAccentColors.defaultValue,
       ),
     );
@@ -397,6 +353,7 @@ class MemoryGroupRepository implements GroupRepository {
         tokenBalance: 0,
         weeklyTokensEarned: 120,
         weeklyScorePeriodId: 'memory-week',
+        dailyTokenBuckets: {},
         allTimeTokensEarned: 1000,
         xp: 0,
         totalWagers: 0,
@@ -595,6 +552,25 @@ class MemoryWagerRepository implements WagerRepository {
   }
 
   @override
+  Stream<List<Wager>> watchResolvedWagersSince({
+    required String groupId,
+    required DateTime since,
+  }) async* {
+    List<Wager> resolvedWagers(List<Wager> wagers) {
+      return wagers.where((wager) {
+        final resolvedAt = wager.resolvedAt;
+        return wager.groupId == groupId &&
+            wager.status == WagerStatus.resolved &&
+            resolvedAt != null &&
+            !resolvedAt.isBefore(since);
+      }).toList();
+    }
+
+    yield resolvedWagers(_wagers);
+    yield* _wagersController.stream.map(resolvedWagers);
+  }
+
+  @override
   Stream<List<Wager>> watchArchivedWagers(String groupId) async* {
     List<Wager> archivedWagers(List<Wager> wagers) {
       return wagers
@@ -619,6 +595,144 @@ class MemoryWagerRepository implements WagerRepository {
 
     yield userWagers(_wagers);
     yield* _wagersController.stream.map(userWagers);
+  }
+}
+
+class MemoryTaskRepository implements TaskRepository {
+  final List<RivalTask> _tasks = [];
+  final StreamController<List<RivalTask>> _tasksController =
+      StreamController<List<RivalTask>>.broadcast();
+
+  @override
+  Stream<RivalTask> watchTask({
+    required String groupId,
+    required String taskId,
+  }) async* {
+    RivalTask taskById(List<RivalTask> tasks) {
+      return tasks.firstWhere(
+        (task) => task.groupId == groupId && task.id == taskId,
+      );
+    }
+
+    yield taskById(_tasks);
+    yield* _tasksController.stream.map(taskById);
+  }
+
+  @override
+  Stream<List<RivalTask>> watchActiveTasks(String groupId) async* {
+    List<RivalTask> activeTasks(List<RivalTask> tasks) {
+      return tasks
+          .where(
+            (task) =>
+                task.groupId == groupId && task.status == TaskStatus.active,
+          )
+          .toList();
+    }
+
+    yield activeTasks(_tasks);
+    yield* _tasksController.stream.map(activeTasks);
+  }
+
+  @override
+  Stream<List<RivalTask>> watchUserCompletedTasks(String userId) async* {
+    List<RivalTask> completedTasks(List<RivalTask> tasks) {
+      return tasks
+          .where(
+            (task) =>
+                task.assignedUserId == userId &&
+                task.status == TaskStatus.completed,
+          )
+          .toList();
+    }
+
+    yield completedTasks(_tasks);
+    yield* _tasksController.stream.map(completedTasks);
+  }
+
+  @override
+  Stream<List<RivalTask>> watchCompletedTasksSince({
+    required String groupId,
+    required DateTime since,
+  }) async* {
+    List<RivalTask> completedTasks(List<RivalTask> tasks) {
+      return tasks.where((task) {
+        final completedAt = task.completedAt;
+        return task.groupId == groupId &&
+            task.status == TaskStatus.completed &&
+            completedAt != null &&
+            !completedAt.isBefore(since);
+      }).toList();
+    }
+
+    yield completedTasks(_tasks);
+    yield* _tasksController.stream.map(completedTasks);
+  }
+
+  @override
+  Future<RivalTask> createTask(TaskDraft draft) async {
+    final task = draft.toTask(id: 'memory-task-${_tasks.length + 1}');
+    _tasks.add(task);
+    _tasksController.add(List.unmodifiable(_tasks));
+
+    return task;
+  }
+
+  @override
+  Future<void> assignTaskToSelf({
+    required String groupId,
+    required String taskId,
+    required String userId,
+  }) async {
+    final index = _tasks.indexWhere((task) => task.id == taskId);
+    if (index == -1 || !_tasks[index].canAssignSelf(userId)) {
+      throw StateError('Task is not available.');
+    }
+
+    final task = _tasks[index];
+    _tasks[index] = RivalTask(
+      id: task.id,
+      groupId: task.groupId,
+      creatorUserId: task.creatorUserId,
+      title: task.title,
+      description: task.description,
+      assignedUserId: userId,
+      rewardPoints: task.rewardPoints,
+      dueAt: task.dueAt,
+      status: task.status,
+      createdAt: task.createdAt,
+      completedAt: task.completedAt,
+      updatedAt: DateTime.now(),
+    );
+    _tasksController.add(List.unmodifiable(_tasks));
+  }
+
+  @override
+  Future<void> completeTask({
+    required String groupId,
+    required String taskId,
+    required String adminUserId,
+  }) async {
+    final index = _tasks.indexWhere((task) => task.id == taskId);
+    if (index == -1) {
+      throw StateError('Task was not found.');
+    }
+
+    final task = _tasks[index];
+    _tasks[index] = RivalTask(
+      id: task.id,
+      groupId: task.groupId,
+      creatorUserId: task.creatorUserId,
+      title: task.title,
+      description: task.description,
+      assignedUserId: task.assignedUserId,
+      rewardPoints: task.rewardPoints,
+      dueAt: task.dueAt,
+      status: TaskStatus.completed,
+      createdAt: task.createdAt,
+      completedAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+    _tasksController.add(List.unmodifiable(_tasks));
   }
 }
 

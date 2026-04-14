@@ -4,6 +4,7 @@ import 'package:point_rivals/features/achievements/domain/achievement_models.dar
 import 'package:point_rivals/features/activity/domain/activity_models.dart';
 import 'package:point_rivals/features/groups/domain/group_models.dart';
 import 'package:point_rivals/features/profile/domain/profile_models.dart';
+import 'package:point_rivals/features/tasks/domain/task_models.dart';
 import 'package:point_rivals/features/wagers/domain/wager_models.dart';
 
 class AuthCancelledException implements Exception {
@@ -52,16 +53,6 @@ abstract interface class GroupRepository {
     required int accentColorValue,
   });
 
-  Future<void> updateGroupLeaderboardWindowWeeks({
-    required String groupId,
-    required int weeks,
-  });
-
-  Future<void> updateGroupLeaderboardPeriodAnchorDate({
-    required String groupId,
-    required DateTime anchorDate,
-  });
-
   Future<void> updateMemberRole({
     required String groupId,
     required String userId,
@@ -79,6 +70,11 @@ abstract interface class WagerRepository {
   Stream<List<Wager>> watchActiveWagers(String groupId);
 
   Stream<List<Wager>> watchResolvedWagers(String groupId);
+
+  Stream<List<Wager>> watchResolvedWagersSince({
+    required String groupId,
+    required DateTime since,
+  });
 
   Stream<List<Wager>> watchArchivedWagers(String groupId);
 
@@ -102,6 +98,36 @@ abstract interface class WagerRepository {
   Future<void> cancelWager({
     required String groupId,
     required String wagerId,
+    required String adminUserId,
+  });
+}
+
+abstract interface class TaskRepository {
+  Stream<RivalTask> watchTask({
+    required String groupId,
+    required String taskId,
+  });
+
+  Stream<List<RivalTask>> watchActiveTasks(String groupId);
+
+  Stream<List<RivalTask>> watchUserCompletedTasks(String userId);
+
+  Stream<List<RivalTask>> watchCompletedTasksSince({
+    required String groupId,
+    required DateTime since,
+  });
+
+  Future<RivalTask> createTask(TaskDraft draft);
+
+  Future<void> assignTaskToSelf({
+    required String groupId,
+    required String taskId,
+    required String userId,
+  });
+
+  Future<void> completeTask({
+    required String groupId,
+    required String taskId,
     required String adminUserId,
   });
 }

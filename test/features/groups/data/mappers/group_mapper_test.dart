@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:point_rivals/features/groups/data/mappers/group_mapper.dart';
 
@@ -32,5 +33,36 @@ void main() {
     );
 
     expect(group.accentColorValue, 0xFFFFD426);
+  });
+
+  test('ignores legacy anchor dates unless custom anchors are enabled', () {
+    final legacyAnchor = Timestamp.fromDate(DateTime.utc(2026, 4, 7));
+    final group = GroupMapper.fromFirestore(
+      id: 'group-1',
+      data: {
+        'name': 'Morning rivals',
+        'leaderboardWindowWeeks': 2,
+        'leaderboardPeriodAnchorDate': legacyAnchor,
+      },
+      myTokenBalance: 0,
+    );
+
+    expect(group.leaderboardPeriodAnchorDate, isNull);
+  });
+
+  test('keeps explicit custom anchor dates', () {
+    final anchor = Timestamp.fromDate(DateTime.utc(2026, 4, 13, 18));
+    final group = GroupMapper.fromFirestore(
+      id: 'group-1',
+      data: {
+        'name': 'Morning rivals',
+        'leaderboardWindowWeeks': 2,
+        'leaderboardPeriodAnchorDate': anchor,
+        'leaderboardUsesCustomAnchor': true,
+      },
+      myTokenBalance: 0,
+    );
+
+    expect(group.leaderboardPeriodAnchorDate, DateTime.utc(2026, 4, 13));
   });
 }

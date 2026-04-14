@@ -11,7 +11,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Friendly wagers, no money'), findsOneWidget);
+    expect(find.text('Tasks and wagers for points'), findsOneWidget);
     expect(find.text('Next'), findsOneWidget);
   });
 
@@ -26,7 +26,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Дружеские ставки без денег'), findsOneWidget);
+    expect(find.text('Задания и ставки за баллы'), findsOneWidget);
     expect(find.text('Дальше'), findsOneWidget);
   });
 
@@ -51,6 +51,7 @@ void main() {
           authRepository: MemoryAuthRepository(initialProfile: profile),
           groupRepository: MemoryGroupRepository(),
           wagerRepository: MemoryWagerRepository(),
+          taskRepository: MemoryTaskRepository(),
           notificationRepository: MemoryNotificationRepository(),
           profileMediaRepository: MemoryProfileMediaRepository(),
           activityRepository: MemoryActivityRepository(),

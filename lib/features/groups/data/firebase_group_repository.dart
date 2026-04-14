@@ -201,40 +201,6 @@ class FirebaseGroupRepository implements GroupRepository {
   }
 
   @override
-  Future<void> updateGroupLeaderboardWindowWeeks({
-    required String groupId,
-    required int weeks,
-  }) async {
-    final now = DateTime.now().toUtc();
-    await _firestore
-        .collection(FirestoreCollections.groups)
-        .doc(groupId)
-        .update({
-          'leaderboardWindowWeeks': weeks.clamp(1, 52),
-          'leaderboardPeriodAnchorDate': Timestamp.fromDate(
-            DateTime.utc(now.year, now.month, now.day),
-          ),
-          FirestoreFields.updatedAt: FieldValue.serverTimestamp(),
-        });
-  }
-
-  @override
-  Future<void> updateGroupLeaderboardPeriodAnchorDate({
-    required String groupId,
-    required DateTime anchorDate,
-  }) async {
-    await _firestore
-        .collection(FirestoreCollections.groups)
-        .doc(groupId)
-        .update({
-          'leaderboardPeriodAnchorDate': Timestamp.fromDate(
-            DateTime.utc(anchorDate.year, anchorDate.month, anchorDate.day),
-          ),
-          FirestoreFields.updatedAt: FieldValue.serverTimestamp(),
-        });
-  }
-
-  @override
   Future<void> updateMemberRole({
     required String groupId,
     required String userId,
@@ -290,6 +256,7 @@ class FirebaseGroupRepository implements GroupRepository {
         'activeWagerCount': data['activeWagerCount'],
         'leaderboardWindowWeeks': data['leaderboardWindowWeeks'],
         'leaderboardPeriodAnchorDate': data['leaderboardPeriodAnchorDate'],
+        'leaderboardUsesCustomAnchor': data['leaderboardUsesCustomAnchor'],
         'accentColor': data['accentColor'],
       },
       myTokenBalance: _int(data['myTokenBalance']),

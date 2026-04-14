@@ -77,6 +77,10 @@ function currentIsoWeekPeriodId(date = new Date()) {
   return isoWeekParts(date).periodId;
 }
 
+function currentScoreDateId(date = new Date()) {
+  return dateId(utcDateOnly(date));
+}
+
 function currentLeaderboardPeriodId(windowWeeks = 1, date = new Date(), anchorDate = null) {
   const normalizedWindowWeeks = Number.isInteger(windowWeeks) && windowWeeks > 0 ?
     windowWeeks :
@@ -157,6 +161,7 @@ function isoWeekParts(date = new Date()) {
 module.exports = {
   currentLeaderboardPeriodId,
   currentIsoWeekPeriodId,
+  currentScoreDateId,
   normalizePositiveInteger,
   normalizePositiveNumber,
   normalizeSide,

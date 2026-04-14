@@ -27,15 +27,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navProfile => 'Profile';
 
   @override
-  String get onboardingTitle => 'Friendly wagers, no money';
+  String get onboardingTitle => 'Tasks and wagers for points';
 
   @override
   String get onboardingBody =>
-      'Create a group, bet group chips on real-life outcomes, and let admins confirm the result.';
+      'Create group tasks, assign owners, finish them for points, and keep friendly wagers for match-day calls.';
 
   @override
   String get onboardingGameNotice =>
-      'Chips stay inside each group. Point Rivals is a game, not gambling.';
+      'Points stay inside each group. Admins judge completed tasks and wager results.';
 
   @override
   String get onboardingAppleButton => 'Continue with Apple';
@@ -63,14 +63,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardingAuthBody =>
-      'Sign in so your groups, chips, and XP stay synced.';
+      'Sign in so your groups, tasks, points, and XP stay synced.';
 
   @override
   String get onboardingNotificationsTitle => 'Stay in the loop';
 
   @override
   String get onboardingNotificationsBody =>
-      'Get a heads-up when a wager is resolved or a group needs you.';
+      'Get a heads-up when a task is assigned to you or a wager is resolved.';
+
+  @override
+  String get onboardingTaskSignal =>
+      'Create a task, pick points, and assign an owner.';
+
+  @override
+  String get onboardingJudgeSignal =>
+      'Admins confirm done work and settle wagers.';
+
+  @override
+  String get onboardingAuthSignal =>
+      'Your points, groups, and wins follow your account.';
+
+  @override
+  String get onboardingNotifySignal =>
+      'Assigned tasks arrive as notifications.';
 
   @override
   String get groupsTitle => 'Groups';
@@ -200,6 +216,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get activityResolvedTitle => 'Wager resolved';
 
   @override
+  String get activityTaskCompletedTitle => 'Task completed';
+
+  @override
   String get activityCancelledTitle => 'Wager cancelled';
 
   @override
@@ -312,21 +331,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get groupWeeklyLeaders => 'Weekly leaders';
+  String get groupMonthLeaders => 'Leaders (current month)';
 
   @override
-  String get groupWeeklyTab => 'Week';
-
-  @override
-  String groupWindowLeaders(int weeks) {
-    String _temp0 = intl.Intl.pluralLogic(
-      weeks,
-      locale: localeName,
-      other: 'Leaders over $weeks weeks',
-      one: 'Leaders this week',
-    );
-    return '$_temp0';
-  }
+  String get groupMonthTab => 'Month';
 
   @override
   String get groupAllTimeLeaders => 'All-time leaders';
@@ -341,39 +349,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupActiveWagers => 'Active wagers';
 
   @override
-  String get groupLeaderboardWindowTitle => 'Weekly leader window';
+  String get groupWagersTab => 'Wagers';
 
   @override
-  String get groupLeaderboardWindowBody =>
-      'Choose how many weeks one sprint lasts. Multi-week sprints start from the anchor date.';
-
-  @override
-  String groupLeaderboardWindowWeeks(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count weeks',
-      one: '$count week',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get groupLeaderboardAnchorDateAction => 'Choose sprint start';
-
-  @override
-  String groupLeaderboardAnchorDateValue(String value) {
-    return 'Sprint start: $value';
-  }
+  String get groupTasksTab => 'Tasks';
 
   @override
   String get groupNoActiveWagers => 'No active wagers yet.';
+
+  @override
+  String get groupNoActiveTasks => 'No active tasks yet.';
 
   @override
   String get groupAdminBadge => 'Admin';
 
   @override
   String get groupCreateWager => 'Create wager';
+
+  @override
+  String get groupCreateTask => 'Create task';
 
   @override
   String get groupSettingsTitle => 'Group settings';
@@ -583,6 +577,60 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createWagerError => 'Wager was not created. Please try again.';
 
   @override
+  String get createTaskTitle => 'Create task';
+
+  @override
+  String get createTaskTitleLabel => 'Task name';
+
+  @override
+  String get createTaskTitleRequired => 'Enter a task name.';
+
+  @override
+  String createTaskTitleTooLong(int max) {
+    return 'Keep the name under $max characters.';
+  }
+
+  @override
+  String get createTaskDescriptionLabel => 'Description';
+
+  @override
+  String createTaskDescriptionTooLong(int max) {
+    return 'Keep the description under $max characters.';
+  }
+
+  @override
+  String get createTaskAssigneeLabel => 'Assignee';
+
+  @override
+  String get createTaskUnassigned => 'No assignee';
+
+  @override
+  String get createTaskRewardPointsLabel => 'Reward points';
+
+  @override
+  String get createTaskRewardPointsHelper =>
+      'The assignee receives these points after admin approval.';
+
+  @override
+  String createTaskRewardPointsTooHigh(int max) {
+    return 'Maximum reward is $max points.';
+  }
+
+  @override
+  String get createTaskDueDateAction => 'Add due date';
+
+  @override
+  String createTaskDueDateValue(String value) {
+    return 'Due $value';
+  }
+
+  @override
+  String get createTaskClearDueDate => 'Clear due date';
+
+  @override
+  String get createTaskError => 'Task was not created. Please try again.';
+
+  @override
   String get commonSave => 'Save';
 
   @override
@@ -730,6 +778,58 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get wagerDetailsNoStakes => 'No one has staked yet.';
+
+  @override
+  String get taskDetailsTitle => 'Task details';
+
+  @override
+  String get taskStatusActive => 'Active';
+
+  @override
+  String get taskStatusCompleted => 'Completed';
+
+  @override
+  String taskRewardPoints(int amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      amount,
+      locale: localeName,
+      other: '$amount points',
+      one: '$amount point',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String taskDueDate(String value) {
+    return 'Due $value';
+  }
+
+  @override
+  String get taskNoDueDate => 'No due date';
+
+  @override
+  String get taskAssignee => 'Assignee';
+
+  @override
+  String get taskUnassigned => 'Unassigned';
+
+  @override
+  String get taskAssigned => 'Assigned';
+
+  @override
+  String get taskAssignSelf => 'Assign to me';
+
+  @override
+  String get taskAssignError => 'Task was not assigned. Please try again.';
+
+  @override
+  String get taskCompleteAction => 'Mark complete';
+
+  @override
+  String get taskCompleteSuccess => 'Task completed.';
+
+  @override
+  String get taskCompleteError => 'Task was not completed. Please try again.';
 
   @override
   String get wagerArchiveEmpty => 'No resolved wagers yet.';

@@ -11,8 +11,10 @@ abstract final class ActivityMapper {
       type: _type(data['type']),
       groupId: _string(data['groupId']) ?? '',
       wagerId: _string(data['wagerId']) ?? '',
+      taskId: _string(data['taskId']) ?? '',
       groupName: _string(data['groupName']) ?? '',
       condition: _string(data['condition']) ?? '',
+      taskTitle: _string(data['taskTitle']) ?? '',
       payout: _int(data['payout']),
       createdAt: _dateTime(data['createdAt']),
     );

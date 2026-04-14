@@ -24,15 +24,15 @@
   "@navProfile": {
     "description": "Название вкладки профиля."
   },
-  "onboardingTitle": "Дружеские ставки без денег",
+  "onboardingTitle": "Задания и ставки за баллы",
   "@onboardingTitle": {
     "description": "Заголовок онбординга."
   },
-  "onboardingBody": "Создайте группу, ставьте фишки на реальные исходы и доверяйте админам подтверждать результат.",
+  "onboardingBody": "Создавайте задания в группе, назначайте исполнителей, закрывайте их за баллы и оставляйте ставки для спортивных прогнозов.",
   "@onboardingBody": {
     "description": "Описание приложения в онбординге."
   },
-  "onboardingGameNotice": "Фишки остаются внутри группы. Point Rivals - это игра, а не азартные ставки.",
+  "onboardingGameNotice": "Баллы остаются внутри группы. Админы судят задания и результаты ставок.",
   "@onboardingGameNotice": {
     "description": "Пояснение, что ставки не денежные."
   },
@@ -68,7 +68,7 @@
   "@onboardingAuthTitle": {
     "description": "Заголовок шага авторизации."
   },
-  "onboardingAuthBody": "Войдите, чтобы группы, фишки и XP синхронизировались.",
+  "onboardingAuthBody": "Войдите, чтобы группы, задания, баллы и XP синхронизировались.",
   "@onboardingAuthBody": {
     "description": "Описание шага авторизации."
   },
@@ -76,9 +76,25 @@
   "@onboardingNotificationsTitle": {
     "description": "Заголовок шага уведомлений."
   },
-  "onboardingNotificationsBody": "Получайте уведомления, когда ставка завершена или группа ждет вас.",
+  "onboardingNotificationsBody": "Получайте уведомления, когда вам назначили задание или ставка завершена.",
   "@onboardingNotificationsBody": {
     "description": "Описание шага уведомлений."
+  },
+  "onboardingTaskSignal": "Создайте задание, выберите баллы и назначьте исполнителя.",
+  "@onboardingTaskSignal": {
+    "description": "Текст плашки задания в онбординге."
+  },
+  "onboardingJudgeSignal": "Админы подтверждают работу и закрывают ставки.",
+  "@onboardingJudgeSignal": {
+    "description": "Текст плашки судейства в онбординге."
+  },
+  "onboardingAuthSignal": "Баллы, группы и победы привязаны к аккаунту.",
+  "@onboardingAuthSignal": {
+    "description": "Текст плашки входа в онбординге."
+  },
+  "onboardingNotifySignal": "Назначенные задания приходят уведомлениями.",
+  "@onboardingNotifySignal": {
+    "description": "Текст плашки уведомлений в онбординге."
   },
   "groupsTitle": "Группы",
   "@groupsTitle": {
@@ -250,6 +266,10 @@
   "@activityResolvedTitle": {
     "description": "Заголовок активности завершенной ставки без выплаты."
   },
+  "activityTaskCompletedTitle": "Задание выполнено",
+  "@activityTaskCompletedTitle": {
+    "description": "Заголовок выполненного задания в активности."
+  },
   "activityCancelledTitle": "Ставка отменена",
   "@activityCancelledTitle": {
     "description": "Заголовок активности отмененной ставки."
@@ -395,22 +415,13 @@
       }
     }
   },
-  "groupWeeklyLeaders": "Лидеры недели",
-  "@groupWeeklyLeaders": {
-    "description": "Заголовок недельного рейтинга группы."
+  "groupMonthLeaders": "Лидеры (текущий месяц)",
+  "@groupMonthLeaders": {
+    "description": "Заголовок рейтинга группы за текущий календарный месяц."
   },
-  "groupWeeklyTab": "Неделя",
-  "@groupWeeklyTab": {
-    "description": "Короткая подпись вкладки недельного рейтинга."
-  },
-  "groupWindowLeaders": "{weeks, plural, one {Лидеры недели} few {Лидеры за {weeks} недели} many {Лидеры за {weeks} недель} other {Лидеры за {weeks} недели}}",
-  "@groupWindowLeaders": {
-    "description": "Заголовок рейтинга группы для настроенного недельного окна.",
-    "placeholders": {
-      "weeks": {
-        "type": "int"
-      }
-    }
+  "groupMonthTab": "Месяц",
+  "@groupMonthTab": {
+    "description": "Короткая подпись вкладки месячного рейтинга."
   },
   "groupAllTimeLeaders": "Лидеры за все время",
   "@groupAllTimeLeaders": {
@@ -428,39 +439,21 @@
   "@groupActiveWagers": {
     "description": "Заголовок активных ставок."
   },
-  "groupLeaderboardWindowTitle": "Период недельных лидеров",
-  "@groupLeaderboardWindowTitle": {
-    "description": "Заголовок настройки периода лидеров группы."
+  "groupWagersTab": "Ставки",
+  "@groupWagersTab": {
+    "description": "Вкладка ставок в группе."
   },
-  "groupLeaderboardWindowBody": "Выберите длину спринта. Для 2 или 4 недель спринты идут подряд от даты старта.",
-  "@groupLeaderboardWindowBody": {
-    "description": "Описание настройки периода лидеров группы."
-  },
-  "groupLeaderboardWindowWeeks": "{count, plural, one {{count} неделя} few {{count} недели} many {{count} недель} other {{count} недели}}",
-  "@groupLeaderboardWindowWeeks": {
-    "description": "Длина периода лидеров группы.",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "groupLeaderboardAnchorDateAction": "Выбрать старт спринта",
-  "@groupLeaderboardAnchorDateAction": {
-    "description": "Действие выбора даты старта спринта лидерборда."
-  },
-  "groupLeaderboardAnchorDateValue": "Старт спринта: {value}",
-  "@groupLeaderboardAnchorDateValue": {
-    "description": "Выбранная дата старта спринта лидерборда.",
-    "placeholders": {
-      "value": {
-        "type": "String"
-      }
-    }
+  "groupTasksTab": "Задания",
+  "@groupTasksTab": {
+    "description": "Вкладка заданий в группе."
   },
   "groupNoActiveWagers": "Активных ставок пока нет.",
   "@groupNoActiveWagers": {
     "description": "Пустое состояние списка активных ставок."
+  },
+  "groupNoActiveTasks": "Активных заданий пока нет.",
+  "@groupNoActiveTasks": {
+    "description": "Пустое состояние списка активных заданий."
   },
   "groupAdminBadge": "Админ",
   "@groupAdminBadge": {
@@ -469,6 +462,10 @@
   "groupCreateWager": "Создать ставку",
   "@groupCreateWager": {
     "description": "Действие создания ставки."
+  },
+  "groupCreateTask": "Создать задание",
+  "@groupCreateTask": {
+    "description": "Действие создания задания."
   },
   "groupSettingsTitle": "Настройки группы",
   "@groupSettingsTitle": {
@@ -735,6 +732,86 @@
   "@createWagerError": {
     "description": "Сообщение ошибки создания ставки."
   },
+  "createTaskTitle": "Создать задание",
+  "@createTaskTitle": {
+    "description": "Заголовок создания задания."
+  },
+  "createTaskTitleLabel": "Название задания",
+  "@createTaskTitleLabel": {
+    "description": "Подпись поля названия задания."
+  },
+  "createTaskTitleRequired": "Введите название задания.",
+  "@createTaskTitleRequired": {
+    "description": "Ошибка пустого названия задания."
+  },
+  "createTaskTitleTooLong": "Название должно быть до {max} символов.",
+  "@createTaskTitleTooLong": {
+    "description": "Ошибка слишком длинного названия задания.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "createTaskDescriptionLabel": "Описание",
+  "@createTaskDescriptionLabel": {
+    "description": "Подпись необязательного описания задания."
+  },
+  "createTaskDescriptionTooLong": "Описание должно быть до {max} символов.",
+  "@createTaskDescriptionTooLong": {
+    "description": "Ошибка слишком длинного описания задания.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "createTaskAssigneeLabel": "Исполнитель",
+  "@createTaskAssigneeLabel": {
+    "description": "Подпись выбора исполнителя задания."
+  },
+  "createTaskUnassigned": "Без исполнителя",
+  "@createTaskUnassigned": {
+    "description": "Пустой выбор исполнителя задания."
+  },
+  "createTaskRewardPointsLabel": "Награда в баллах",
+  "@createTaskRewardPointsLabel": {
+    "description": "Подпись поля награды задания."
+  },
+  "createTaskRewardPointsHelper": "Исполнитель получит эти баллы после подтверждения админом.",
+  "@createTaskRewardPointsHelper": {
+    "description": "Подсказка награды задания."
+  },
+  "createTaskRewardPointsTooHigh": "Максимальная награда — {max} баллов.",
+  "@createTaskRewardPointsTooHigh": {
+    "description": "Ошибка, когда награда задания больше лимита.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "createTaskDueDateAction": "Добавить срок",
+  "@createTaskDueDateAction": {
+    "description": "Действие выбора срока задания."
+  },
+  "createTaskDueDateValue": "Срок: {value}",
+  "@createTaskDueDateValue": {
+    "description": "Выбранный срок задания.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "createTaskClearDueDate": "Убрать срок",
+  "@createTaskClearDueDate": {
+    "description": "Действие удаления срока задания."
+  },
+  "createTaskError": "Задание не создано. Попробуйте еще раз.",
+  "@createTaskError": {
+    "description": "Ошибка создания задания."
+  },
   "commonSave": "Сохранить",
   "@commonSave": {
     "description": "Общее действие сохранения."
@@ -949,6 +1026,72 @@
   "wagerDetailsNoStakes": "Пока никто не поставил.",
   "@wagerDetailsNoStakes": {
     "description": "Пустое состояние ставок участников."
+  },
+  "taskDetailsTitle": "Детали задания",
+  "@taskDetailsTitle": {
+    "description": "Заголовок деталей задания."
+  },
+  "taskStatusActive": "Активно",
+  "@taskStatusActive": {
+    "description": "Статус активного задания."
+  },
+  "taskStatusCompleted": "Завершено",
+  "@taskStatusCompleted": {
+    "description": "Статус завершенного задания."
+  },
+  "taskRewardPoints": "{amount, plural, one {{amount} балл} few {{amount} балла} many {{amount} баллов} other {{amount} балла}}",
+  "@taskRewardPoints": {
+    "description": "Подпись награды задания.",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "taskDueDate": "Срок: {value}",
+  "@taskDueDate": {
+    "description": "Срок задания.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "taskNoDueDate": "Без срока",
+  "@taskNoDueDate": {
+    "description": "Задание без срока."
+  },
+  "taskAssignee": "Исполнитель",
+  "@taskAssignee": {
+    "description": "Подпись исполнителя задания."
+  },
+  "taskUnassigned": "Не назначено",
+  "@taskUnassigned": {
+    "description": "Задание без исполнителя."
+  },
+  "taskAssigned": "Назначено",
+  "@taskAssigned": {
+    "description": "Задание с исполнителем."
+  },
+  "taskAssignSelf": "Назначить себя",
+  "@taskAssignSelf": {
+    "description": "Действие самостоятельного назначения задания."
+  },
+  "taskAssignError": "Задание не назначено. Попробуйте еще раз.",
+  "@taskAssignError": {
+    "description": "Ошибка назначения задания."
+  },
+  "taskCompleteAction": "Завершить",
+  "@taskCompleteAction": {
+    "description": "Действие завершения задания админом."
+  },
+  "taskCompleteSuccess": "Задание завершено.",
+  "@taskCompleteSuccess": {
+    "description": "Успешное завершение задания."
+  },
+  "taskCompleteError": "Задание не завершено. Попробуйте еще раз.",
+  "@taskCompleteError": {
+    "description": "Ошибка завершения задания."
   },
   "wagerArchiveEmpty": "Завершенных ставок пока нет.",
   "@wagerArchiveEmpty": {

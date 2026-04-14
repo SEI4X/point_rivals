@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:point_rivals/core/firebase/firebase_contracts.dart';
@@ -18,8 +20,12 @@ class FirebaseWagerRepository implements WagerRepository {
   static const int _groupWagersLimit = 80;
   static const int _activeWagersLimit = 30;
   static const int _archiveWagersLimit = 50;
+  static const int _monthlyWagersLimit = 1000;
   static const int _userWagersLimit = 80;
   static const int _stakesPerWagerLimit = 100;
+  final Map<String, _CachedWagerListStream> _activeWagersStreams = {};
+  final Map<String, _CachedWagerListStream> _monthlyResolvedWagersStreams = {};
+  final Map<String, _CachedWagerListStream> _userWagersStreams = {};
 
   @override
   Stream<Wager> watchWager({required String groupId, required String wagerId}) {
@@ -67,11 +73,18 @@ class FirebaseWagerRepository implements WagerRepository {
 
   @override
   Stream<List<Wager>> watchActiveWagers(String groupId) {
-    return _watchWagersByStatus(
-      groupId,
-      WagerStatus.active,
-      orderByField: FirestoreFields.createdAt,
-    );
+    return _activeWagersStreams
+        .putIfAbsent(
+          groupId,
+          () => _CachedWagerListStream(
+            _watchWagersByStatus(
+              groupId,
+              WagerStatus.active,
+              orderByField: FirestoreFields.createdAt,
+            ),
+          ),
+        )
+        .watch();
   }
 
   @override
@@ -81,6 +94,32 @@ class FirebaseWagerRepository implements WagerRepository {
       WagerStatus.resolved,
       orderByField: FirestoreFields.updatedAt,
     );
+  }
+
+  @override
+  Stream<List<Wager>> watchResolvedWagersSince({
+    required String groupId,
+    required DateTime since,
+  }) {
+    final start = DateTime.utc(since.year, since.month, since.day);
+    final cacheKey = '$groupId-${start.toIso8601String()}';
+
+    return _monthlyResolvedWagersStreams
+        .putIfAbsent(
+          cacheKey,
+          () => _CachedWagerListStream(
+            _wagersCollection(groupId)
+                .where(
+                  'resolvedAt',
+                  isGreaterThanOrEqualTo: Timestamp.fromDate(start),
+                )
+                .orderBy('resolvedAt', descending: true)
+                .limit(_monthlyWagersLimit)
+                .snapshots()
+                .asyncMap(_resolvedWagersFromSnapshot),
+          ),
+        )
+        .watch();
   }
 
   @override
@@ -98,52 +137,62 @@ class FirebaseWagerRepository implements WagerRepository {
 
   @override
   Stream<List<Wager>> watchUserWagers(String userId) {
-    return _firestore
-        .collectionGroup(FirestoreCollections.stakes)
-        .where('userId', isEqualTo: userId)
-        .limit(_userWagersLimit)
-        .snapshots()
-        .asyncMap((snapshot) async {
-          final wagers = <Wager>[];
-          final seenWagerIds = <String>{};
+    return _userWagersStreams
+        .putIfAbsent(
+          userId,
+          () => _CachedWagerListStream(
+            _firestore
+                .collectionGroup(FirestoreCollections.stakes)
+                .where('userId', isEqualTo: userId)
+                .limit(_userWagersLimit)
+                .snapshots()
+                .asyncMap(_userWagersFromStakesSnapshot),
+          ),
+        )
+        .watch();
+  }
 
-          for (final stakeDocument in snapshot.docs) {
-            final wagerReference = stakeDocument.reference.parent.parent;
-            if (wagerReference == null ||
-                !seenWagerIds.add(wagerReference.path)) {
-              continue;
-            }
+  Future<List<Wager>> _userWagersFromStakesSnapshot(
+    QuerySnapshot<Map<String, dynamic>> snapshot,
+  ) async {
+    final wagers = <Wager>[];
+    final seenWagerIds = <String>{};
 
-            final wagerSnapshot = await wagerReference.get();
-            final wagerData = wagerSnapshot.data();
-            if (wagerData == null) {
-              continue;
-            }
+    for (final stakeDocument in snapshot.docs) {
+      final wagerReference = stakeDocument.reference.parent.parent;
+      if (wagerReference == null || !seenWagerIds.add(wagerReference.path)) {
+        continue;
+      }
 
-            wagers.add(
-              WagerMapper.fromFirestore(
-                id: wagerSnapshot.id,
-                data: wagerData,
-                stakes: [
-                  StakeMapper.fromFirestore(
-                    userId: stakeDocument.id,
-                    data: stakeDocument.data(),
-                  ),
-                ],
-              ),
-            );
-          }
+      final wagerSnapshot = await wagerReference.get();
+      final wagerData = wagerSnapshot.data();
+      if (wagerData == null) {
+        continue;
+      }
 
-          wagers.sort((left, right) {
-            if (left.status == right.status) {
-              return left.condition.compareTo(right.condition);
-            }
+      wagers.add(
+        WagerMapper.fromFirestore(
+          id: wagerSnapshot.id,
+          data: wagerData,
+          stakes: [
+            StakeMapper.fromFirestore(
+              userId: stakeDocument.id,
+              data: stakeDocument.data(),
+            ),
+          ],
+        ),
+      );
+    }
 
-            return left.status == WagerStatus.active ? -1 : 1;
-          });
+    wagers.sort((left, right) {
+      if (left.status == right.status) {
+        return left.condition.compareTo(right.condition);
+      }
 
-          return wagers;
-        });
+      return left.status == WagerStatus.active ? -1 : 1;
+    });
+
+    return wagers;
   }
 
   Stream<List<Wager>> _watchWagersByStatus(
@@ -190,6 +239,15 @@ class FirebaseWagerRepository implements WagerRepository {
     }
 
     return wagers;
+  }
+
+  Future<List<Wager>> _resolvedWagersFromSnapshot(
+    QuerySnapshot<Map<String, dynamic>> snapshot,
+  ) async {
+    final wagers = await _wagersFromSnapshot(snapshot);
+    return wagers
+        .where((wager) => wager.status == WagerStatus.resolved)
+        .toList();
   }
 
   List<Wager> _wagersFromSnapshotWithoutStakes(
@@ -267,5 +325,33 @@ class FirebaseWagerRepository implements WagerRepository {
         .collection(FirestoreCollections.groups)
         .doc(groupId)
         .collection(FirestoreCollections.wagers);
+  }
+}
+
+class _CachedWagerListStream {
+  _CachedWagerListStream(Stream<List<Wager>> source) {
+    _subscription = source.listen((wagers) {
+      _latest = wagers;
+      _controller.add(wagers);
+    }, onError: _controller.addError);
+  }
+
+  final StreamController<List<Wager>> _controller =
+      StreamController<List<Wager>>.broadcast();
+  late final StreamSubscription<List<Wager>> _subscription;
+  List<Wager>? _latest;
+
+  Stream<List<Wager>> watch() async* {
+    final latest = _latest;
+    if (latest != null) {
+      yield latest;
+    }
+
+    yield* _controller.stream;
+  }
+
+  Future<void> close() async {
+    await _subscription.cancel();
+    await _controller.close();
   }
 }

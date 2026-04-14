@@ -1,10 +1,13 @@
-const {onDocumentCreated} = require("firebase-functions/v2/firestore");
+const {
+  onDocumentCreated,
+  onDocumentWritten,
+} = require("firebase-functions/v2/firestore");
 const {onCall, HttpsError} = require("firebase-functions/v2/https");
-const {onSchedule} = require("firebase-functions/v2/scheduler");
 const logger = require("firebase-functions/logger");
 const admin = require("firebase-admin");
 const {
-  currentLeaderboardPeriodId,
+  currentIsoWeekPeriodId,
+  currentScoreDateId,
   normalizePositiveInteger,
   normalizeSide,
   refundsForStakes,
@@ -21,6 +24,8 @@ const XP_FOR_WIN = 35;
 const XP_FOR_LOSS = 15;
 const WAGER_STATUS_ACTIVE = "active";
 const WAGER_STATUS_RESOLVED = "resolved";
+const TASK_STATUS_ACTIVE = "active";
+const TASK_STATUS_COMPLETED = "completed";
 const ADMIN_ROLE = "admin";
 const MEMBER_ROLE = "member";
 const SIDES = new Set(["left", "right"]);
@@ -59,6 +64,56 @@ exports.notifyNewWager = onDocumentCreated({
   await event.data.ref.set({
     notifications: {
       newWagerSent: true,
+    },
+  }, {merge: true});
+});
+
+exports.notifyTaskAssigned = onDocumentWritten({
+  document: "groups/{groupId}/tasks/{taskId}",
+}, async (event) => {
+  const before = event.data && event.data.before && event.data.before.data();
+  const after = event.data && event.data.after && event.data.after.data();
+  if (!after || after.status !== "active") {
+    return;
+  }
+
+  const assignedUserId = typeof after.assignedUserId === "string" ?
+    after.assignedUserId : "";
+  if (assignedUserId.length === 0) {
+    return;
+  }
+
+  const previousAssignedUserId = before &&
+    typeof before.assignedUserId === "string" ?
+    before.assignedUserId : "";
+  const assignedSent = after.notifications &&
+    after.notifications.assignedSent === true;
+  if (assignedSent && previousAssignedUserId === assignedUserId) {
+    return;
+  }
+
+  const groupId = event.params.groupId;
+  const taskId = event.params.taskId;
+  const groupSnapshot = await db.collection("groups").doc(groupId).get();
+  const group = groupSnapshot.data() || {};
+  await sendNotificationToUsers([assignedUserId], {
+    data: {
+      type: "taskAssigned",
+      groupId,
+      taskId,
+    },
+    notificationForTarget: (target) => ({
+      title: group.name || "Point Rivals",
+      body: localizedText(target.locale, {
+        en: `Task assigned: ${after.title || "Open the group"}`,
+        ru: `Назначено задание: ${after.title || "Откройте группу"}`,
+      }),
+    }),
+  });
+
+  await event.data.after.ref.set({
+    notifications: {
+      assignedSent: true,
     },
   }, {merge: true});
 });
@@ -173,6 +228,7 @@ exports.joinGroupByInviteCode = onCall({enforceAppCheck: true}, async (request) 
         tokenBalance: 0,
         weeklyTokensEarned: 0,
         weeklyScorePeriodId: "",
+        dailyTokenBuckets: {},
         allTimeTokensEarned: 0,
         xp: normalizePositiveInteger(user.xp),
         totalWagers: normalizePositiveInteger(user.totalWagers),
@@ -281,6 +337,215 @@ exports.createWager = onCall({enforceAppCheck: true}, async (request) => {
   });
 
   return {wagerId};
+});
+
+exports.createTask = onCall({enforceAppCheck: true}, async (request) => {
+  const userId = request.auth && request.auth.uid;
+  if (!userId) {
+    throw new HttpsError("unauthenticated", "Sign in is required.");
+  }
+
+  const groupId = readRequiredString(request.data, "groupId");
+  const title = readRequiredString(request.data, "title");
+  const description = readOptionalString(request.data, "description");
+  const assignedUserId = readOptionalString(request.data, "assignedUserId");
+  const rewardPoints = normalizePositiveInteger(request.data && request.data.rewardPoints) || 10;
+  const dueAt = readOptionalDate(request.data, "dueAt");
+  if (title.length > 80) {
+    throw new HttpsError("invalid-argument", "Task title is too long.");
+  }
+  if (description.length > 500) {
+    throw new HttpsError("invalid-argument", "Task description is too long.");
+  }
+  if (rewardPoints > 1000) {
+    throw new HttpsError("invalid-argument", "Reward amount is too high.");
+  }
+
+  const groupReference = db.collection("groups").doc(groupId);
+  const creatorMemberReference = groupReference.collection("members").doc(userId);
+  const taskReference = groupReference.collection("tasks").doc();
+  const taskId = taskReference.id;
+
+  await db.runTransaction(async (transaction) => {
+    const creatorSnapshot = await transaction.get(creatorMemberReference);
+    if (!creatorSnapshot.exists) {
+      throw new HttpsError("permission-denied", "Group member was not found.");
+    }
+
+    if (assignedUserId.length > 0) {
+      const assigneeSnapshot = await transaction.get(
+        groupReference.collection("members").doc(assignedUserId),
+      );
+      if (!assigneeSnapshot.exists) {
+        throw new HttpsError("not-found", "Assignee was not found.");
+      }
+    }
+
+    transaction.set(taskReference, {
+      groupId,
+      creatorUserId: userId,
+      title,
+      description,
+      assignedUserId: assignedUserId.length > 0 ? assignedUserId : null,
+      rewardPoints,
+      dueAt: dueAt ? admin.firestore.Timestamp.fromDate(dueAt) : null,
+      status: TASK_STATUS_ACTIVE,
+      notifications: {
+        assignedSent: false,
+      },
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+    transaction.update(groupReference, {
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+  });
+
+  logger.info("Task created", {
+    groupId,
+    taskId,
+    creatorUserId: userId,
+  });
+
+  return {taskId};
+});
+
+exports.assignTaskToSelf = onCall({enforceAppCheck: true}, async (request) => {
+  const userId = request.auth && request.auth.uid;
+  if (!userId) {
+    throw new HttpsError("unauthenticated", "Sign in is required.");
+  }
+
+  const groupId = readRequiredString(request.data, "groupId");
+  const taskId = readRequiredString(request.data, "taskId");
+  const groupReference = db.collection("groups").doc(groupId);
+  const taskReference = groupReference.collection("tasks").doc(taskId);
+  const memberReference = groupReference.collection("members").doc(userId);
+
+  await db.runTransaction(async (transaction) => {
+    const [taskSnapshot, memberSnapshot] = await Promise.all([
+      transaction.get(taskReference),
+      transaction.get(memberReference),
+    ]);
+    if (!memberSnapshot.exists) {
+      throw new HttpsError("permission-denied", "Group member was not found.");
+    }
+    if (!taskSnapshot.exists) {
+      throw new HttpsError("not-found", "Task was not found.");
+    }
+
+    const task = taskSnapshot.data() || {};
+    const assignedUserId = typeof task.assignedUserId === "string" ?
+      task.assignedUserId : "";
+    if (task.status !== TASK_STATUS_ACTIVE || assignedUserId.length > 0) {
+      throw new HttpsError("failed-precondition", "Task is not available.");
+    }
+
+    transaction.update(taskReference, {
+      assignedUserId: userId,
+      "notifications.assignedSent": false,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+  });
+
+  logger.info("Task assigned to self", {
+    groupId,
+    taskId,
+    userId,
+  });
+
+  return {taskId};
+});
+
+exports.completeTask = onCall({enforceAppCheck: true}, async (request) => {
+  const userId = request.auth && request.auth.uid;
+  if (!userId) {
+    throw new HttpsError("unauthenticated", "Sign in is required.");
+  }
+
+  const groupId = readRequiredString(request.data, "groupId");
+  const taskId = readRequiredString(request.data, "taskId");
+  const groupReference = db.collection("groups").doc(groupId);
+  const adminMemberReference = groupReference.collection("members").doc(userId);
+  const taskReference = groupReference.collection("tasks").doc(taskId);
+
+  const result = await db.runTransaction(async (transaction) => {
+    const adminMemberSnapshot = await transaction.get(adminMemberReference);
+    if (!adminMemberSnapshot.exists) {
+      throw new HttpsError("permission-denied", "Only group admins can complete tasks.");
+    }
+
+    const adminMember = adminMemberSnapshot.data();
+    if (!adminMember || adminMember.role !== ADMIN_ROLE) {
+      throw new HttpsError("permission-denied", "Only group admins can complete tasks.");
+    }
+
+    const taskSnapshot = await transaction.get(taskReference);
+    if (!taskSnapshot.exists) {
+      throw new HttpsError("not-found", "Task was not found.");
+    }
+
+    const task = taskSnapshot.data() || {};
+    if (task.status !== TASK_STATUS_ACTIVE) {
+      throw new HttpsError("failed-precondition", "Task is not active.");
+    }
+
+    const assignedUserId = typeof task.assignedUserId === "string" ?
+      task.assignedUserId : "";
+    if (assignedUserId.length === 0) {
+      throw new HttpsError("failed-precondition", "Task has no assignee.");
+    }
+
+    const rewardPoints = normalizePositiveInteger(task.rewardPoints) || 10;
+    const now = new Date();
+    const currentWeeklyPeriodId = currentIsoWeekPeriodId(now);
+    const currentScoreBucket = `dailyTokenBuckets.${currentScoreDateId(now)}`;
+    const memberReference = groupReference.collection("members").doc(assignedUserId);
+    const memberSnapshot = await transaction.get(memberReference);
+    if (!memberSnapshot.exists) {
+      throw new HttpsError("not-found", "Assignee was not found.");
+    }
+
+    const member = memberSnapshot.data();
+    transaction.update(taskReference, {
+      status: TASK_STATUS_COMPLETED,
+      completedBy: userId,
+      completedAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+    transaction.update(memberReference, {
+      tokenBalance: FieldValue.increment(rewardPoints),
+      weeklyTokensEarned: weeklyTokensEarnedUpdate({
+        member,
+        currentWeeklyPeriodId,
+        payout: rewardPoints,
+        increment: (value) => FieldValue.increment(value),
+      }),
+      weeklyScorePeriodId: currentWeeklyPeriodId,
+      [currentScoreBucket]: FieldValue.increment(rewardPoints),
+      allTimeTokensEarned: FieldValue.increment(rewardPoints),
+      totalTokensEarned: FieldValue.increment(rewardPoints),
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+    transaction.set(db.collection("users").doc(assignedUserId), {
+      totalTokensEarned: FieldValue.increment(rewardPoints),
+      updatedAt: FieldValue.serverTimestamp(),
+    }, {merge: true});
+    transaction.update(groupReference, {
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+
+    return {assignedUserId, rewardPoints};
+  });
+
+  logger.info("Task completed", {
+    groupId,
+    taskId,
+    completedBy: userId,
+    ...result,
+  });
+
+  return {taskId};
 });
 
 exports.placeStake = onCall({enforceAppCheck: true}, async (request) => {
@@ -417,13 +682,9 @@ exports.resolveWager = onCall({enforceAppCheck: true}, async (request) => {
     const totalPool = settlement.totalPool;
     const winningSideTotal = settlement.winningSideTotal;
     const payouts = settlement.payouts;
-    const groupSnapshot = await transaction.get(groupReference);
-    const group = groupSnapshot.data() || {};
-    const currentWeeklyPeriodId = currentLeaderboardPeriodId(
-      normalizePositiveInteger(group.leaderboardWindowWeeks) || 1,
-      new Date(),
-      group.leaderboardPeriodAnchorDate || null,
-    );
+    const now = new Date();
+    const currentWeeklyPeriodId = currentIsoWeekPeriodId(now);
+    const currentScoreBucket = `dailyTokenBuckets.${currentScoreDateId(now)}`;
     const memberSnapshots = {};
     for (const stake of validStakes) {
       const memberReference = groupReference.collection("members").doc(stake.userId);
@@ -470,6 +731,7 @@ exports.resolveWager = onCall({enforceAppCheck: true}, async (request) => {
           increment: (value) => FieldValue.increment(value),
         }),
         weeklyScorePeriodId: currentWeeklyPeriodId,
+        [currentScoreBucket]: FieldValue.increment(payout),
         allTimeTokensEarned: FieldValue.increment(payout),
         updatedAt: FieldValue.serverTimestamp(),
       });
@@ -526,55 +788,6 @@ exports.resolveWager = onCall({enforceAppCheck: true}, async (request) => {
   }
 
   return result;
-});
-
-exports.resetWeeklyLeaderboards = onSchedule({
-  schedule: "10 0 * * *",
-  timeZone: "Etc/UTC",
-}, async () => {
-  const groupsSnapshot = await db.collection("groups").get();
-  let batch = db.batch();
-  let batchSize = 0;
-  let updatedCount = 0;
-
-  for (const groupSnapshot of groupsSnapshot.docs) {
-    const group = groupSnapshot.data() || {};
-    const currentWeeklyPeriodId = currentLeaderboardPeriodId(
-      normalizePositiveInteger(group.leaderboardWindowWeeks) || 1,
-      new Date(),
-      group.leaderboardPeriodAnchorDate || null,
-    );
-    const membersSnapshot = await groupSnapshot.ref.collection("members").get();
-
-    for (const memberSnapshot of membersSnapshot.docs) {
-      const member = memberSnapshot.data() || {};
-      if (member.weeklyScorePeriodId === currentWeeklyPeriodId) {
-        continue;
-      }
-
-      batch.update(memberSnapshot.ref, {
-        weeklyTokensEarned: 0,
-        weeklyScorePeriodId: currentWeeklyPeriodId,
-        updatedAt: FieldValue.serverTimestamp(),
-      });
-      batchSize += 1;
-      updatedCount += 1;
-
-      if (batchSize >= FIRESTORE_BATCH_SIZE) {
-        await batch.commit();
-        batch = db.batch();
-        batchSize = 0;
-      }
-    }
-  }
-
-  if (batchSize > 0) {
-    await batch.commit();
-  }
-
-  logger.info("Weekly leaderboards reset", {
-    updatedCount,
-  });
 });
 
 exports.manageGroupMember = onCall({enforceAppCheck: true}, async (request) => {
@@ -782,6 +995,25 @@ function readRequiredString(data, field) {
   return value.trim();
 }
 
+function readOptionalString(data, field) {
+  const value = data && data[field];
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function readOptionalDate(data, field) {
+  const value = data && data[field];
+  if (typeof value !== "string" || value.trim().length === 0) {
+    return null;
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    throw new HttpsError("invalid-argument", `${field} must be a valid date.`);
+  }
+
+  return date;
+}
+
 function normalizeStringArray(value) {
   if (!Array.isArray(value)) {
     return [];
@@ -821,6 +1053,7 @@ function publicGroupPayload({groupId, group, myTokenBalance}) {
     myTokenBalance,
     leaderboardWindowWeeks: normalizePositiveInteger(group.leaderboardWindowWeeks) || 1,
     leaderboardPeriodAnchorDate: group.leaderboardPeriodAnchorDate || null,
+    leaderboardUsesCustomAnchor: group.leaderboardUsesCustomAnchor === true,
     accentColor: normalizePositiveInteger(group.accentColor),
   };
 }

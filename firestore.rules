@@ -73,6 +73,11 @@ service cloud.firestore {
           allow delete: if false;
         }
       }
+
+      match /tasks/{taskId} {
+        allow read: if isGroupMember(groupId);
+        allow create, update, delete: if false;
+      }
     }
 
     match /{path=**}/members/{userId} {
@@ -82,6 +87,11 @@ service cloud.firestore {
     match /{path=**}/stakes/{userId} {
       allow list: if signedIn() && resource.data.userId == request.auth.uid;
       allow get: if signedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    match /{path=**}/tasks/{taskId} {
+      allow list: if signedIn() && resource.data.assignedUserId == request.auth.uid;
+      allow get: if signedIn() && resource.data.assignedUserId == request.auth.uid;
     }
 
     function canMemberUpdateCounters(groupId) {
@@ -99,6 +109,7 @@ service cloud.firestore {
             'accentColor',
             'leaderboardWindowWeeks',
             'leaderboardPeriodAnchorDate',
+            'leaderboardUsesCustomAnchor',
             'updatedAt'
           ])
         && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['name']) ||
@@ -126,7 +137,9 @@ service cloud.firestore {
             request.resource.data.leaderboardWindowWeeks >= 1 &&
             request.resource.data.leaderboardWindowWeeks <= 52))
         && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['leaderboardPeriodAnchorDate']) ||
-          request.resource.data.leaderboardPeriodAnchorDate is timestamp);
+          request.resource.data.leaderboardPeriodAnchorDate is timestamp)
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['leaderboardUsesCustomAnchor']) ||
+          request.resource.data.leaderboardUsesCustomAnchor is bool);
     }
 
     function canSelfDecreaseTokenBalance(groupId, userId) {

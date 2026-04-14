@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:point_rivals/app/dependencies/app_dependencies.dart';
@@ -8,6 +10,7 @@ import 'package:point_rivals/core/routing/app_router.dart';
 import 'package:point_rivals/core/widgets/app_refresh_indicator.dart';
 import 'package:point_rivals/core/widgets/app_shimmer.dart';
 import 'package:point_rivals/features/activity/domain/activity_models.dart';
+import 'package:point_rivals/features/tasks/domain/task_models.dart';
 
 class ActivityPage extends StatelessWidget {
   const ActivityPage({super.key});
@@ -44,39 +47,96 @@ class ActivityPage extends StatelessWidget {
               return Center(child: Text(l10n.authGenericError));
             }
 
-            final activities = snapshot.data ?? const <ActivityItem>[];
-            return AppLoadingSwitcher(
-              isLoading: !snapshot.hasData,
-              loading: const AppSkeletonList(),
-              child: activities.isEmpty
-                  ? AppRefreshIndicator(
-                      child: ListView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        children: [
-                          SizedBox(
-                            height: MediaQuery.sizeOf(context).height * 0.55,
-                            child: Center(child: Text(l10n.activityEmpty)),
+            return StreamBuilder<List<RivalTask>>(
+              key: ValueKey('completed-tasks-${user.id}-$refreshRevision'),
+              stream: AppDependenciesScope.of(
+                context,
+              ).taskRepository.watchUserCompletedTasks(user.id),
+              builder: (context, tasksSnapshot) {
+                if (tasksSnapshot.hasError) {
+                  return Center(child: Text(l10n.authGenericError));
+                }
+
+                final activities = snapshot.data ?? const <ActivityItem>[];
+                final completedTasks =
+                    tasksSnapshot.data ?? const <RivalTask>[];
+                final entries =
+                    [
+                      for (final activity in activities)
+                        _ProfileTimelineEntry.activity(activity),
+                      for (final task in completedTasks)
+                        _ProfileTimelineEntry.completedTask(task),
+                    ]..sort((left, right) {
+                      return (right.createdAt ??
+                              DateTime.fromMillisecondsSinceEpoch(0))
+                          .compareTo(
+                            left.createdAt ??
+                                DateTime.fromMillisecondsSinceEpoch(0),
+                          );
+                    });
+
+                return AppLoadingSwitcher(
+                  isLoading: !snapshot.hasData || !tasksSnapshot.hasData,
+                  loading: const AppSkeletonList(),
+                  child: entries.isEmpty
+                      ? AppRefreshIndicator(
+                          child: ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            children: [
+                              SizedBox(
+                                height:
+                                    MediaQuery.sizeOf(context).height * 0.55,
+                                child: Center(child: Text(l10n.activityEmpty)),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    )
-                  : AppRefreshIndicator(
-                      child: ListView.separated(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        padding: const EdgeInsets.only(bottom: 20),
-                        itemBuilder: (context, index) {
-                          return _ActivityCard(activity: activities[index]);
-                        },
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(height: 12),
-                        itemCount: activities.length,
-                      ),
-                    ),
+                        )
+                      : AppRefreshIndicator(
+                          child: ListView.separated(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: const EdgeInsets.only(bottom: 20),
+                            itemBuilder: (context, index) {
+                              return _TimelineCard(entry: entries[index]);
+                            },
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(height: 12),
+                            itemCount: entries.length,
+                          ),
+                        ),
+                );
+              },
             );
           },
         ),
       ),
     );
+  }
+}
+
+final class _ProfileTimelineEntry {
+  const _ProfileTimelineEntry.activity(this.activity) : task = null;
+
+  const _ProfileTimelineEntry.completedTask(this.task) : activity = null;
+
+  final ActivityItem? activity;
+  final RivalTask? task;
+
+  DateTime? get createdAt => activity?.createdAt ?? task?.completedAt;
+}
+
+class _TimelineCard extends StatelessWidget {
+  const _TimelineCard({required this.entry});
+
+  final _ProfileTimelineEntry entry;
+
+  @override
+  Widget build(BuildContext context) {
+    final activity = entry.activity;
+    if (activity != null) {
+      return _ActivityCard(activity: activity);
+    }
+
+    return _CompletedTaskCard(task: entry.task!);
   }
 }
 
@@ -96,18 +156,34 @@ class _ActivityCard extends StatelessWidget {
         l10n.activityResolvedWonTitle(activity.payout),
       ActivityType.wagerResolved => l10n.activityResolvedTitle,
       ActivityType.wagerCancelled => l10n.activityCancelledTitle,
+      ActivityType.taskCompleted => l10n.activityTaskCompletedTitle,
     };
     final icon = switch (activity.type) {
       ActivityType.newWager => Icons.add_circle_rounded,
       ActivityType.wagerResolved => Icons.check_circle_rounded,
       ActivityType.wagerCancelled => Icons.cancel_rounded,
+      ActivityType.taskCompleted => Icons.assignment_turned_in_rounded,
     };
 
     return Card(
       child: InkWell(
-        onTap: () => context.push(
-          AppRoutes.wagerDetails(activity.groupId, activity.wagerId),
-        ),
+        onTap: () {
+          if (activity.type == ActivityType.taskCompleted &&
+              activity.taskId.isNotEmpty) {
+            unawaited(
+              context.push(
+                AppRoutes.taskDetails(activity.groupId, activity.taskId),
+              ),
+            );
+            return;
+          }
+
+          unawaited(
+            context.push(
+              AppRoutes.wagerDetails(activity.groupId, activity.wagerId),
+            ),
+          );
+        },
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -152,6 +228,73 @@ class _ActivityCard extends StatelessWidget {
                             ),
                           ),
                         Chip(label: Text(l10n.activityOpenGroup)),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right_rounded),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CompletedTaskCard extends StatelessWidget {
+  const _CompletedTaskCard({required this.task});
+
+  final RivalTask task;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final colors = Theme.of(context).colorScheme;
+
+    return Card(
+      child: InkWell(
+        onTap: () => context.push(AppRoutes.taskDetails(task.groupId, task.id)),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                backgroundColor: colors.primary.withValues(alpha: 0.12),
+                foregroundColor: colors.primary,
+                child: const Icon(Icons.assignment_turned_in_rounded),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.activityTaskCompletedTitle,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      task.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        Chip(
+                          label: Text(l10n.taskRewardPoints(task.rewardPoints)),
+                        ),
+                        Chip(
+                          label: Text(
+                            l10n.activityCompletedAt(
+                              formatAppDateTime(context, task.completedAt),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ],

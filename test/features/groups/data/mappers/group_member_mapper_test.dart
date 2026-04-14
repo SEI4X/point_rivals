@@ -13,6 +13,7 @@ void main() {
         'tokenBalance': 920,
         'weeklyTokensEarned': 140,
         'weeklyScorePeriodId': '2026-W16',
+        'dailyTokenBuckets': {'20260413': 40, '20260414': 100},
         'allTimeTokensEarned': 2100,
         'xp': 450,
         'totalWagers': 12,
@@ -28,6 +29,7 @@ void main() {
     expect(member.tokenBalance, 920);
     expect(member.weeklyTokensEarned, 140);
     expect(member.weeklyScorePeriodId, '2026-W16');
+    expect(member.dailyTokenBuckets, {'20260413': 40, '20260414': 100});
     expect(member.allTimeTokensEarned, 2100);
     expect(member.xp, 450);
     expect(member.totalWagers, 12);
