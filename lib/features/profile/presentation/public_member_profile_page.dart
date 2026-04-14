@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:point_rivals/app/dependencies/app_dependencies.dart';
 import 'package:point_rivals/core/l10n/l10n.dart';
+import 'package:point_rivals/core/widgets/app_shimmer.dart';
 import 'package:point_rivals/features/groups/domain/group_models.dart';
 import 'package:point_rivals/features/profile/domain/profile_models.dart';
 import 'package:point_rivals/features/profile/domain/xp_progression.dart';
@@ -48,11 +49,9 @@ class PublicMemberProfilePage extends StatelessWidget {
               snapshot.connectionState == ConnectionState.none;
           return _PublicMemberProfileScaffold(
             title: l10n.profileTitle,
-            child: Center(
-              child: isLoading
-                  ? const CircularProgressIndicator()
-                  : Text(l10n.profileNotFound),
-            ),
+            child: isLoading
+                ? const AppSkeletonList(itemCount: 3)
+                : Center(child: Text(l10n.profileNotFound)),
           );
         }
 
@@ -205,52 +204,45 @@ class _PublicMemberProfileContent extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            Row(
+            GridView.count(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.85,
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
               children: [
-                Expanded(
-                  child: _MemberStat(
-                    icon: Icons.savings_rounded,
-                    label: l10n.groupsMemberBalance(data.tokenBalance),
-                    color: colors.primary,
-                  ),
+                _MemberStat(
+                  icon: Icons.savings_rounded,
+                  value: data.tokenBalance.toString(),
+                  label: l10n.profileChips,
+                  color: colors.primary,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _MemberStat(
-                    icon: Icons.stars_rounded,
-                    label: l10n.profileXpProgress(currentXp, requiredXp),
-                    color: colors.tertiary,
-                  ),
+                _MemberStat(
+                  icon: Icons.stars_rounded,
+                  value: xp.toString(),
+                  label: l10n.profileXp,
+                  color: colors.tertiary,
+                ),
+                _MemberStat(
+                  icon: Icons.casino_rounded,
+                  value: totalWagers.toString(),
+                  label: l10n.profileTotalWagers,
+                  color: colors.tertiary,
+                ),
+                _MemberStat(
+                  icon: Icons.verified_rounded,
+                  value: '$correctWagers / $accuracyPercent',
+                  label: l10n.profileCorrectWagers,
+                  color: colors.secondary,
+                ),
+                _MemberStat(
+                  icon: Icons.emoji_events_rounded,
+                  value: data.totalTokensEarned.toString(),
+                  label: l10n.profileTotalEarned,
+                  color: colors.primary,
                 ),
               ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _MemberStat(
-                    icon: Icons.casino_rounded,
-                    label: '${l10n.profileTotalWagers}: $totalWagers',
-                    color: colors.tertiary,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _MemberStat(
-                    icon: Icons.verified_rounded,
-                    label:
-                        '${l10n.profileCorrectWagers}: '
-                        '$correctWagers / $accuracyPercent',
-                    color: colors.secondary,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            _MemberStat(
-              icon: Icons.emoji_events_rounded,
-              label: '${l10n.profileTotalEarned}: ${data.totalTokensEarned}',
-              color: colors.primary,
             ),
           ],
         ),
@@ -320,11 +312,13 @@ final class _PublicMemberViewData {
 class _MemberStat extends StatelessWidget {
   const _MemberStat({
     required this.icon,
+    required this.value,
     required this.label,
     required this.color,
   });
 
   final IconData icon;
+  final String value;
   final String label;
   final Color color;
 
@@ -332,17 +326,38 @@ class _MemberStat extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Row(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: color),
-            const SizedBox(width: 10),
-            Expanded(
+            Row(
+              children: [
+                Icon(icon, color: color, size: 20),
+                const SizedBox(width: 7),
+                Expanded(
+                  child: Text(
+                    label,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const Spacer(),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
               child: Text(
-                label,
+                value,
                 maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.labelLarge,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
           ],

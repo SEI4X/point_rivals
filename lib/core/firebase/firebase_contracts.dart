@@ -47,9 +47,19 @@ abstract interface class GroupRepository {
 
   Future<void> updateGroupName({required String groupId, required String name});
 
+  Future<void> updateGroupAccentColor({
+    required String groupId,
+    required int accentColorValue,
+  });
+
   Future<void> updateGroupLeaderboardWindowWeeks({
     required String groupId,
     required int weeks,
+  });
+
+  Future<void> updateGroupLeaderboardPeriodAnchorDate({
+    required String groupId,
+    required DateTime anchorDate,
   });
 
   Future<void> updateMemberRole({
@@ -107,10 +117,24 @@ abstract interface class NotificationRepository {
 
   Stream<String> notificationGroupOpenRequests();
 
+  Stream<IncomingNotification> foregroundNotifications();
+
   Future<void> setNotificationsEnabled({
     required String userId,
     required bool enabled,
   });
+}
+
+final class IncomingNotification {
+  const IncomingNotification({
+    required this.groupId,
+    required this.title,
+    required this.body,
+  });
+
+  final String? groupId;
+  final String title;
+  final String body;
 }
 
 abstract interface class ActivityRepository {

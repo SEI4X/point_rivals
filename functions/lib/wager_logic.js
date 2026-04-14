@@ -2,21 +2,28 @@
 
 const SIDES = new Set(["left", "right"]);
 
-function settlementForStakes(stakes, winningSide) {
+function settlementForStakes(stakes, winningSide, rewardCoins = 10) {
   const validStakes = stakes.filter((stake) => (
-    SIDES.has(stake.side) && normalizePositiveInteger(stake.amount) > 0
+    SIDES.has(stake.side)
   ));
-  const totalPool = validStakes.reduce((total, stake) => total + stake.amount, 0);
+  const normalizedReward = normalizePositiveInteger(rewardCoins) || 10;
+  const totalPool = validStakes.length * normalizedReward;
   const winningSideTotal = validStakes
     .filter((stake) => stake.side === winningSide)
-    .reduce((total, stake) => total + stake.amount, 0);
+    .length;
+  const leftCount = validStakes.filter((stake) => stake.side === "left").length;
+  const rightCount = validStakes.filter((stake) => stake.side === "right").length;
+  const unpopularWinningSide =
+    (winningSide === "left" && leftCount > 0 && leftCount < rightCount) ||
+    (winningSide === "right" && rightCount > 0 && rightCount < leftCount);
+  const winningPayout = unpopularWinningSide ?
+    Math.floor(normalizedReward * 1.5) :
+    normalizedReward;
   const payouts = {};
 
   for (const stake of validStakes) {
-    const fallbackOdds = oddsForSide(totalPool, winningSideTotal);
-    const odds = normalizePositiveNumber(stake.odds) || fallbackOdds;
     payouts[stake.userId] = stake.side === winningSide ?
-      Math.floor(stake.amount * odds) :
+      winningPayout :
       0;
   }
 
@@ -31,9 +38,8 @@ function settlementForStakes(stakes, winningSide) {
 function refundsForStakes(stakes) {
   const refunds = {};
   for (const stake of stakes) {
-    const amount = normalizePositiveInteger(stake.amount);
-    if (amount > 0) {
-      refunds[stake.userId] = amount;
+    if (typeof stake.userId === "string" && stake.userId.length > 0) {
+      refunds[stake.userId] = 0;
     }
   }
 
@@ -51,17 +57,6 @@ function weeklyTokensEarnedUpdate({
   }
 
   return payout;
-}
-
-function oddsForSide(totalPool, sideTotal) {
-  if (totalPool <= 0) {
-    return 2;
-  }
-
-  const virtualSidePool = Math.max(totalPool, 100);
-  const virtualTotalPool = virtualSidePool * 2;
-  const odds = (totalPool + virtualTotalPool) / (sideTotal + virtualSidePool);
-  return Math.min(5, Math.max(1.1, odds));
 }
 
 function normalizeSide(value) {
@@ -82,10 +77,15 @@ function currentIsoWeekPeriodId(date = new Date()) {
   return isoWeekParts(date).periodId;
 }
 
-function currentLeaderboardPeriodId(windowWeeks = 1, date = new Date()) {
+function currentLeaderboardPeriodId(windowWeeks = 1, date = new Date(), anchorDate = null) {
   const normalizedWindowWeeks = Number.isInteger(windowWeeks) && windowWeeks > 0 ?
     windowWeeks :
     1;
+  const normalizedAnchor = normalizeDate(anchorDate);
+  if (normalizedAnchor) {
+    return sprintPeriodId(normalizedWindowWeeks, date, normalizedAnchor);
+  }
+
   const parts = isoWeekParts(date);
   if (normalizedWindowWeeks === 1) {
     return parts.periodId;
@@ -93,6 +93,45 @@ function currentLeaderboardPeriodId(windowWeeks = 1, date = new Date()) {
 
   const windowIndex = Math.floor((parts.week - 1) / normalizedWindowWeeks) + 1;
   return `${parts.year}-W${String(windowIndex).padStart(2, "0")}x${normalizedWindowWeeks}`;
+}
+
+function sprintPeriodId(windowWeeks, date = new Date(), anchorDate) {
+  const dayInMilliseconds = 24 * 60 * 60 * 1000;
+  const periodDays = windowWeeks * 7;
+  const anchor = utcDateOnly(anchorDate);
+  const current = utcDateOnly(date);
+  const daysSinceAnchor = Math.floor((current - anchor) / dayInMilliseconds);
+  const periodIndex = daysSinceAnchor < 0 ? 0 : Math.floor(daysSinceAnchor / periodDays);
+  const periodStart = new Date(anchor.getTime() + periodIndex * periodDays * dayInMilliseconds);
+
+  return `${dateId(periodStart)}-S${String(periodIndex + 1).padStart(3, "0")}x${windowWeeks}`;
+}
+
+function normalizeDate(value) {
+  if (value && typeof value.toDate === "function") {
+    return value.toDate();
+  }
+  if (value instanceof Date && Number.isFinite(value.getTime())) {
+    return value;
+  }
+  if (typeof value === "string") {
+    const parsed = new Date(value);
+    return Number.isFinite(parsed.getTime()) ? parsed : null;
+  }
+
+  return null;
+}
+
+function utcDateOnly(date) {
+  return new Date(Date.UTC(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate(),
+  ));
+}
+
+function dateId(date) {
+  return `${date.getUTCFullYear()}${String(date.getUTCMonth() + 1).padStart(2, "0")}${String(date.getUTCDate()).padStart(2, "0")}`;
 }
 
 function isoWeekParts(date = new Date()) {
@@ -121,7 +160,6 @@ module.exports = {
   normalizePositiveInteger,
   normalizePositiveNumber,
   normalizeSide,
-  oddsForSide,
   refundsForStakes,
   settlementForStakes,
   weeklyTokensEarnedUpdate,

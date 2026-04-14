@@ -13,6 +13,7 @@ void main() {
         'type': 'custom',
         'leftLabel': 'Alex',
         'rightLabel': 'Sam',
+        'rewardCoins': 20,
         'excludedUserIds': ['alex', 'sam'],
         'status': 'resolved',
         'winningSide': 'right',
@@ -29,6 +30,7 @@ void main() {
     expect(wager.creatorUserId, 'creator-1');
     expect(wager.type, WagerType.custom);
     expect(wager.leftOption.label, 'Alex');
+    expect(wager.rewardCoins, 20);
     expect(wager.excludedUserIds, {'alex', 'sam'});
     expect(wager.status, WagerStatus.resolved);
     expect(wager.winningSide, WagerSide.right);

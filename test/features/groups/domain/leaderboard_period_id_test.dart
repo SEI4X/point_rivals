@@ -35,4 +35,25 @@ void main() {
       '2026-W08x2',
     );
   });
+
+  test('uses sprint windows from an anchor date', () {
+    final anchorDate = DateTime.utc(2026, 4, 13);
+
+    expect(
+      currentLeaderboardPeriodId(
+        windowWeeks: 2,
+        anchorDate: anchorDate,
+        now: DateTime.utc(2026, 4, 14),
+      ),
+      '20260413-S001x2',
+    );
+    expect(
+      currentLeaderboardPeriodId(
+        windowWeeks: 2,
+        anchorDate: anchorDate,
+        now: DateTime.utc(2026, 4, 27),
+      ),
+      '20260427-S002x2',
+    );
+  });
 }

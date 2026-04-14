@@ -7,9 +7,10 @@ import 'package:point_rivals/app/session/app_session_controller.dart';
 import 'package:point_rivals/core/l10n/l10n.dart';
 import 'package:point_rivals/core/routing/app_router.dart';
 import 'package:point_rivals/core/widgets/app_refresh_indicator.dart';
+import 'package:point_rivals/core/widgets/app_shimmer.dart';
 import 'package:point_rivals/core/widgets/app_snack_bar.dart';
 import 'package:point_rivals/features/groups/domain/group_models.dart';
-import 'package:point_rivals/features/profile/domain/profile_models.dart';
+import 'package:point_rivals/features/groups/presentation/group_accent_color.dart';
 
 class GroupsPage extends StatelessWidget {
   const GroupsPage({super.key});
@@ -20,10 +21,11 @@ class GroupsPage extends StatelessWidget {
     final session = AppSessionScope.of(context);
     final dependencies = AppDependenciesScope.of(context);
     final user = session.currentUser;
+    final refreshRevision = AppRefreshScope.revisionOf(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.appTitle),
+        title: Text(l10n.groupsTitle),
         actions: [
           IconButton(
             tooltip: l10n.groupsSearchTooltip,
@@ -35,8 +37,9 @@ class GroupsPage extends StatelessWidget {
       body: SafeArea(
         minimum: const EdgeInsets.symmetric(horizontal: 16),
         child: user == null
-            ? const Center(child: CircularProgressIndicator())
+            ? const AppSkeletonList(showHeader: true)
             : StreamBuilder<List<RivalGroup>>(
+                key: ValueKey('groups-$refreshRevision'),
                 stream: dependencies.groupRepository.watchMyGroups(user.id),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
@@ -49,32 +52,32 @@ class GroupsPage extends StatelessWidget {
                     return const _GroupsError();
                   }
 
-                  if (!snapshot.hasData) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  final groups = snapshot.data!;
-                  return AppRefreshIndicator(
-                    child: ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.only(bottom: 20),
-                      children: [
-                        _DashboardHeader(user: user),
-                        const SizedBox(height: 16),
-                        if (groups.isEmpty)
-                          const _GroupsEmptyState()
-                        else ...[
-                          Text(
-                            l10n.groupsTitle,
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          const SizedBox(height: 10),
-                          for (final group in groups) ...[
-                            _GroupTile(group: group),
-                            const SizedBox(height: 12),
+                  final groups = snapshot.data ?? const <RivalGroup>[];
+                  return AppLoadingSwitcher(
+                    isLoading: !snapshot.hasData,
+                    loading: const AppSkeletonList(showHeader: true),
+                    child: AppRefreshIndicator(
+                      child: ListView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: EdgeInsets.only(
+                          bottom: 24 + MediaQuery.paddingOf(context).bottom,
+                        ),
+                        children: [
+                          if (groups.isEmpty)
+                            const _GroupsEmptyState()
+                          else ...[
+                            Text(
+                              l10n.groupsTitle,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 10),
+                            for (final group in groups) ...[
+                              _GroupTile(group: group),
+                              const SizedBox(height: 12),
+                            ],
                           ],
                         ],
-                      ],
+                      ),
                     ),
                   );
                 },
@@ -85,11 +88,13 @@ class GroupsPage extends StatelessWidget {
 
   Future<void> _showGroupActions(BuildContext context) {
     final l10n = context.l10n;
+    final rootContext = context;
 
     return showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
-      builder: (context) {
+      useRootNavigator: true,
+      builder: (sheetContext) {
         return SafeArea(
           minimum: const EdgeInsets.fromLTRB(20, 8, 20, 20),
           child: Column(
@@ -99,16 +104,16 @@ class GroupsPage extends StatelessWidget {
                 leading: const Icon(Icons.search_rounded),
                 title: Text(l10n.joinGroupPreviewButton),
                 onTap: () {
-                  Navigator.of(context).pop();
-                  unawaited(_showJoinGroupSheet(context));
+                  Navigator.of(sheetContext).pop();
+                  unawaited(_showJoinGroupSheet(rootContext));
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.add_circle_outline_rounded),
                 title: Text(l10n.groupsCreateTooltip),
                 onTap: () {
-                  Navigator.of(context).pop();
-                  unawaited(context.push(AppRoutes.createGroup));
+                  Navigator.of(sheetContext).pop();
+                  unawaited(rootContext.push(AppRoutes.createGroup));
                 },
               ),
             ],
@@ -123,81 +128,8 @@ class GroupsPage extends StatelessWidget {
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
+      useRootNavigator: true,
       builder: (context) => const _JoinGroupSheet(),
-    );
-  }
-}
-
-class _DashboardHeader extends StatelessWidget {
-  const _DashboardHeader({required this.user});
-
-  final UserProfile user;
-
-  @override
-  Widget build(BuildContext context) {
-    final ColorScheme colors = Theme.of(context).colorScheme;
-    final String displayName = user.displayName.isEmpty
-        ? context.l10n.profileUnnamed
-        : user.displayName;
-
-    return Row(
-      children: [
-        CircleAvatar(
-          radius: 17,
-          backgroundColor: colors.surfaceContainerHigh,
-          backgroundImage: user.avatarUrl == null
-              ? null
-              : NetworkImage(user.avatarUrl!),
-          foregroundColor: colors.primary,
-          child: user.avatarUrl == null
-              ? const Icon(Icons.person_rounded, size: 18)
-              : null,
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            displayName,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-        ),
-        _HeaderBadge(
-          icon: Icons.casino_rounded,
-          text: user.totalWagers.toString(),
-          color: colors.tertiary,
-        ),
-        const SizedBox(width: 8),
-        _HeaderBadge(
-          icon: Icons.stars_rounded,
-          text: user.xp.toString(),
-          color: colors.primary,
-        ),
-      ],
-    );
-  }
-}
-
-class _HeaderBadge extends StatelessWidget {
-  const _HeaderBadge({
-    required this.icon,
-    required this.text,
-    required this.color,
-  });
-
-  final IconData icon;
-  final String text;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 13, color: color),
-        const SizedBox(width: 3),
-        Text(text, style: Theme.of(context).textTheme.labelSmall),
-      ],
     );
   }
 }
@@ -403,6 +335,7 @@ class _GroupTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
     final ColorScheme colors = Theme.of(context).colorScheme;
+    final accentColor = group.accentColor;
 
     return Card(
       child: InkWell(
@@ -414,9 +347,26 @@ class _GroupTile extends StatelessWidget {
             children: [
               Row(
                 children: [
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: accentColor,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(9),
+                      child: Icon(
+                        Icons.groups_2_rounded,
+                        color: onGroupAccentColor(accentColor),
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       group.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ),

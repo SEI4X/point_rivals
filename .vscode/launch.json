@@ -9,6 +9,7 @@
       "flutterMode": "debug",
       "program": "lib/main.dart",
       "toolArgs": [
+        "--disable-dds",
         "--dart-define=FIREBASE_APP_CHECK_DEBUG_TOKEN=3B56FCF9-795E-4302-952B-CEF1D45F567F"
       ]
     },
@@ -20,6 +21,7 @@
       "flutterMode": "debug",
       "program": "lib/main.dart",
       "toolArgs": [
+        "--disable-dds",
         "--dart-define=FIREBASE_APP_CHECK_DEBUG_TOKEN=3B56FCF9-795E-4302-952B-CEF1D45F567F"
       ]
     },

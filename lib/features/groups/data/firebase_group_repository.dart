@@ -4,6 +4,7 @@ import 'package:point_rivals/core/firebase/firebase_contracts.dart';
 import 'package:point_rivals/core/firebase/firestore_paths.dart';
 import 'package:point_rivals/features/groups/data/mappers/group_mapper.dart';
 import 'package:point_rivals/features/groups/data/mappers/group_member_mapper.dart';
+import 'package:point_rivals/features/groups/domain/group_accent_colors.dart';
 import 'package:point_rivals/features/groups/domain/group_models.dart';
 import 'package:point_rivals/features/profile/domain/profile_models.dart';
 
@@ -86,22 +87,19 @@ class FirebaseGroupRepository implements GroupRepository {
         .collection(FirestoreCollections.members)
         .limit(_membersLimit)
         .snapshots()
-        .asyncMap((snapshot) async {
+        .map((snapshot) {
           final members = snapshot.docs.map((document) {
             return GroupMemberMapper.fromFirestore(
               userId: document.id,
               data: document.data(),
             );
           }).toList();
-          final hydratedMembers = await Future.wait(
-            members.map(_hydrateMemberWithUserProfile),
-          );
 
-          hydratedMembers.sort((left, right) {
+          members.sort((left, right) {
             return right.tokenBalance.compareTo(left.tokenBalance);
           });
 
-          return hydratedMembers;
+          return members;
         });
   }
 
@@ -142,7 +140,7 @@ class FirebaseGroupRepository implements GroupRepository {
     return GroupMapper.fromFirestore(
       id: snapshot.id,
       data: snapshot.data() ?? const {},
-      myTokenBalance: 1000,
+      myTokenBalance: 0,
     );
   }
 
@@ -189,15 +187,49 @@ class FirebaseGroupRepository implements GroupRepository {
   }
 
   @override
-  Future<void> updateGroupLeaderboardWindowWeeks({
+  Future<void> updateGroupAccentColor({
     required String groupId,
-    required int weeks,
+    required int accentColorValue,
   }) async {
     await _firestore
         .collection(FirestoreCollections.groups)
         .doc(groupId)
         .update({
+          'accentColor': GroupAccentColors.normalize(accentColorValue),
+          FirestoreFields.updatedAt: FieldValue.serverTimestamp(),
+        });
+  }
+
+  @override
+  Future<void> updateGroupLeaderboardWindowWeeks({
+    required String groupId,
+    required int weeks,
+  }) async {
+    final now = DateTime.now().toUtc();
+    await _firestore
+        .collection(FirestoreCollections.groups)
+        .doc(groupId)
+        .update({
           'leaderboardWindowWeeks': weeks.clamp(1, 52),
+          'leaderboardPeriodAnchorDate': Timestamp.fromDate(
+            DateTime.utc(now.year, now.month, now.day),
+          ),
+          FirestoreFields.updatedAt: FieldValue.serverTimestamp(),
+        });
+  }
+
+  @override
+  Future<void> updateGroupLeaderboardPeriodAnchorDate({
+    required String groupId,
+    required DateTime anchorDate,
+  }) async {
+    await _firestore
+        .collection(FirestoreCollections.groups)
+        .doc(groupId)
+        .update({
+          'leaderboardPeriodAnchorDate': Timestamp.fromDate(
+            DateTime.utc(anchorDate.year, anchorDate.month, anchorDate.day),
+          ),
           FirestoreFields.updatedAt: FieldValue.serverTimestamp(),
         });
   }
@@ -229,37 +261,6 @@ class FirebaseGroupRepository implements GroupRepository {
 
   static int _int(Object? value) => value is int ? value : 0;
 
-  Future<GroupMember> _hydrateMemberWithUserProfile(GroupMember member) async {
-    final userSnapshot = await _firestore
-        .collection(FirestoreCollections.users)
-        .doc(member.userId)
-        .get();
-    final user = userSnapshot.data();
-    if (user == null) {
-      return member;
-    }
-
-    return member.copyWith(
-      displayName: _nonEmptyString(user['displayName']) ?? member.displayName,
-      avatarUrl: _string(user['avatarUrl']),
-      xp: _int(user['xp']),
-      totalWagers: _int(user['totalWagers']),
-      correctWagers: _int(user['correctWagers']),
-      totalTokensEarned: _int(user['totalTokensEarned']),
-    );
-  }
-
-  static String? _string(Object? value) => value is String ? value : null;
-
-  static String? _nonEmptyString(Object? value) {
-    final text = _string(value)?.trim();
-    if (text == null || text.isEmpty) {
-      return null;
-    }
-
-    return text;
-  }
-
   static String _normalizeInviteCode(String value) {
     final trimmed = value.trim();
     final uri = Uri.tryParse(trimmed);
@@ -288,6 +289,8 @@ class FirebaseGroupRepository implements GroupRepository {
         'memberCount': data['memberCount'],
         'activeWagerCount': data['activeWagerCount'],
         'leaderboardWindowWeeks': data['leaderboardWindowWeeks'],
+        'leaderboardPeriodAnchorDate': data['leaderboardPeriodAnchorDate'],
+        'accentColor': data['accentColor'],
       },
       myTokenBalance: _int(data['myTokenBalance']),
     );

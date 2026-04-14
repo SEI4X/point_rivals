@@ -197,6 +197,14 @@
       }
     }
   },
+  "profileChips": "Фишки",
+  "@profileChips": {
+    "description": "Короткая подпись баланса фишек пользователя в группе."
+  },
+  "profileXp": "XP",
+  "@profileXp": {
+    "description": "Короткая подпись XP пользователя."
+  },
   "profileTotalWagers": "Всего ставок",
   "@profileTotalWagers": {
     "description": "Подпись общего количества ставок."
@@ -391,6 +399,10 @@
   "@groupWeeklyLeaders": {
     "description": "Заголовок недельного рейтинга группы."
   },
+  "groupWeeklyTab": "Неделя",
+  "@groupWeeklyTab": {
+    "description": "Короткая подпись вкладки недельного рейтинга."
+  },
   "groupWindowLeaders": "{weeks, plural, one {Лидеры недели} few {Лидеры за {weeks} недели} many {Лидеры за {weeks} недель} other {Лидеры за {weeks} недели}}",
   "@groupWindowLeaders": {
     "description": "Заголовок рейтинга группы для настроенного недельного окна.",
@@ -404,6 +416,10 @@
   "@groupAllTimeLeaders": {
     "description": "Заголовок общего рейтинга группы."
   },
+  "groupAllTimeTab": "Все время",
+  "@groupAllTimeTab": {
+    "description": "Короткая подпись вкладки общего рейтинга."
+  },
   "groupWagerArchive": "Архив ставок",
   "@groupWagerArchive": {
     "description": "Кнопка архива ставок."
@@ -416,7 +432,7 @@
   "@groupLeaderboardWindowTitle": {
     "description": "Заголовок настройки периода лидеров группы."
   },
-  "groupLeaderboardWindowBody": "Недельные лидеры считаются с понедельника. Выберите, сколько недель длится один период.",
+  "groupLeaderboardWindowBody": "Выберите длину спринта. Для 2 или 4 недель спринты идут подряд от даты старта.",
   "@groupLeaderboardWindowBody": {
     "description": "Описание настройки периода лидеров группы."
   },
@@ -426,6 +442,19 @@
     "placeholders": {
       "count": {
         "type": "int"
+      }
+    }
+  },
+  "groupLeaderboardAnchorDateAction": "Выбрать старт спринта",
+  "@groupLeaderboardAnchorDateAction": {
+    "description": "Действие выбора даты старта спринта лидерборда."
+  },
+  "groupLeaderboardAnchorDateValue": "Старт спринта: {value}",
+  "@groupLeaderboardAnchorDateValue": {
+    "description": "Выбранная дата старта спринта лидерборда.",
+    "placeholders": {
+      "value": {
+        "type": "String"
       }
     }
   },
@@ -452,6 +481,14 @@
   "groupNameRequired": "Введите название группы.",
   "@groupNameRequired": {
     "description": "Ошибка валидации пустого названия группы."
+  },
+  "groupAccentColorTitle": "Цвет группы",
+  "@groupAccentColorTitle": {
+    "description": "Заголовок выбора акцентного цвета группы."
+  },
+  "groupAccentColorSubtitle": "Используется в карточках, действиях и акцентах группы.",
+  "@groupAccentColorSubtitle": {
+    "description": "Короткое пояснение, где используется акцентный цвет группы."
   },
   "groupInviteCode": "Код приглашения",
   "@groupInviteCode": {
@@ -657,9 +694,30 @@
   "@createWagerPreview": {
     "description": "Подпись предпросмотра вариантов ставки."
   },
-  "createWagerPreviewHint": "Стартовый коэффициент x2. Участники исхода не смогут ставить.",
+  "createWagerPreviewHint": "Кто угадает, получит награду. Непопулярный верный выбор дает x1.5.",
   "@createWagerPreviewHint": {
     "description": "Подсказка предпросмотра создаваемой ставки."
+  },
+  "createWagerRewardCoinsLabel": "Награда в коинах",
+  "@createWagerRewardCoinsLabel": {
+    "description": "Подпись поля награды за верный выбор."
+  },
+  "createWagerRewardCoinsHelper": "Верные игроки получат эту сумму. Непопулярный верный выбор дает x1.5.",
+  "@createWagerRewardCoinsHelper": {
+    "description": "Подсказка поля награды."
+  },
+  "createWagerRewardCoinsTooHigh": "Максимальная награда — {max} коинов.",
+  "@createWagerRewardCoinsTooHigh": {
+    "description": "Ошибка, когда награда больше лимита.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "createWagerRewardPreview": "Стандартная награда — 10 коинов.",
+  "@createWagerRewardPreview": {
+    "description": "Текст предпросмотра награды."
   },
   "createWagerStakeRangeHint": "Диапазон ставки: {min}-{max} фишек.",
   "@createWagerStakeRangeHint": {
@@ -738,11 +796,11 @@
       }
     }
   },
-  "wagerConfirmTitle": "Подтвердить ставку",
+  "wagerConfirmTitle": "Подтвердить выбор",
   "@wagerConfirmTitle": {
     "description": "Заголовок подтверждения ставки."
   },
-  "wagerStakeAmountLabel": "Сколько фишек поставить",
+  "wagerStakeAmountLabel": "Сколько коинов рискнуть",
   "@wagerStakeAmountLabel": {
     "description": "Подпись поля суммы ставки."
   },
@@ -767,7 +825,7 @@
   "@wagerStakeInsufficientBalance": {
     "description": "Ошибка, когда сумма ставки больше баланса."
   },
-  "wagerPotentialPayout": "Можно получить: {amount} фишек",
+  "wagerPotentialPayout": "Награда: {amount} коинов",
   "@wagerPotentialPayout": {
     "description": "Потенциальная выплата перед размещением ставки.",
     "placeholders": {
@@ -775,6 +833,23 @@
         "type": "int"
       }
     }
+  },
+  "wagerRewardCoins": "{amount} коинов",
+  "@wagerRewardCoins": {
+    "description": "Размер награды за верный выбор.",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "wagerUnderdogBonus": "Учитывает бонус за непопулярный выбор.",
+  "@wagerUnderdogBonus": {
+    "description": "Объясняет бонус x1.5 за менее популярный верный исход."
+  },
+  "wagerYourChoice": "Ваш выбор",
+  "@wagerYourChoice": {
+    "description": "Бейдж на варианте ставки, который выбрал текущий пользователь."
   },
   "wagerCreatedAt": "Создано {value}",
   "@wagerCreatedAt": {
@@ -955,7 +1030,7 @@
   "@wagerArchiveStakes": {
     "description": "Заголовок списка ставок участников в архиве."
   },
-  "wagerArchiveStakeSide": "{label}: {amount}",
+  "wagerArchiveStakeSide": "{label}",
   "@wagerArchiveStakeSide": {
     "description": "Сторона и сумма ставки участника.",
     "placeholders": {
@@ -1246,5 +1321,9 @@
   "achievementLevelTwentyFiveDescription": "Достигните 25 уровня.",
   "@achievementLevelTwentyFiveDescription": {
     "description": "Описание достижения."
+  },
+  "notificationChannelName": "Уведомления Point Rivals",
+  "@notificationChannelName": {
+    "description": "Название Android-канала уведомлений."
   }
 }

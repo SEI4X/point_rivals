@@ -4,8 +4,7 @@ import 'package:point_rivals/app/dependencies/app_dependencies.dart';
 import 'package:point_rivals/core/l10n/l10n.dart';
 import 'package:point_rivals/core/routing/app_router.dart';
 import 'package:point_rivals/core/widgets/app_refresh_indicator.dart';
-import 'package:point_rivals/features/groups/domain/group_models.dart';
-import 'package:point_rivals/features/wagers/domain/odds_calculator.dart';
+import 'package:point_rivals/core/widgets/app_shimmer.dart';
 import 'package:point_rivals/features/wagers/domain/wager_archive_filter.dart';
 import 'package:point_rivals/features/wagers/domain/wager_models.dart';
 
@@ -33,6 +32,7 @@ class _WagerArchivePageState extends State<WagerArchivePage> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final dependencies = AppDependenciesScope.of(context);
+    final refreshRevision = AppRefreshScope.revisionOf(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -41,86 +41,73 @@ class _WagerArchivePageState extends State<WagerArchivePage> {
       ),
       body: SafeArea(
         minimum: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: StreamBuilder<List<GroupMember>>(
-          stream: dependencies.groupRepository.watchMembers(widget.groupId),
-          builder: (context, membersSnapshot) {
-            final membersById = {
-              for (final member
-                  in membersSnapshot.data ?? const <GroupMember>[])
-                member.userId: member,
-            };
+        child: StreamBuilder<List<Wager>>(
+          key: ValueKey('wager-archive-${widget.groupId}-$refreshRevision'),
+          stream: dependencies.wagerRepository.watchArchivedWagers(
+            widget.groupId,
+          ),
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return Center(child: Text(l10n.authGenericError));
+            }
 
-            return StreamBuilder<List<Wager>>(
-              stream: dependencies.wagerRepository.watchArchivedWagers(
-                widget.groupId,
-              ),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Center(child: Text(l10n.authGenericError));
-                }
+            final wagers = snapshot.data ?? const <Wager>[];
+            final filteredWagers = WagerArchiveFilter(
+              query: _searchController.text,
+              status: _statusFilter,
+              sort: _sort,
+            ).apply(wagers);
 
-                if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                final wagers = snapshot.data!;
-                final filteredWagers = WagerArchiveFilter(
-                  query: _searchController.text,
-                  status: _statusFilter,
-                  sort: _sort,
-                ).apply(wagers);
-
-                if (wagers.isEmpty) {
-                  return AppRefreshIndicator(
-                    child: ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      children: [
-                        SizedBox(
-                          height: MediaQuery.sizeOf(context).height * 0.55,
-                          child: Center(child: Text(l10n.wagerArchiveEmpty)),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                return AppRefreshIndicator(
-                  child: ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.only(bottom: 20),
-                    children: [
-                      _ArchiveControls(
-                        searchController: _searchController,
-                        statusFilter: _statusFilter,
-                        sort: _sort,
-                        resultCount: filteredWagers.length,
-                        onSearchChanged: (_) => setState(() {}),
-                        onStatusChanged: (value) {
-                          setState(() => _statusFilter = value);
-                        },
-                        onSortChanged: (value) {
-                          setState(() => _sort = value);
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      if (filteredWagers.isEmpty)
-                        _EmptyFilteredArchive(
-                          icon: Icons.manage_search_rounded,
-                          message: l10n.wagerArchiveFilteredEmpty,
-                        )
-                      else
-                        for (final wager in filteredWagers) ...[
-                          _ResolvedWagerCard(
-                            groupId: widget.groupId,
-                            wager: wager,
-                            membersById: membersById,
+            return AppLoadingSwitcher(
+              isLoading: !snapshot.hasData,
+              loading: const AppSkeletonList(showHeader: true),
+              child: wagers.isEmpty
+                  ? AppRefreshIndicator(
+                      child: ListView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        children: [
+                          SizedBox(
+                            height: MediaQuery.sizeOf(context).height * 0.55,
+                            child: Center(child: Text(l10n.wagerArchiveEmpty)),
                           ),
-                          const SizedBox(height: 12),
                         ],
-                    ],
-                  ),
-                );
-              },
+                      ),
+                    )
+                  : AppRefreshIndicator(
+                      child: ListView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.only(bottom: 20),
+                        children: [
+                          _ArchiveControls(
+                            searchController: _searchController,
+                            statusFilter: _statusFilter,
+                            sort: _sort,
+                            resultCount: filteredWagers.length,
+                            onSearchChanged: (_) => setState(() {}),
+                            onStatusChanged: (value) {
+                              setState(() => _statusFilter = value);
+                            },
+                            onSortChanged: (value) {
+                              setState(() => _sort = value);
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          if (filteredWagers.isEmpty)
+                            _EmptyFilteredArchive(
+                              icon: Icons.manage_search_rounded,
+                              message: l10n.wagerArchiveFilteredEmpty,
+                            )
+                          else
+                            for (final wager in filteredWagers) ...[
+                              _ResolvedWagerCard(
+                                groupId: widget.groupId,
+                                wager: wager,
+                              ),
+                              const SizedBox(height: 12),
+                            ],
+                        ],
+                      ),
+                    ),
             );
           },
         ),
@@ -174,27 +161,9 @@ class _ArchiveControls extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        SegmentedButton<WagerArchiveStatusFilter>(
-          segments: [
-            ButtonSegment(
-              value: WagerArchiveStatusFilter.all,
-              icon: const Icon(Icons.all_inclusive_rounded),
-              label: Text(l10n.wagerArchiveFilterAll),
-            ),
-            ButtonSegment(
-              value: WagerArchiveStatusFilter.resolved,
-              icon: const Icon(Icons.check_circle_rounded),
-              label: Text(l10n.wagerArchiveFilterResolved),
-            ),
-            ButtonSegment(
-              value: WagerArchiveStatusFilter.cancelled,
-              icon: const Icon(Icons.cancel_rounded),
-              label: Text(l10n.wagerArchiveFilterCancelled),
-            ),
-          ],
-          selected: {statusFilter},
-          showSelectedIcon: false,
-          onSelectionChanged: (values) => onStatusChanged(values.single),
+        _ArchiveStatusFilterControl(
+          value: statusFilter,
+          onChanged: onStatusChanged,
         ),
         const SizedBox(height: 12),
         Row(
@@ -236,6 +205,139 @@ class _ArchiveControls extends StatelessWidget {
   }
 }
 
+class _ArchiveStatusFilterControl extends StatelessWidget {
+  const _ArchiveStatusFilterControl({
+    required this.value,
+    required this.onChanged,
+  });
+
+  final WagerArchiveStatusFilter value;
+  final ValueChanged<WagerArchiveStatusFilter> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.42),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.55),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(4),
+        child: Row(
+          children: [
+            _ArchiveStatusFilterItem(
+              flex: 2,
+              label: l10n.wagerArchiveFilterAll,
+              icon: Icons.all_inclusive_rounded,
+              isSelected: value == WagerArchiveStatusFilter.all,
+              onTap: () => onChanged(WagerArchiveStatusFilter.all),
+            ),
+            _ArchiveStatusFilterItem(
+              flex: 3,
+              label: l10n.wagerArchiveFilterResolved,
+              icon: Icons.check_circle_rounded,
+              isSelected: value == WagerArchiveStatusFilter.resolved,
+              onTap: () => onChanged(WagerArchiveStatusFilter.resolved),
+            ),
+            _ArchiveStatusFilterItem(
+              flex: 3,
+              label: l10n.wagerArchiveFilterCancelled,
+              icon: Icons.cancel_rounded,
+              isSelected: value == WagerArchiveStatusFilter.cancelled,
+              onTap: () => onChanged(WagerArchiveStatusFilter.cancelled),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ArchiveStatusFilterItem extends StatelessWidget {
+  const _ArchiveStatusFilterItem({
+    required this.flex,
+    required this.label,
+    required this.icon,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final int flex;
+  final String label;
+  final IconData icon;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final foregroundColor = isSelected
+        ? colorScheme.onPrimaryContainer
+        : colorScheme.onSurfaceVariant;
+
+    return Expanded(
+      flex: flex,
+      child: Semantics(
+        selected: isSelected,
+        button: true,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(14),
+              onTap: onTap,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                curve: Curves.easeOutCubic,
+                height: 38,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? colorScheme.primaryContainer
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(icon, size: 16, color: foregroundColor),
+                    const SizedBox(width: 5),
+                    Flexible(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          label,
+                          maxLines: 1,
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: foregroundColor,
+                            fontWeight: isSelected
+                                ? FontWeight.w700
+                                : FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _EmptyFilteredArchive extends StatelessWidget {
   const _EmptyFilteredArchive({required this.icon, required this.message});
 
@@ -270,15 +372,10 @@ class _EmptyFilteredArchive extends StatelessWidget {
 }
 
 class _ResolvedWagerCard extends StatelessWidget {
-  const _ResolvedWagerCard({
-    required this.groupId,
-    required this.wager,
-    required this.membersById,
-  });
+  const _ResolvedWagerCard({required this.groupId, required this.wager});
 
   final String groupId;
   final Wager wager;
-  final Map<String, GroupMember> membersById;
 
   @override
   Widget build(BuildContext context) {
@@ -339,22 +436,6 @@ class _ResolvedWagerCard extends StatelessWidget {
                   ),
                 ],
               ),
-              if (wager.stakes.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                Text(
-                  l10n.wagerArchiveStakes,
-                  style: Theme.of(context).textTheme.labelLarge,
-                ),
-                const SizedBox(height: 8),
-                for (final stake in wager.stakes)
-                  _StakeResultTile(
-                    wager: wager,
-                    stake: stake,
-                    displayName:
-                        membersById[stake.userId]?.displayName ??
-                        l10n.profileUnnamed,
-                  ),
-              ],
             ],
           ),
         ),
@@ -403,52 +484,5 @@ class _MetricChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Chip(avatar: Icon(icon, size: 16), label: Text(label));
-  }
-}
-
-class _StakeResultTile extends StatelessWidget {
-  const _StakeResultTile({
-    required this.wager,
-    required this.stake,
-    required this.displayName,
-  });
-
-  final Wager wager;
-  final Stake stake;
-  final String displayName;
-  static const OddsCalculator _oddsCalculator = OddsCalculator();
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final sideLabel = switch (stake.side) {
-      WagerSide.left => wager.leftOption.label,
-      WagerSide.right => wager.rightOption.label,
-    };
-    final payout = wager.status == WagerStatus.cancelled
-        ? wager.settlement?.payoutFor(stake.userId) ?? stake.amount
-        : wager.winningSide == stake.side
-        ? wager.settlement?.payoutFor(stake.userId) ??
-              _oddsCalculator.payoutForStake(wager: wager, winningStake: stake)
-        : 0;
-
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: CircleAvatar(
-        backgroundColor: Theme.of(
-          context,
-        ).colorScheme.primary.withValues(alpha: 0.10),
-        foregroundColor: Theme.of(context).colorScheme.primary,
-        child: Text(displayName.characters.first),
-      ),
-      title: Text(displayName),
-      subtitle: Text(l10n.wagerArchiveStakeSide(sideLabel, stake.amount)),
-      trailing: Text(
-        l10n.wagerArchivePayout(payout),
-        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-          color: Theme.of(context).colorScheme.primary,
-        ),
-      ),
-    );
   }
 }

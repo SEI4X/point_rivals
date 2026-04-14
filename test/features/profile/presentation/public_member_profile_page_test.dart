@@ -47,6 +47,7 @@ void main() {
 
     expect(find.text('Morgan'), findsWidgets);
     expect(find.text('Level 2'), findsOneWidget);
-    expect(find.text('Correct wagers: 2 / 67%'), findsOneWidget);
+    expect(find.text('2 / 67%'), findsOneWidget);
+    expect(find.text('Correct wagers'), findsOneWidget);
   });
 }

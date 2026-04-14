@@ -191,25 +191,109 @@ class AppShell extends StatelessWidget {
     final AppLocalizations l10n = context.l10n;
 
     return Scaffold(
-      body: navigationShell,
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: NavigationBar(
-          labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-          selectedIndex: navigationShell.currentIndex,
-          onDestinationSelected: navigationShell.goBranch,
-          destinations: [
-            NavigationDestination(
-              icon: const Icon(Icons.groups_2_rounded),
-              selectedIcon: const Icon(Icons.groups_2_rounded),
-              label: l10n.navGroups,
+      extendBody: true,
+      body: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Positioned.fill(child: navigationShell),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: SafeArea(
+              minimum: const EdgeInsets.only(bottom: 14),
+              top: false,
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 252),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surfaceContainer,
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.outlineVariant,
+                      ),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(999),
+                      child: SizedBox(
+                        height: 52,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: _CapsuleTabItem(
+                                icon: Icons.groups_2_rounded,
+                                label: l10n.navGroups,
+                                isSelected: navigationShell.currentIndex == 0,
+                                onTap: () => navigationShell.goBranch(0),
+                              ),
+                            ),
+                            Expanded(
+                              child: _CapsuleTabItem(
+                                icon: navigationShell.currentIndex == 1
+                                    ? Icons.person_rounded
+                                    : Icons.person_outline_rounded,
+                                label: l10n.navProfile,
+                                isSelected: navigationShell.currentIndex == 1,
+                                onTap: () => navigationShell.goBranch(1),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
-            NavigationDestination(
-              icon: const Icon(Icons.person_outline_rounded),
-              selectedIcon: const Icon(Icons.person_rounded),
-              label: l10n.navProfile,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CapsuleTabItem extends StatelessWidget {
+  const _CapsuleTabItem({
+    required this.icon,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final foreground = isSelected ? colors.primary : colors.onSurfaceVariant;
+
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      label: label,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          child: Center(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOutCubic,
+              width: 62,
+              height: 38,
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? colors.surfaceContainerHigh
+                    : Colors.transparent,
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Icon(icon, color: foreground, size: 27),
             ),
-          ],
+          ),
         ),
       ),
     );

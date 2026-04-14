@@ -5,9 +5,7 @@ const logger = require("firebase-functions/logger");
 const admin = require("firebase-admin");
 const {
   currentLeaderboardPeriodId,
-  oddsForSide,
   normalizePositiveInteger,
-  normalizePositiveNumber,
   normalizeSide,
   refundsForStakes,
   settlementForStakes,
@@ -42,9 +40,30 @@ exports.notifyNewWager = onDocumentCreated({
   if (!wager || wager.status !== WAGER_STATUS_ACTIVE) {
     return;
   }
+  if (wager.notifications && wager.notifications.newWagerSent === true) {
+    return;
+  }
 
   const groupId = event.params.groupId;
   const wagerId = event.params.wagerId;
+  logger.info("New wager trigger received", {
+    groupId,
+    wagerId,
+  });
+
+  await notifyNewWagerRecipients({
+    groupId,
+    wagerId,
+    wager,
+  });
+  await event.data.ref.set({
+    notifications: {
+      newWagerSent: true,
+    },
+  }, {merge: true});
+});
+
+async function notifyNewWagerRecipients({groupId, wagerId, wager}) {
   const excludedUserIds = new Set(Array.isArray(wager.excludedUserIds) ?
     wager.excludedUserIds : []);
   if (typeof wager.creatorUserId === "string") {
@@ -87,7 +106,7 @@ exports.notifyNewWager = onDocumentCreated({
     condition: wager.condition || "",
     payout: 0,
   });
-});
+}
 
 exports.previewGroupByInviteCode = onCall({enforceAppCheck: true}, async (request) => {
   const userId = request.auth && request.auth.uid;
@@ -151,7 +170,7 @@ exports.joinGroupByInviteCode = onCall({enforceAppCheck: true}, async (request) 
         displayName: typeof user.displayName === "string" ? user.displayName : "",
         avatarUrl: typeof user.avatarUrl === "string" ? user.avatarUrl : null,
         role: MEMBER_ROLE,
-        tokenBalance: 1000,
+        tokenBalance: 0,
         weeklyTokensEarned: 0,
         weeklyScorePeriodId: "",
         allTimeTokensEarned: 0,
@@ -173,7 +192,7 @@ exports.joinGroupByInviteCode = onCall({enforceAppCheck: true}, async (request) 
       group,
       myTokenBalance: memberSnapshot.exists ?
         normalizePositiveInteger((memberSnapshot.data() || {}).tokenBalance) :
-        1000,
+        0,
     });
   });
 
@@ -185,6 +204,85 @@ exports.joinGroupByInviteCode = onCall({enforceAppCheck: true}, async (request) 
   return result;
 });
 
+exports.createWager = onCall({enforceAppCheck: true}, async (request) => {
+  const userId = request.auth && request.auth.uid;
+  if (!userId) {
+    throw new HttpsError("unauthenticated", "Sign in is required.");
+  }
+
+  const groupId = readRequiredString(request.data, "groupId");
+  const condition = readRequiredString(request.data, "condition");
+  const type = readRequiredString(request.data, "type");
+  const leftLabel = readRequiredString(request.data, "leftLabel");
+  const rightLabel = readRequiredString(request.data, "rightLabel");
+  const rewardCoins = normalizePositiveInteger(request.data && request.data.rewardCoins) || 10;
+  const excludedUserIds = normalizeStringArray(request.data && request.data.excludedUserIds);
+  if (condition.length > 160) {
+    throw new HttpsError("invalid-argument", "Wager condition is too long.");
+  }
+  if (!["yesNo", "participantVsParticipant", "custom"].includes(type)) {
+    throw new HttpsError("invalid-argument", "Unknown wager type.");
+  }
+  if (leftLabel.length > 28 || rightLabel.length > 28) {
+    throw new HttpsError("invalid-argument", "Wager option label is too long.");
+  }
+  if (rewardCoins > 1000) {
+    throw new HttpsError("invalid-argument", "Reward amount is too high.");
+  }
+
+  const groupReference = db.collection("groups").doc(groupId);
+  const memberReference = groupReference.collection("members").doc(userId);
+  const wagerReference = groupReference.collection("wagers").doc();
+  const wagerId = wagerReference.id;
+
+  await db.runTransaction(async (transaction) => {
+    const memberSnapshot = await transaction.get(memberReference);
+    if (!memberSnapshot.exists) {
+      throw new HttpsError("permission-denied", "Group member was not found.");
+    }
+
+    transaction.set(wagerReference, {
+      groupId,
+      creatorUserId: userId,
+      condition,
+      type,
+      leftLabel,
+      rightLabel,
+      rewardCoins,
+      excludedUserIds,
+      status: WAGER_STATUS_ACTIVE,
+      notifications: {
+        newWagerSent: true,
+      },
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+    transaction.update(groupReference, {
+      activeWagerCount: FieldValue.increment(1),
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+  });
+
+  logger.info("Wager created", {
+    groupId,
+    wagerId,
+    creatorUserId: userId,
+  });
+
+  await notifyNewWagerRecipients({
+    groupId,
+    wagerId,
+    wager: {
+      condition,
+      status: WAGER_STATUS_ACTIVE,
+      creatorUserId: userId,
+      excludedUserIds,
+    },
+  });
+
+  return {wagerId};
+});
+
 exports.placeStake = onCall({enforceAppCheck: true}, async (request) => {
   const userId = request.auth && request.auth.uid;
   if (!userId) {
@@ -194,12 +292,8 @@ exports.placeStake = onCall({enforceAppCheck: true}, async (request) => {
   const groupId = readRequiredString(request.data, "groupId");
   const wagerId = readRequiredString(request.data, "wagerId");
   const side = normalizeSide(readRequiredString(request.data, "side"));
-  const amount = readRequiredPositiveInteger(request.data, "amount");
   if (!SIDES.has(side)) {
     throw new HttpsError("invalid-argument", "Unknown wager side.");
-  }
-  if (amount > 1000) {
-    throw new HttpsError("invalid-argument", "Stake amount is too high.");
   }
 
   const groupReference = db.collection("groups").doc(groupId);
@@ -212,12 +306,10 @@ exports.placeStake = onCall({enforceAppCheck: true}, async (request) => {
       wagerSnapshot,
       existingStakeSnapshot,
       memberSnapshot,
-      stakesSnapshot,
     ] = await Promise.all([
       transaction.get(wagerReference),
       transaction.get(stakeReference),
       transaction.get(memberReference),
-      transaction.get(wagerReference.collection("stakes")),
     ]);
 
     if (!wagerSnapshot.exists) {
@@ -238,43 +330,18 @@ exports.placeStake = onCall({enforceAppCheck: true}, async (request) => {
       throw new HttpsError("failed-precondition", "User cannot stake on this wager.");
     }
 
-    const member = memberSnapshot.data() || {};
-    const tokenBalance = normalizePositiveInteger(member.tokenBalance);
-    if (tokenBalance < amount) {
-      throw new HttpsError("failed-precondition", "Not enough chips.");
-    }
-
-    let totalPool = 0;
-    let sideTotal = 0;
-    stakesSnapshot.forEach((snapshot) => {
-      const stake = snapshot.data() || {};
-      const stakeAmount = normalizePositiveInteger(stake.amount);
-      totalPool += stakeAmount;
-      if (normalizeSide(stake.side) === side) {
-        sideTotal += stakeAmount;
-      }
-    });
-
-    const odds = oddsForSide(totalPool, sideTotal);
     transaction.set(stakeReference, {
       userId,
       side,
-      amount,
-      odds,
+      amount: 1,
       createdAt: FieldValue.serverTimestamp(),
       updatedAt: FieldValue.serverTimestamp(),
     });
     transaction.update(wagerReference, {
       updatedAt: FieldValue.serverTimestamp(),
     });
-    transaction.update(memberReference, {
-      tokenBalance: FieldValue.increment(-amount),
-      updatedAt: FieldValue.serverTimestamp(),
-    });
-
     return {
-      odds,
-      potentialPayout: Math.floor(amount * odds),
+      selectedSide: side,
     };
   });
 
@@ -283,8 +350,6 @@ exports.placeStake = onCall({enforceAppCheck: true}, async (request) => {
     wagerId,
     userId,
     side,
-    amount,
-    odds: normalizePositiveNumber(result.odds),
   });
 
   return result;
@@ -339,12 +404,15 @@ exports.resolveWager = onCall({enforceAppCheck: true}, async (request) => {
       stakes.push({
         userId: stakeSnapshot.id,
         side: normalizeSide(stake.side),
-        amount: normalizePositiveInteger(stake.amount),
-        odds: normalizePositiveNumber(stake.odds),
+        amount: normalizePositiveInteger(stake.amount) || 1,
       });
     });
 
-    const settlement = settlementForStakes(stakes, winningSide);
+    const settlement = settlementForStakes(
+      stakes,
+      winningSide,
+      normalizePositiveInteger(wager.rewardCoins) || 10,
+    );
     const validStakes = settlement.validStakes;
     const totalPool = settlement.totalPool;
     const winningSideTotal = settlement.winningSideTotal;
@@ -353,6 +421,8 @@ exports.resolveWager = onCall({enforceAppCheck: true}, async (request) => {
     const group = groupSnapshot.data() || {};
     const currentWeeklyPeriodId = currentLeaderboardPeriodId(
       normalizePositiveInteger(group.leaderboardWindowWeeks) || 1,
+      new Date(),
+      group.leaderboardPeriodAnchorDate || null,
     );
     const memberSnapshots = {};
     for (const stake of validStakes) {
@@ -471,6 +541,8 @@ exports.resetWeeklyLeaderboards = onSchedule({
     const group = groupSnapshot.data() || {};
     const currentWeeklyPeriodId = currentLeaderboardPeriodId(
       normalizePositiveInteger(group.leaderboardWindowWeeks) || 1,
+      new Date(),
+      group.leaderboardPeriodAnchorDate || null,
     );
     const membersSnapshot = await groupSnapshot.ref.collection("members").get();
 
@@ -665,13 +737,6 @@ exports.cancelWager = onCall({enforceAppCheck: true}, async (request) => {
       });
     });
     const refunds = refundsForStakes(stakes);
-    Object.entries(refunds).forEach(([stakeUserId, amount]) => {
-      transaction.update(groupReference.collection("members").doc(stakeUserId), {
-        tokenBalance: FieldValue.increment(amount),
-        updatedAt: FieldValue.serverTimestamp(),
-      });
-    });
-
     const totalPool = Object.values(refunds).reduce((total, amount) => total + amount, 0);
     transaction.update(wagerReference, {
       status: "cancelled",
@@ -717,13 +782,14 @@ function readRequiredString(data, field) {
   return value.trim();
 }
 
-function readRequiredPositiveInteger(data, field) {
-  const value = data && data[field];
-  if (!Number.isInteger(value) || value <= 0) {
-    throw new HttpsError("invalid-argument", `${field} must be positive.`);
+function normalizeStringArray(value) {
+  if (!Array.isArray(value)) {
+    return [];
   }
 
-  return value;
+  return [...new Set(value.filter((item) => (
+    typeof item === "string" && item.length > 0
+  )))];
 }
 
 function normalizeInviteCode(value) {
@@ -754,6 +820,8 @@ function publicGroupPayload({groupId, group, myTokenBalance}) {
     activeWagerCount: normalizePositiveInteger(group.activeWagerCount),
     myTokenBalance,
     leaderboardWindowWeeks: normalizePositiveInteger(group.leaderboardWindowWeeks) || 1,
+    leaderboardPeriodAnchorDate: group.leaderboardPeriodAnchorDate || null,
+    accentColor: normalizePositiveInteger(group.accentColor),
   };
 }
 
@@ -780,15 +848,16 @@ async function notifyResolvedWager({groupId, wagerId, winningSide, payouts}) {
     },
     notificationForTarget: (target) => {
       const payout = normalizePositiveInteger(payouts[target.userId]);
+      const won = payout > 0;
       return {
         title: group.name || "Point Rivals",
         body: localizedText(target.locale, {
-          en: payout > 0 ?
+          en: won ?
             `You won ${payout} chips: ${wager.condition || "wager resolved"}` :
-            `Wager resolved: ${wager.condition || "open the group"}`,
-          ru: payout > 0 ?
+            `You lost: ${wager.condition || "wager resolved"}`,
+          ru: won ?
             `Вы выиграли ${payout} фишек: ${wager.condition || "ставка завершена"}` :
-            `Ставка завершена: ${wager.condition || "откройте группу"}`,
+            `Вы проиграли: ${wager.condition || "ставка завершена"}`,
         }),
       };
     },
@@ -883,20 +952,29 @@ async function writeActivitiesForUsers(userIds, activity) {
 async function sendNotificationToUsers(userIds, {data, notificationForTarget}) {
   const uniqueUserIds = [...new Set(userIds)].filter(Boolean);
   if (uniqueUserIds.length === 0) {
+    logger.info("Notification skipped: no recipients", {
+      type: data && data.type,
+    });
     return;
   }
 
   const targets = [];
+  let disabledUsers = 0;
+  let usersWithoutTokens = 0;
   for (const userId of uniqueUserIds) {
     const userSnapshot = await db.collection("users").doc(userId).get();
     const user = userSnapshot.data();
     if (!user || user.notificationsEnabled !== true) {
+      disabledUsers += 1;
       continue;
     }
 
     const tokensSnapshot = await db.collection("users").doc(userId)
       .collection("deviceTokens")
       .get();
+    if (tokensSnapshot.empty) {
+      usersWithoutTokens += 1;
+    }
     tokensSnapshot.forEach((tokenSnapshot) => {
       const tokenData = tokenSnapshot.data() || {};
       const token = tokenData.token;
@@ -912,6 +990,13 @@ async function sendNotificationToUsers(userIds, {data, notificationForTarget}) {
   }
 
   const uniqueTargets = uniqueTargetsByToken(targets);
+  logger.info("Notification targets resolved", {
+    type: data && data.type,
+    recipientCount: uniqueUserIds.length,
+    disabledUsers,
+    usersWithoutTokens,
+    tokenCount: uniqueTargets.length,
+  });
   const groupedTargets = groupTargetsByNotification(uniqueTargets, notificationForTarget);
   for (const group of groupedTargets) {
     for (let index = 0; index < group.targets.length; index += NOTIFICATION_BATCH_SIZE) {
@@ -920,7 +1005,18 @@ async function sendNotificationToUsers(userIds, {data, notificationForTarget}) {
         notification: group.notification,
         data,
         tokens: batchTargets.map((target) => target.token),
+        android: {
+          priority: "high",
+          notification: {
+            channelId: "point_rivals_alerts",
+            sound: "default",
+          },
+        },
         apns: {
+          headers: {
+            "apns-priority": "10",
+            "apns-push-type": "alert",
+          },
           payload: {
             aps: {
               sound: "default",
@@ -929,6 +1025,23 @@ async function sendNotificationToUsers(userIds, {data, notificationForTarget}) {
         },
       });
 
+      logger.info("Notification batch sent", {
+        type: data && data.type,
+        successCount: response.successCount,
+        failureCount: response.failureCount,
+      });
+      response.responses.forEach((item, responseIndex) => {
+        if (!item.error) {
+          return;
+        }
+
+        logger.warn("Notification token failed", {
+          type: data && data.type,
+          userId: batchTargets[responseIndex].userId,
+          code: item.error.code,
+          message: item.error.message,
+        });
+      });
       await deleteStaleTokens(batchTargets, response.responses);
     }
   }

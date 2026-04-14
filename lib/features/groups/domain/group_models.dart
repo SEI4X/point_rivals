@@ -9,6 +9,8 @@ final class RivalGroup {
     required this.activeWagerCount,
     required this.myTokenBalance,
     required this.leaderboardWindowWeeks,
+    required this.leaderboardPeriodAnchorDate,
+    required this.accentColorValue,
   });
 
   final String id;
@@ -18,6 +20,8 @@ final class RivalGroup {
   final int activeWagerCount;
   final int myTokenBalance;
   final int leaderboardWindowWeeks;
+  final DateTime? leaderboardPeriodAnchorDate;
+  final int accentColorValue;
 }
 
 final class GroupMember {

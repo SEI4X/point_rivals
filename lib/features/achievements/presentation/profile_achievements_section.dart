@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:point_rivals/app/dependencies/app_dependencies.dart';
 import 'package:point_rivals/core/l10n/l10n.dart';
 import 'package:point_rivals/core/routing/app_router.dart';
+import 'package:point_rivals/core/widgets/app_refresh_indicator.dart';
 import 'package:point_rivals/core/widgets/top_snack_bar.dart';
 import 'package:point_rivals/features/achievements/domain/achievement_engine.dart';
 import 'package:point_rivals/features/achievements/domain/achievement_models.dart';
@@ -89,8 +90,12 @@ class _ProfileAchievementsSectionState
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final repository = AppDependenciesScope.of(context).achievementRepository;
+    final refreshRevision = AppRefreshScope.revisionOf(context);
 
     return StreamBuilder<Set<AchievementId>>(
+      key: ValueKey(
+        'profile-achievements-${widget.profile.id}-$refreshRevision',
+      ),
       stream: repository.watchEarnedAchievements(widget.profile.id),
       builder: (context, snapshot) {
         final earnedIds = snapshot.data ?? const <AchievementId>{};
@@ -104,60 +109,87 @@ class _ProfileAchievementsSectionState
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.achievementsTitle,
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        l10n.achievementsSubtitle(earnedCount, cards.length),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.achievementsTitle,
+                          style: Theme.of(context).textTheme.titleLarge,
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 4),
+                        Text(
+                          l10n.achievementsSubtitle(earnedCount, cards.length),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    unawaited(context.push(AppRoutes.achievements));
-                  },
-                  child: Text(l10n.achievementsViewAll),
-                ),
-              ],
+                  TextButton(
+                    onPressed: () {
+                      unawaited(context.push(AppRoutes.achievements));
+                    },
+                    child: Text(l10n.achievementsViewAll),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 10),
             SizedBox(
-              height: 158,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemBuilder: (context, index) {
-                  final card = displayedCards[index];
-                  return SizedBox(
-                    width: 136,
-                    child: AchievementBadge(
-                      card: card,
-                      style: AchievementBadgeStyle.compact,
-                      onTap: () {
-                        unawaited(
-                          showAchievementDetailSheet(
-                            context: context,
-                            card: card,
-                          ),
-                        );
-                      },
+              height: 170,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final viewportWidth = MediaQuery.sizeOf(context).width;
+                  final horizontalInset =
+                      ((viewportWidth - constraints.maxWidth) / 2).clamp(0, 32);
+
+                  return OverflowBox(
+                    maxWidth: viewportWidth,
+                    minWidth: constraints.maxWidth,
+                    child: SizedBox(
+                      width: viewportWidth,
+                      height: 170,
+                      child: ListView.separated(
+                        clipBehavior: Clip.none,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: horizontalInset.toDouble() + 16,
+                        ),
+                        scrollDirection: Axis.horizontal,
+                        itemBuilder: (context, index) {
+                          final card = displayedCards[index];
+                          return SizedBox(
+                            width: 136,
+                            child: AchievementBadge(
+                              card: card,
+                              style: AchievementBadgeStyle.compact,
+                              onTap: () {
+                                unawaited(
+                                  showAchievementDetailSheet(
+                                    context: context,
+                                    card: card,
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        },
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(width: 10),
+                        itemCount: displayedCards.length,
+                      ),
                     ),
                   );
                 },
-                separatorBuilder: (context, index) => const SizedBox(width: 10),
-                itemCount: displayedCards.length,
               ),
             ),
           ],

@@ -162,6 +162,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get profileChips => 'Chips';
+
+  @override
+  String get profileXp => 'XP';
+
+  @override
   String get profileTotalWagers => 'Total wagers';
 
   @override
@@ -309,6 +315,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupWeeklyLeaders => 'Weekly leaders';
 
   @override
+  String get groupWeeklyTab => 'Week';
+
+  @override
   String groupWindowLeaders(int weeks) {
     String _temp0 = intl.Intl.pluralLogic(
       weeks,
@@ -323,6 +332,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupAllTimeLeaders => 'All-time leaders';
 
   @override
+  String get groupAllTimeTab => 'All time';
+
+  @override
   String get groupWagerArchive => 'Wager archive';
 
   @override
@@ -333,7 +345,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get groupLeaderboardWindowBody =>
-      'Weekly leaders reset on Monday. Choose how many weeks one leaderboard period lasts.';
+      'Choose how many weeks one sprint lasts. Multi-week sprints start from the anchor date.';
 
   @override
   String groupLeaderboardWindowWeeks(int count) {
@@ -344,6 +356,14 @@ class AppLocalizationsEn extends AppLocalizations {
       one: '$count week',
     );
     return '$_temp0';
+  }
+
+  @override
+  String get groupLeaderboardAnchorDateAction => 'Choose sprint start';
+
+  @override
+  String groupLeaderboardAnchorDateValue(String value) {
+    return 'Sprint start: $value';
   }
 
   @override
@@ -363,6 +383,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get groupNameRequired => 'Enter a group name.';
+
+  @override
+  String get groupAccentColorTitle => 'Group color';
+
+  @override
+  String get groupAccentColorSubtitle =>
+      'Used for group cards, actions, and highlights.';
 
   @override
   String get groupInviteCode => 'Invite code';
@@ -530,7 +557,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get createWagerPreviewHint =>
-      'Opening odds start at x2. Participants cannot stake on this wager.';
+      'Correct picks earn the reward. Unpopular correct picks earn 1.5x.';
+
+  @override
+  String get createWagerRewardCoinsLabel => 'Reward coins';
+
+  @override
+  String get createWagerRewardCoinsHelper =>
+      'Correct players earn this amount. Unpopular correct picks earn 1.5x.';
+
+  @override
+  String createWagerRewardCoinsTooHigh(int max) {
+    return 'Maximum reward is $max coins.';
+  }
+
+  @override
+  String get createWagerRewardPreview => 'Default reward is 10 coins.';
 
   @override
   String createWagerStakeRangeHint(int min, int max) {
@@ -581,10 +623,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get wagerConfirmTitle => 'Confirm stake';
+  String get wagerConfirmTitle => 'Confirm pick';
 
   @override
-  String get wagerStakeAmountLabel => 'Chips to stake';
+  String get wagerStakeAmountLabel => 'Coins to risk';
 
   @override
   String get wagerStakeAmountRequired => 'Enter how many chips to stake.';
@@ -603,8 +645,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String wagerPotentialPayout(int amount) {
-    return 'Potential payout: $amount chips';
+    return 'Reward: $amount coins';
   }
+
+  @override
+  String wagerRewardCoins(int amount) {
+    return '$amount coins';
+  }
+
+  @override
+  String get wagerUnderdogBonus => 'Includes unpopular pick bonus.';
+
+  @override
+  String get wagerYourChoice => 'Your pick';
 
   @override
   String wagerCreatedAt(String value) {
@@ -739,7 +792,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String wagerArchiveStakeSide(String label, int amount) {
-    return '$label: $amount';
+    return '$label';
   }
 
   @override
@@ -934,4 +987,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get achievementLevelTwentyFiveDescription => 'Reach level 25.';
+
+  @override
+  String get notificationChannelName => 'Point Rivals alerts';
 }

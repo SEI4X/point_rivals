@@ -167,6 +167,12 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get profileChips => 'Фишки';
+
+  @override
+  String get profileXp => 'XP';
+
+  @override
   String get profileTotalWagers => 'Всего ставок';
 
   @override
@@ -315,6 +321,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get groupWeeklyLeaders => 'Лидеры недели';
 
   @override
+  String get groupWeeklyTab => 'Неделя';
+
+  @override
   String groupWindowLeaders(int weeks) {
     String _temp0 = intl.Intl.pluralLogic(
       weeks,
@@ -331,6 +340,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get groupAllTimeLeaders => 'Лидеры за все время';
 
   @override
+  String get groupAllTimeTab => 'Все время';
+
+  @override
   String get groupWagerArchive => 'Архив ставок';
 
   @override
@@ -341,7 +353,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get groupLeaderboardWindowBody =>
-      'Недельные лидеры считаются с понедельника. Выберите, сколько недель длится один период.';
+      'Выберите длину спринта. Для 2 или 4 недель спринты идут подряд от даты старта.';
 
   @override
   String groupLeaderboardWindowWeeks(int count) {
@@ -354,6 +366,14 @@ class AppLocalizationsRu extends AppLocalizations {
       one: '$count неделя',
     );
     return '$_temp0';
+  }
+
+  @override
+  String get groupLeaderboardAnchorDateAction => 'Выбрать старт спринта';
+
+  @override
+  String groupLeaderboardAnchorDateValue(String value) {
+    return 'Старт спринта: $value';
   }
 
   @override
@@ -373,6 +393,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get groupNameRequired => 'Введите название группы.';
+
+  @override
+  String get groupAccentColorTitle => 'Цвет группы';
+
+  @override
+  String get groupAccentColorSubtitle =>
+      'Используется в карточках, действиях и акцентах группы.';
 
   @override
   String get groupInviteCode => 'Код приглашения';
@@ -542,7 +569,22 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get createWagerPreviewHint =>
-      'Стартовый коэффициент x2. Участники исхода не смогут ставить.';
+      'Кто угадает, получит награду. Непопулярный верный выбор дает x1.5.';
+
+  @override
+  String get createWagerRewardCoinsLabel => 'Награда в коинах';
+
+  @override
+  String get createWagerRewardCoinsHelper =>
+      'Верные игроки получат эту сумму. Непопулярный верный выбор дает x1.5.';
+
+  @override
+  String createWagerRewardCoinsTooHigh(int max) {
+    return 'Максимальная награда — $max коинов.';
+  }
+
+  @override
+  String get createWagerRewardPreview => 'Стандартная награда — 10 коинов.';
 
   @override
   String createWagerStakeRangeHint(int min, int max) {
@@ -593,10 +635,10 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get wagerConfirmTitle => 'Подтвердить ставку';
+  String get wagerConfirmTitle => 'Подтвердить выбор';
 
   @override
-  String get wagerStakeAmountLabel => 'Сколько фишек поставить';
+  String get wagerStakeAmountLabel => 'Сколько коинов рискнуть';
 
   @override
   String get wagerStakeAmountRequired => 'Введите количество фишек.';
@@ -615,8 +657,19 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String wagerPotentialPayout(int amount) {
-    return 'Можно получить: $amount фишек';
+    return 'Награда: $amount коинов';
   }
+
+  @override
+  String wagerRewardCoins(int amount) {
+    return '$amount коинов';
+  }
+
+  @override
+  String get wagerUnderdogBonus => 'Учитывает бонус за непопулярный выбор.';
+
+  @override
+  String get wagerYourChoice => 'Ваш выбор';
 
   @override
   String wagerCreatedAt(String value) {
@@ -754,7 +807,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String wagerArchiveStakeSide(String label, int amount) {
-    return '$label: $amount';
+    return '$label';
   }
 
   @override
@@ -949,4 +1002,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get achievementLevelTwentyFiveDescription => 'Достигните 25 уровня.';
+
+  @override
+  String get notificationChannelName => 'Уведомления Point Rivals';
 }

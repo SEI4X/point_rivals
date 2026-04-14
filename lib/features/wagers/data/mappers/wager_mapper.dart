@@ -21,6 +21,7 @@ abstract final class WagerMapper {
         side: WagerSide.right,
         label: _string(data['rightLabel']) ?? '',
       ),
+      rewardCoins: _positiveInt(data['rewardCoins'], 10),
       excludedUserIds: _stringSet(data['excludedUserIds']),
       stakes: stakes,
       status: _enumValue(
@@ -44,6 +45,7 @@ abstract final class WagerMapper {
       'type': wager.type.name,
       'leftLabel': wager.leftOption.label,
       'rightLabel': wager.rightOption.label,
+      'rewardCoins': wager.rewardCoins,
       'excludedUserIds': wager.excludedUserIds.toList()..sort(),
       'status': wager.status.name,
       'winningSide': wager.winningSide?.name,
@@ -67,6 +69,7 @@ abstract final class WagerMapper {
       'type': draft.type.name,
       'leftLabel': draft.leftOption.label,
       'rightLabel': draft.rightOption.label,
+      'rewardCoins': draft.rewardCoins,
       'excludedUserIds': draft.excludedUserIds.toList()..sort(),
       'status': WagerStatus.active.name,
       'createdAt': FieldValue.serverTimestamp(),
@@ -109,6 +112,10 @@ abstract final class WagerMapper {
   }
 
   static int _int(Object? value) => value is int ? value : 0;
+
+  static int _positiveInt(Object? value, int fallback) {
+    return value is int && value > 0 ? value : fallback;
+  }
 
   static DateTime? _dateTime(Object? value) {
     if (value is Timestamp) {

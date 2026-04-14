@@ -3,51 +3,43 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
 const {
+  currentLeaderboardPeriodId,
   currentIsoWeekPeriodId,
   refundsForStakes,
   settlementForStakes,
   weeklyTokensEarnedUpdate,
 } = require("../lib/wager_logic");
 
-test("settlementForStakes pays winners with bounded odds", () => {
+test("settlementForStakes pays the configured reward", () => {
   const result = settlementForStakes([
-    {userId: "a", side: "left", amount: 100},
-    {userId: "b", side: "right", amount: 300},
+    {userId: "a", side: "left"},
+    {userId: "b", side: "right"},
   ], "left");
 
-  assert.equal(result.totalPool, 400);
-  assert.equal(result.winningSideTotal, 100);
-  assert.deepEqual(result.payouts, {a: 240, b: 0});
+  assert.equal(result.totalPool, 20);
+  assert.equal(result.winningSideTotal, 1);
+  assert.deepEqual(result.payouts, {a: 10, b: 0});
 });
 
-test("settlementForStakes reduces a crowded single-sided pool", () => {
+test("settlementForStakes pays 1.5x for unpopular correct picks", () => {
   const result = settlementForStakes([
-    {userId: "a", side: "left", amount: 100},
-  ], "left");
+    {userId: "a", side: "left"},
+    {userId: "b", side: "left"},
+    {userId: "c", side: "right"},
+  ], "right", 20);
 
-  assert.equal(result.totalPool, 100);
-  assert.equal(result.winningSideTotal, 100);
-  assert.deepEqual(result.payouts, {a: 150});
+  assert.equal(result.totalPool, 60);
+  assert.equal(result.winningSideTotal, 1);
+  assert.deepEqual(result.payouts, {a: 0, b: 0, c: 30});
 });
 
-test("settlementForStakes uses locked stake odds when present", () => {
-  const result = settlementForStakes([
-    {userId: "a", side: "left", amount: 100, odds: 2},
-  ], "left");
-
-  assert.equal(result.totalPool, 100);
-  assert.equal(result.winningSideTotal, 100);
-  assert.deepEqual(result.payouts, {a: 200});
-});
-
-test("refundsForStakes returns only positive integer stakes", () => {
+test("refundsForStakes keeps recipients without refunding coins", () => {
   const result = refundsForStakes([
-    {userId: "a", amount: 50},
-    {userId: "b", amount: 0},
-    {userId: "c", amount: 12.5},
+    {userId: "a"},
+    {userId: "b"},
   ]);
 
-  assert.deepEqual(result, {a: 50});
+  assert.deepEqual(result, {a: 0, b: 0});
 });
 
 test("weeklyTokensEarnedUpdate increments inside current period", () => {
@@ -80,5 +72,17 @@ test("currentIsoWeekPeriodId follows ISO week-year boundaries", () => {
   assert.equal(
     currentIsoWeekPeriodId(new Date(Date.UTC(2027, 0, 1))),
     "2026-W53",
+  );
+});
+
+test("currentLeaderboardPeriodId uses sprint windows from anchor dates", () => {
+  const anchor = new Date(Date.UTC(2026, 3, 13));
+  assert.equal(
+    currentLeaderboardPeriodId(2, new Date(Date.UTC(2026, 3, 14)), anchor),
+    "20260413-S001x2",
+  );
+  assert.equal(
+    currentLeaderboardPeriodId(2, new Date(Date.UTC(2026, 3, 27)), anchor),
+    "20260427-S002x2",
   );
 });

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:point_rivals/features/groups/domain/group_accent_colors.dart';
 import 'package:point_rivals/features/groups/domain/group_models.dart';
 
 abstract final class GroupMapper {
@@ -15,6 +16,12 @@ abstract final class GroupMapper {
       activeWagerCount: _int(data['activeWagerCount']),
       myTokenBalance: myTokenBalance,
       leaderboardWindowWeeks: _positiveInt(data['leaderboardWindowWeeks'], 1),
+      leaderboardPeriodAnchorDate: _dateTime(
+        data['leaderboardPeriodAnchorDate'],
+      ),
+      accentColorValue: GroupAccentColors.normalize(
+        _intOrNull(data['accentColor']),
+      ),
     );
   }
 
@@ -30,6 +37,8 @@ abstract final class GroupMapper {
       'memberCount': 1,
       'activeWagerCount': 0,
       'leaderboardWindowWeeks': 1,
+      'leaderboardPeriodAnchorDate': FieldValue.serverTimestamp(),
+      'accentColor': GroupAccentColors.defaultValue,
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     };
@@ -38,6 +47,20 @@ abstract final class GroupMapper {
   static String? _string(Object? value) => value is String ? value : null;
 
   static int _int(Object? value) => value is int ? value : 0;
+
+  static int? _intOrNull(Object? value) => value is int ? value : null;
+
+  static DateTime? _dateTime(Object? value) {
+    if (value is Timestamp) {
+      return value.toDate();
+    }
+
+    if (value is String) {
+      return DateTime.tryParse(value);
+    }
+
+    return null;
+  }
 
   static int _positiveInt(Object? value, int fallback) {
     return value is int && value > 0 ? value : fallback;

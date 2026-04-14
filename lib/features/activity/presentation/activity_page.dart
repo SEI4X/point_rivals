@@ -6,6 +6,7 @@ import 'package:point_rivals/core/formatters/app_date_formatter.dart';
 import 'package:point_rivals/core/l10n/l10n.dart';
 import 'package:point_rivals/core/routing/app_router.dart';
 import 'package:point_rivals/core/widgets/app_refresh_indicator.dart';
+import 'package:point_rivals/core/widgets/app_shimmer.dart';
 import 'package:point_rivals/features/activity/domain/activity_models.dart';
 
 class ActivityPage extends StatelessWidget {
@@ -17,9 +18,14 @@ class ActivityPage extends StatelessWidget {
     final user = AppSessionScope.of(context).currentUser;
     if (user == null) {
       return const Scaffold(
-        body: SafeArea(child: Center(child: CircularProgressIndicator())),
+        body: SafeArea(
+          minimum: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: AppSkeletonList(),
+        ),
       );
     }
+
+    final refreshRevision = AppRefreshScope.revisionOf(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -29,6 +35,7 @@ class ActivityPage extends StatelessWidget {
       body: SafeArea(
         minimum: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: StreamBuilder<List<ActivityItem>>(
+          key: ValueKey('activity-${user.id}-$refreshRevision'),
           stream: AppDependenciesScope.of(
             context,
           ).activityRepository.watchUserActivities(user.id),
@@ -37,36 +44,34 @@ class ActivityPage extends StatelessWidget {
               return Center(child: Text(l10n.authGenericError));
             }
 
-            if (!snapshot.hasData) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            final activities = snapshot.data!;
-            if (activities.isEmpty) {
-              return AppRefreshIndicator(
-                child: ListView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  children: [
-                    SizedBox(
-                      height: MediaQuery.sizeOf(context).height * 0.55,
-                      child: Center(child: Text(l10n.activityEmpty)),
+            final activities = snapshot.data ?? const <ActivityItem>[];
+            return AppLoadingSwitcher(
+              isLoading: !snapshot.hasData,
+              loading: const AppSkeletonList(),
+              child: activities.isEmpty
+                  ? AppRefreshIndicator(
+                      child: ListView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        children: [
+                          SizedBox(
+                            height: MediaQuery.sizeOf(context).height * 0.55,
+                            child: Center(child: Text(l10n.activityEmpty)),
+                          ),
+                        ],
+                      ),
+                    )
+                  : AppRefreshIndicator(
+                      child: ListView.separated(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.only(bottom: 20),
+                        itemBuilder: (context, index) {
+                          return _ActivityCard(activity: activities[index]);
+                        },
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 12),
+                        itemCount: activities.length,
+                      ),
                     ),
-                  ],
-                ),
-              );
-            }
-
-            return AppRefreshIndicator(
-              child: ListView.separated(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.only(bottom: 20),
-                itemBuilder: (context, index) {
-                  return _ActivityCard(activity: activities[index]);
-                },
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: 12),
-                itemCount: activities.length,
-              ),
             );
           },
         ),

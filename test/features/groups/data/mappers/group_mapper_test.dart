@@ -10,6 +10,7 @@ void main() {
         'inviteCode': 'MORN1234',
         'memberCount': 8,
         'activeWagerCount': 3,
+        'accentColor': 0xFFFF3B64,
       },
       myTokenBalance: 1240,
     );
@@ -20,5 +21,16 @@ void main() {
     expect(group.memberCount, 8);
     expect(group.activeWagerCount, 3);
     expect(group.myTokenBalance, 1240);
+    expect(group.accentColorValue, 0xFFFF3B64);
+  });
+
+  test('falls back to the default group accent color', () {
+    final group = GroupMapper.fromFirestore(
+      id: 'group-1',
+      data: const {'name': 'Morning rivals'},
+      myTokenBalance: 0,
+    );
+
+    expect(group.accentColorValue, 0xFFFFD426);
   });
 }

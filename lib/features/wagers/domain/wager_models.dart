@@ -15,7 +15,7 @@ final class Stake {
   const Stake({
     required this.userId,
     required this.side,
-    required this.amount,
+    this.amount = 1,
     this.odds,
   }) : assert(amount > 0, 'Stake amount must be positive.'),
        assert(odds == null || odds > 0, 'Stake odds must be positive.');
@@ -35,6 +35,7 @@ final class Wager {
     required this.type,
     required this.leftOption,
     required this.rightOption,
+    required this.rewardCoins,
     required this.excludedUserIds,
     required this.stakes,
     required this.status,
@@ -52,6 +53,7 @@ final class Wager {
   final WagerType type;
   final WagerOption leftOption;
   final WagerOption rightOption;
+  final int rewardCoins;
   final Set<String> excludedUserIds;
   final List<Stake> stakes;
   final WagerStatus status;
@@ -61,14 +63,42 @@ final class Wager {
   final DateTime? resolvedAt;
   final DateTime? updatedAt;
 
-  int totalForSide(WagerSide side) => stakes
-      .where((stake) => stake.side == side)
-      .fold(0, (total, stake) => total + stake.amount);
+  int totalForSide(WagerSide side) => stakeCountForSide(side) * rewardCoins;
 
-  int get totalPool => stakes.fold(0, (total, stake) => total + stake.amount);
+  int get totalPool => settlement?.totalPool ?? stakes.length * rewardCoins;
 
-  int stakeCountForSide(WagerSide side) =>
-      stakes.where((stake) => stake.side == side).length;
+  int get stakeCount {
+    final settledTotal = settlement?.totalPool;
+    if (stakes.isEmpty && settledTotal != null) {
+      return settledTotal ~/ rewardCoins;
+    }
+
+    return stakes.length;
+  }
+
+  int stakeCountForSide(WagerSide side) {
+    if (stakes.isEmpty && settlement != null && winningSide != null) {
+      final winningCount = settlement!.winningSideTotal;
+      if (side == winningSide) {
+        return winningCount;
+      }
+
+      return stakeCount - winningCount;
+    }
+
+    return stakes.where((stake) => stake.side == side).length;
+  }
+
+  int rewardForSide(WagerSide side) {
+    final otherSide = side == WagerSide.left ? WagerSide.right : WagerSide.left;
+    final sideCount = stakeCountForSide(side);
+    final otherCount = stakeCountForSide(otherSide);
+    if (sideCount > 0 && sideCount < otherCount) {
+      return (rewardCoins * 1.5).floor();
+    }
+
+    return rewardCoins;
+  }
 
   bool hasStakeFrom(String userId) {
     return stakes.any((stake) => stake.userId == userId);
@@ -89,8 +119,10 @@ final class WagerDraft {
     required this.type,
     required this.leftOption,
     required this.rightOption,
+    this.rewardCoins = 10,
     required Set<String> excludedUserIds,
-  }) : excludedUserIds = Set.unmodifiable(excludedUserIds);
+  }) : assert(rewardCoins > 0, 'Reward coins must be positive.'),
+       excludedUserIds = Set.unmodifiable(excludedUserIds);
 
   final String groupId;
   final String creatorUserId;
@@ -98,6 +130,7 @@ final class WagerDraft {
   final WagerType type;
   final WagerOption leftOption;
   final WagerOption rightOption;
+  final int rewardCoins;
   final Set<String> excludedUserIds;
 
   Wager toWager({required String id}) {
@@ -109,6 +142,7 @@ final class WagerDraft {
       type: type,
       leftOption: leftOption,
       rightOption: rightOption,
+      rewardCoins: rewardCoins,
       excludedUserIds: excludedUserIds,
       stakes: const [],
       status: WagerStatus.active,

@@ -11,6 +11,7 @@ Future<void> showAchievementDetailSheet({
   return showModalBottomSheet<void>(
     context: context,
     showDragHandle: true,
+    useRootNavigator: true,
     builder: (context) => _AchievementDetailSheet(card: card),
   );
 }
@@ -50,19 +51,19 @@ class _AchievementDetailSheetState extends State<_AchievementDetailSheet> {
       minimum: const EdgeInsets.fromLTRB(20, 0, 20, 20),
       child: AnimatedOpacity(
         opacity: _hasAppeared ? 1 : 0,
-        duration: const Duration(milliseconds: 260),
+        duration: const Duration(milliseconds: 520),
         curve: Curves.easeOutCubic,
         child: AnimatedScale(
           scale: _hasAppeared ? 1 : 0.94,
-          duration: const Duration(milliseconds: 420),
-          curve: Curves.easeOutBack,
+          duration: const Duration(milliseconds: 800),
+          curve: Curves.easeOutCubic,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TweenAnimationBuilder<double>(
                 tween: Tween<double>(begin: 0.86, end: 1),
-                duration: const Duration(milliseconds: 560),
+                duration: const Duration(milliseconds: 1100),
                 curve: Curves.elasticOut,
                 builder: (context, scale, child) {
                   return Transform.scale(scale: scale, child: child);
@@ -88,7 +89,7 @@ class _AchievementDetailSheetState extends State<_AchievementDetailSheet> {
               ),
               const SizedBox(height: 14),
               AnimatedSwitcher(
-                duration: const Duration(milliseconds: 220),
+                duration: const Duration(milliseconds: 420),
                 switchInCurve: Curves.easeOutCubic,
                 switchOutCurve: Curves.easeInCubic,
                 child: Chip(
