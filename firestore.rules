@@ -1,0 +1,167 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function memberDoc(groupId, userId) {
+      return /databases/$(database)/documents/groups/$(groupId)/members/$(userId);
+    }
+
+    function isGroupMember(groupId) {
+      return signedIn() && exists(memberDoc(groupId, request.auth.uid));
+    }
+
+    function isGroupAdmin(groupId) {
+      return isGroupMember(groupId) &&
+        get(memberDoc(groupId, request.auth.uid)).data.role == 'admin';
+    }
+
+    match /users/{userId} {
+      allow create: if isSelf(userId);
+      allow get: if signedIn();
+      allow list: if false;
+      allow update: if isSelf(userId);
+      allow delete: if false;
+
+      match /deviceTokens/{tokenId} {
+        allow read, write: if isSelf(userId);
+      }
+
+      match /activities/{activityId} {
+        allow read: if isSelf(userId);
+        allow write: if false;
+      }
+
+      match /achievements/{achievementId} {
+        allow read: if isSelf(userId);
+        allow create, update: if canWriteOwnAchievement(userId, achievementId);
+        allow delete: if false;
+      }
+    }
+
+    match /groups/{groupId} {
+      allow create: if signedIn() && request.resource.data.ownerUserId == request.auth.uid;
+      allow read: if isGroupMember(groupId);
+      allow update: if canAdminUpdateGroup(groupId) || canMemberUpdateCounters(groupId);
+      allow delete: if false;
+
+      match /members/{userId} {
+        allow read: if isGroupMember(groupId);
+        allow create: if isSelf(userId) || isGroupAdmin(groupId);
+        allow update: if canSelfUpdateMemberProfile(groupId, userId) ||
+          canSelfDecreaseTokenBalance(groupId, userId);
+        allow delete: if false;
+      }
+
+      match /wagers/{wagerId} {
+        allow read: if isGroupMember(groupId);
+        allow create: if canCreateWager(groupId);
+        allow update: if canTouchWagerAfterStake(groupId, wagerId);
+        allow delete: if false;
+
+        match /stakes/{userId} {
+          allow read: if isGroupMember(groupId);
+          allow create: if false;
+          allow update: if false;
+          allow delete: if false;
+        }
+      }
+    }
+
+    match /{path=**}/members/{userId} {
+      allow list: if signedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    match /{path=**}/stakes/{userId} {
+      allow list: if signedIn() && resource.data.userId == request.auth.uid;
+      allow get: if signedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    function canMemberUpdateCounters(groupId) {
+      return isGroupMember(groupId)
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['activeWagerCount', 'updatedAt'])
+        && request.resource.data.activeWagerCount == resource.data.activeWagerCount + 1;
+    }
+
+    function canAdminUpdateGroup(groupId) {
+      return isGroupAdmin(groupId)
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['name', 'leaderboardWindowWeeks', 'updatedAt'])
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['name']) ||
+          (request.resource.data.name is string &&
+            request.resource.data.name.size() > 0 &&
+            request.resource.data.name.size() <= 60))
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['leaderboardWindowWeeks']) ||
+          (request.resource.data.leaderboardWindowWeeks is int &&
+            request.resource.data.leaderboardWindowWeeks >= 1 &&
+            request.resource.data.leaderboardWindowWeeks <= 52));
+    }
+
+    function canSelfDecreaseTokenBalance(groupId, userId) {
+      return isSelf(userId)
+        && isGroupMember(groupId)
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['tokenBalance', 'updatedAt'])
+        && request.resource.data.tokenBalance < resource.data.tokenBalance
+        && request.resource.data.tokenBalance >= 0;
+    }
+
+    function canSelfUpdateMemberProfile(groupId, userId) {
+      return isSelf(userId)
+        && isGroupMember(groupId)
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['displayName', 'avatarUrl', 'updatedAt']);
+    }
+
+    function canCreateWager(groupId) {
+      return isGroupMember(groupId)
+        && request.resource.data.keys().hasOnly([
+          'groupId',
+          'creatorUserId',
+          'condition',
+          'type',
+          'leftLabel',
+          'rightLabel',
+          'excludedUserIds',
+          'status',
+          'createdAt',
+          'updatedAt'
+        ])
+        && request.resource.data.groupId == groupId
+        && request.resource.data.creatorUserId == request.auth.uid
+        && request.resource.data.condition is string
+        && request.resource.data.condition.size() > 0
+        && request.resource.data.condition.size() <= 160
+        && request.resource.data.type in ['yesNo', 'participantVsParticipant', 'custom']
+        && request.resource.data.leftLabel is string
+        && request.resource.data.leftLabel.size() > 0
+        && request.resource.data.leftLabel.size() <= 28
+        && request.resource.data.rightLabel is string
+        && request.resource.data.rightLabel.size() > 0
+        && request.resource.data.rightLabel.size() <= 28
+        && request.resource.data.excludedUserIds is list
+        && request.resource.data.status == 'active';
+    }
+
+    function canTouchWagerAfterStake(groupId, wagerId) {
+      return isGroupMember(groupId)
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['updatedAt'])
+        && existsAfter(/databases/$(database)/documents/groups/$(groupId)/wagers/$(wagerId)/stakes/$(request.auth.uid));
+    }
+
+    function canWriteOwnAchievement(userId, achievementId) {
+      return isSelf(userId)
+        && request.resource.data.keys().hasOnly(['id', 'earnedAt', 'updatedAt'])
+        && request.resource.data.id == achievementId;
+    }
+  }
+}

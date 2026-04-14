@@ -1,0 +1,39 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Point Rivals iPhone Debug",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "00008120-000868EA0AEB401E",
+      "flutterMode": "debug",
+      "program": "lib/main.dart",
+      "toolArgs": [
+        "--dart-define=FIREBASE_APP_CHECK_DEBUG_TOKEN=3B56FCF9-795E-4302-952B-CEF1D45F567F"
+      ]
+    },
+    {
+      "name": "Point Rivals iOS Simulator Debug",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "BB232B91-689A-49FE-9FDB-6BA6180CE778",
+      "flutterMode": "debug",
+      "program": "lib/main.dart",
+      "toolArgs": [
+        "--dart-define=FIREBASE_APP_CHECK_DEBUG_TOKEN=3B56FCF9-795E-4302-952B-CEF1D45F567F"
+      ]
+    },
+    {
+      "name": "Point Rivals Android Debug",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "emulator-5554",
+      "flutterMode": "debug",
+      "program": "lib/main.dart",
+      "toolArgs": [
+        "--disable-dds",
+        "--dart-define=FIREBASE_APP_CHECK_DEBUG_TOKEN=2e6050fa-dd7f-4800-a98a-caee09f40e82"
+      ]
+    }
+  ]
+}

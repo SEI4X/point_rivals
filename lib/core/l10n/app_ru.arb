@@ -15,5 +15,1236 @@
   "homeBody": "Каждая функция создается маленькими тестируемыми слоями.",
   "@homeBody": {
     "description": "Дополнительное сообщение на главном экране."
+  },
+  "navGroups": "Группы",
+  "@navGroups": {
+    "description": "Название вкладки групп."
+  },
+  "navProfile": "Профиль",
+  "@navProfile": {
+    "description": "Название вкладки профиля."
+  },
+  "onboardingTitle": "Дружеские ставки без денег",
+  "@onboardingTitle": {
+    "description": "Заголовок онбординга."
+  },
+  "onboardingBody": "Создайте группу, ставьте фишки на реальные исходы и доверяйте админам подтверждать результат.",
+  "@onboardingBody": {
+    "description": "Описание приложения в онбординге."
+  },
+  "onboardingGameNotice": "Фишки остаются внутри группы. Point Rivals - это игра, а не азартные ставки.",
+  "@onboardingGameNotice": {
+    "description": "Пояснение, что ставки не денежные."
+  },
+  "onboardingAppleButton": "Продолжить с Apple",
+  "@onboardingAppleButton": {
+    "description": "Кнопка входа через Apple."
+  },
+  "onboardingGoogleButton": "Продолжить с Google",
+  "@onboardingGoogleButton": {
+    "description": "Кнопка входа через Google."
+  },
+  "onboardingNameLabel": "Имя",
+  "@onboardingNameLabel": {
+    "description": "Подпись поля имени."
+  },
+  "onboardingPhotoAction": "Добавить фото",
+  "@onboardingPhotoAction": {
+    "description": "Действие выбора аватара."
+  },
+  "onboardingNotificationsAction": "Разрешить уведомления",
+  "@onboardingNotificationsAction": {
+    "description": "Действие запроса уведомлений."
+  },
+  "onboardingNext": "Дальше",
+  "@onboardingNext": {
+    "description": "Кнопка следующего шага онбординга."
+  },
+  "onboardingStart": "Начать",
+  "@onboardingStart": {
+    "description": "Финальное действие онбординга."
+  },
+  "onboardingAuthTitle": "Сохраните победы",
+  "@onboardingAuthTitle": {
+    "description": "Заголовок шага авторизации."
+  },
+  "onboardingAuthBody": "Войдите, чтобы группы, фишки и XP синхронизировались.",
+  "@onboardingAuthBody": {
+    "description": "Описание шага авторизации."
+  },
+  "onboardingNotificationsTitle": "Будьте в курсе",
+  "@onboardingNotificationsTitle": {
+    "description": "Заголовок шага уведомлений."
+  },
+  "onboardingNotificationsBody": "Получайте уведомления, когда ставка завершена или группа ждет вас.",
+  "@onboardingNotificationsBody": {
+    "description": "Описание шага уведомлений."
+  },
+  "groupsTitle": "Группы",
+  "@groupsTitle": {
+    "description": "Заголовок экрана групп."
+  },
+  "groupsSearchTooltip": "Найти или создать группу",
+  "@groupsSearchTooltip": {
+    "description": "Подсказка кнопки поиска или входа в группу."
+  },
+  "groupsCreateTooltip": "Создать группу",
+  "@groupsCreateTooltip": {
+    "description": "Подсказка кнопки создания группы."
+  },
+  "groupsMembersCount": "{count, plural, one {{count} участник} few {{count} участника} many {{count} участников} other {{count} участника}}",
+  "@groupsMembersCount": {
+    "description": "Количество участников в группе.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "groupsActiveWagersCount": "{count, plural, one {{count} активная ставка} few {{count} активные ставки} many {{count} активных ставок} other {{count} активной ставки}}",
+  "@groupsActiveWagersCount": {
+    "description": "Количество активных ставок в группе.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "groupsMyBalance": "Мои фишки: {amount}",
+  "@groupsMyBalance": {
+    "description": "Баланс фишек пользователя в группе.",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "groupsMemberBalance": "Фишки: {amount}",
+  "@groupsMemberBalance": {
+    "description": "Баланс фишек другого участника в группе.",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "groupsEmptyTitle": "Групп пока нет",
+  "@groupsEmptyTitle": {
+    "description": "Заголовок пустого списка групп."
+  },
+  "groupsEmptyBody": "Создайте группу или войдите по коду приглашения.",
+  "@groupsEmptyBody": {
+    "description": "Описание пустого списка групп."
+  },
+  "groupsLoadError": "Не удалось загрузить группы. Попробуйте еще раз.",
+  "@groupsLoadError": {
+    "description": "Ошибка загрузки списка групп пользователя."
+  },
+  "joinGroupTitle": "Войти в группу",
+  "@joinGroupTitle": {
+    "description": "Заголовок окна входа в группу."
+  },
+  "joinGroupCodeLabel": "Код приглашения",
+  "@joinGroupCodeLabel": {
+    "description": "Подпись поля кода приглашения."
+  },
+  "joinGroupScanQr": "Сканировать QR",
+  "@joinGroupScanQr": {
+    "description": "Действие сканирования QR."
+  },
+  "joinGroupPreviewButton": "Найти",
+  "@joinGroupPreviewButton": {
+    "description": "Действие предпросмотра группы по коду."
+  },
+  "joinGroupJoinButton": "Присоединиться",
+  "@joinGroupJoinButton": {
+    "description": "Кнопка присоединения к группе."
+  },
+  "profileTitle": "Профиль",
+  "@profileTitle": {
+    "description": "Заголовок экрана профиля."
+  },
+  "profileLoadError": "Профиль не загружен. Попробуйте еще раз.",
+  "@profileLoadError": {
+    "description": "Ошибка загрузки публичного профиля."
+  },
+  "profileNotFound": "Профиль не найден.",
+  "@profileNotFound": {
+    "description": "Состояние, когда публичного профиля не существует."
+  },
+  "profileUnnamed": "Игрок",
+  "@profileUnnamed": {
+    "description": "Имя по умолчанию, если пользователь еще не ввел имя."
+  },
+  "profileLevel": "Уровень {level}",
+  "@profileLevel": {
+    "description": "Текущий глобальный уровень XP.",
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "profileXpProgress": "{current} / {target} XP",
+  "@profileXpProgress": {
+    "description": "Прогресс XP внутри текущего уровня.",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "profileTotalWagers": "Всего ставок",
+  "@profileTotalWagers": {
+    "description": "Подпись общего количества ставок."
+  },
+  "profileCorrectWagers": "Верных ставок",
+  "@profileCorrectWagers": {
+    "description": "Подпись количества верных ставок."
+  },
+  "profileTotalEarned": "Заработано фишек",
+  "@profileTotalEarned": {
+    "description": "Подпись общего количества заработанных фишек."
+  },
+  "profileMyWagers": "Мои ставки",
+  "@profileMyWagers": {
+    "description": "Действие открытия ставок пользователя."
+  },
+  "profileActivity": "Активность",
+  "@profileActivity": {
+    "description": "Действие открытия активности пользователя."
+  },
+  "activityTitle": "Активность",
+  "@activityTitle": {
+    "description": "Заголовок экрана активности."
+  },
+  "activityEmpty": "Активности пока нет.",
+  "@activityEmpty": {
+    "description": "Пустое состояние активности."
+  },
+  "activityNewWagerTitle": "Новая ставка",
+  "@activityNewWagerTitle": {
+    "description": "Заголовок активности новой ставки."
+  },
+  "activityResolvedWonTitle": "Вы выиграли {amount} фишек",
+  "@activityResolvedWonTitle": {
+    "description": "Заголовок активности выигранной ставки.",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "activityResolvedTitle": "Ставка завершена",
+  "@activityResolvedTitle": {
+    "description": "Заголовок активности завершенной ставки без выплаты."
+  },
+  "activityCancelledTitle": "Ставка отменена",
+  "@activityCancelledTitle": {
+    "description": "Заголовок активности отмененной ставки."
+  },
+  "activityOpenGroup": "Открыть группу",
+  "@activityOpenGroup": {
+    "description": "Подсказка действия карточки активности."
+  },
+  "activityCreatedAt": "Создано {value}",
+  "@activityCreatedAt": {
+    "description": "Время создания события.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "activityCompletedAt": "Завершено {value}",
+  "@activityCompletedAt": {
+    "description": "Время завершения события.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "myWagersTitle": "Мои ставки",
+  "@myWagersTitle": {
+    "description": "Заголовок экрана ставок пользователя."
+  },
+  "myWagersEmpty": "Ставок пока нет.",
+  "@myWagersEmpty": {
+    "description": "Пустое состояние ставок пользователя."
+  },
+  "myWagersActive": "Активные",
+  "@myWagersActive": {
+    "description": "Секция активных ставок пользователя."
+  },
+  "myWagersHistory": "История",
+  "@myWagersHistory": {
+    "description": "Секция истории ставок пользователя."
+  },
+  "myWagersStake": "Поставлено {amount}",
+  "@myWagersStake": {
+    "description": "Сумма ставки текущего пользователя.",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsTitle": "Настройки",
+  "@settingsTitle": {
+    "description": "Заголовок настроек."
+  },
+  "settingsTheme": "Тема",
+  "@settingsTheme": {
+    "description": "Подпись настройки темы."
+  },
+  "settingsThemeSystem": "Авто",
+  "@settingsThemeSystem": {
+    "description": "Настройка системной темы."
+  },
+  "settingsThemeLight": "Светлая",
+  "@settingsThemeLight": {
+    "description": "Настройка светлой темы."
+  },
+  "settingsThemeDark": "Темная",
+  "@settingsThemeDark": {
+    "description": "Настройка темной темы."
+  },
+  "settingsNotifications": "Уведомления",
+  "@settingsNotifications": {
+    "description": "Подпись настройки уведомлений."
+  },
+  "settingsProfileSaved": "Профиль обновлен.",
+  "@settingsProfileSaved": {
+    "description": "Сообщение об успешном сохранении профиля."
+  },
+  "settingsProfileSaveError": "Профиль не обновлен. Попробуйте еще раз.",
+  "@settingsProfileSaveError": {
+    "description": "Ошибка сохранения профиля."
+  },
+  "settingsProfileNameRequired": "Введите имя.",
+  "@settingsProfileNameRequired": {
+    "description": "Ошибка пустого имени профиля."
+  },
+  "settingsAvatarAction": "Сменить фото",
+  "@settingsAvatarAction": {
+    "description": "Действие смены фото профиля."
+  },
+  "settingsAvatarError": "Фото не обновлено. Попробуйте еще раз.",
+  "@settingsAvatarError": {
+    "description": "Ошибка обновления фото профиля."
+  },
+  "settingsPhotoPermissionDenied": "Разрешите доступ к фото, чтобы выбрать аватар.",
+  "@settingsPhotoPermissionDenied": {
+    "description": "Сообщение, если доступ к фото запрещен."
+  },
+  "settingsNotificationsError": "Уведомления не обновлены. Попробуйте еще раз.",
+  "@settingsNotificationsError": {
+    "description": "Ошибка обновления настройки уведомлений."
+  },
+  "settingsSignOut": "Выйти",
+  "@settingsSignOut": {
+    "description": "Действие выхода."
+  },
+  "settingsDeleteAccount": "Удалить аккаунт",
+  "@settingsDeleteAccount": {
+    "description": "Действие удаления аккаунта."
+  },
+  "settingsDeleteWarning": "Удаление аккаунта станет доступно после задержки подтверждения в 10 секунд.",
+  "@settingsDeleteWarning": {
+    "description": "Предупреждение о мягком удалении аккаунта."
+  },
+  "settingsDeleteTitle": "Удалить аккаунт?",
+  "@settingsDeleteTitle": {
+    "description": "Заголовок подтверждения удаления аккаунта."
+  },
+  "settingsDeleteBody": "Аккаунт будет скрыт, а вы выйдете из приложения. Для безопасности действие доступно с задержкой.",
+  "@settingsDeleteBody": {
+    "description": "Текст подтверждения удаления аккаунта."
+  },
+  "settingsDeleteCountdown": "Подтвердить можно через {seconds} с",
+  "@settingsDeleteCountdown": {
+    "description": "Текст таймера удаления аккаунта.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsDeleteError": "Аккаунт не удален. Попробуйте еще раз.",
+  "@settingsDeleteError": {
+    "description": "Ошибка удаления аккаунта."
+  },
+  "groupMembers": "{count, plural, one {{count} участник} few {{count} участника} many {{count} участников} other {{count} участника}}",
+  "@groupMembers": {
+    "description": "Количество участников группы.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "groupWeeklyLeaders": "Лидеры недели",
+  "@groupWeeklyLeaders": {
+    "description": "Заголовок недельного рейтинга группы."
+  },
+  "groupWindowLeaders": "{weeks, plural, one {Лидеры недели} few {Лидеры за {weeks} недели} many {Лидеры за {weeks} недель} other {Лидеры за {weeks} недели}}",
+  "@groupWindowLeaders": {
+    "description": "Заголовок рейтинга группы для настроенного недельного окна.",
+    "placeholders": {
+      "weeks": {
+        "type": "int"
+      }
+    }
+  },
+  "groupAllTimeLeaders": "Лидеры за все время",
+  "@groupAllTimeLeaders": {
+    "description": "Заголовок общего рейтинга группы."
+  },
+  "groupWagerArchive": "Архив ставок",
+  "@groupWagerArchive": {
+    "description": "Кнопка архива ставок."
+  },
+  "groupActiveWagers": "Активные ставки",
+  "@groupActiveWagers": {
+    "description": "Заголовок активных ставок."
+  },
+  "groupLeaderboardWindowTitle": "Период недельных лидеров",
+  "@groupLeaderboardWindowTitle": {
+    "description": "Заголовок настройки периода лидеров группы."
+  },
+  "groupLeaderboardWindowBody": "Недельные лидеры считаются с понедельника. Выберите, сколько недель длится один период.",
+  "@groupLeaderboardWindowBody": {
+    "description": "Описание настройки периода лидеров группы."
+  },
+  "groupLeaderboardWindowWeeks": "{count, plural, one {{count} неделя} few {{count} недели} many {{count} недель} other {{count} недели}}",
+  "@groupLeaderboardWindowWeeks": {
+    "description": "Длина периода лидеров группы.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "groupNoActiveWagers": "Активных ставок пока нет.",
+  "@groupNoActiveWagers": {
+    "description": "Пустое состояние списка активных ставок."
+  },
+  "groupAdminBadge": "Админ",
+  "@groupAdminBadge": {
+    "description": "Плашка администратора."
+  },
+  "groupCreateWager": "Создать ставку",
+  "@groupCreateWager": {
+    "description": "Действие создания ставки."
+  },
+  "groupSettingsTitle": "Настройки группы",
+  "@groupSettingsTitle": {
+    "description": "Заголовок настроек группы."
+  },
+  "groupNameLabel": "Название группы",
+  "@groupNameLabel": {
+    "description": "Подпись поля названия группы."
+  },
+  "groupNameRequired": "Введите название группы.",
+  "@groupNameRequired": {
+    "description": "Ошибка валидации пустого названия группы."
+  },
+  "groupInviteCode": "Код приглашения",
+  "@groupInviteCode": {
+    "description": "Подпись кода приглашения группы."
+  },
+  "groupInviteQr": "QR приглашения",
+  "@groupInviteQr": {
+    "description": "Подпись QR приглашения группы."
+  },
+  "groupInviteShareAction": "Поделиться",
+  "@groupInviteShareAction": {
+    "description": "Действие открытия системного шаринга приглашения в группу."
+  },
+  "groupInviteCopyAction": "Скопировать код",
+  "@groupInviteCopyAction": {
+    "description": "Действие копирования кода приглашения в группу."
+  },
+  "groupInviteCopied": "Код приглашения скопирован.",
+  "@groupInviteCopied": {
+    "description": "Snackbar после копирования кода приглашения."
+  },
+  "groupInviteShareText": "Присоединяйся к группе {groupName} в Point Rivals. Код приглашения: {inviteCode}",
+  "@groupInviteShareText": {
+    "description": "Текст для системного шаринга приглашения в группу.",
+    "placeholders": {
+      "groupName": {
+        "type": "String"
+      },
+      "inviteCode": {
+        "type": "String"
+      }
+    }
+  },
+  "groupCreateError": "Группа не создана. Попробуйте еще раз.",
+  "@groupCreateError": {
+    "description": "Сообщение ошибки создания группы."
+  },
+  "joinGroupCodeRequired": "Введите код приглашения.",
+  "@joinGroupCodeRequired": {
+    "description": "Ошибка валидации пустого кода приглашения."
+  },
+  "joinGroupError": "Группа не найдена. Проверьте код и попробуйте снова.",
+  "@joinGroupError": {
+    "description": "Сообщение ошибки поиска группы по коду."
+  },
+  "joinGroupMembersPreview": "{count, plural, one {{count} участник} few {{count} участника} many {{count} участников} other {{count} участника}}",
+  "@joinGroupMembersPreview": {
+    "description": "Количество участников в предпросмотре группы.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "joinGroupScanTitle": "Сканировать QR",
+  "@joinGroupScanTitle": {
+    "description": "Заголовок сканера QR приглашения."
+  },
+  "joinGroupScanBody": "Наведи камеру на QR приглашения в группу.",
+  "@joinGroupScanBody": {
+    "description": "Подсказка сканера QR приглашения."
+  },
+  "joinGroupInvalidQr": "В этом QR нет кода приглашения.",
+  "@joinGroupInvalidQr": {
+    "description": "Ошибка неверного QR приглашения."
+  },
+  "joinGroupCameraError": "Камера недоступна. Введите код вручную.",
+  "@joinGroupCameraError": {
+    "description": "Ошибка камеры сканера QR."
+  },
+  "groupAdmins": "Админы",
+  "@groupAdmins": {
+    "description": "Заголовок админов группы."
+  },
+  "groupParticipants": "Участники",
+  "@groupParticipants": {
+    "description": "Заголовок участников группы."
+  },
+  "groupPromoteMember": "Назначить админом",
+  "@groupPromoteMember": {
+    "description": "Действие назначения админом."
+  },
+  "groupDemoteMember": "Снять админа",
+  "@groupDemoteMember": {
+    "description": "Действие снятия админа."
+  },
+  "groupRemoveMember": "Удалить из группы",
+  "@groupRemoveMember": {
+    "description": "Действие удаления участника из группы."
+  },
+  "groupMemberActionError": "Участник не обновлен. Попробуйте еще раз.",
+  "@groupMemberActionError": {
+    "description": "Ошибка управления участником группы."
+  },
+  "groupRemoveMemberTitle": "Удалить участника?",
+  "@groupRemoveMemberTitle": {
+    "description": "Заголовок подтверждения удаления участника."
+  },
+  "groupRemoveMemberBody": "Участник потеряет доступ к группе.",
+  "@groupRemoveMemberBody": {
+    "description": "Текст подтверждения удаления участника."
+  },
+  "groupSelfAdminHint": "Нельзя изменить свою роль админа.",
+  "@groupSelfAdminHint": {
+    "description": "Подсказка для текущего админа в настройках группы."
+  },
+  "createWagerTitle": "Создать ставку",
+  "@createWagerTitle": {
+    "description": "Заголовок создания ставки."
+  },
+  "createWagerConditionLabel": "Условие ставки",
+  "@createWagerConditionLabel": {
+    "description": "Подпись поля условия ставки."
+  },
+  "createWagerConditionRequired": "Введите условие ставки.",
+  "@createWagerConditionRequired": {
+    "description": "Ошибка валидации пустого условия ставки."
+  },
+  "createWagerConditionTooLong": "Условие должно быть до {max} символов.",
+  "@createWagerConditionTooLong": {
+    "description": "Ошибка валидации слишком длинного условия ставки.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "createWagerExcludedParticipants": "Участники ставки",
+  "@createWagerExcludedParticipants": {
+    "description": "Участники, которые не могут ставить."
+  },
+  "createWagerParticipantsHint": "Люди, от которых зависит исход, не смогут делать ставки.",
+  "@createWagerParticipantsHint": {
+    "description": "Подсказка выбора участников ставки."
+  },
+  "createWagerSelectedParticipants": "{count, plural, =0 {Участники не выбраны} one {Выбран 1 участник} few {Выбрано {count} участника} many {Выбрано {count} участников} other {Выбрано {count} участника}}",
+  "@createWagerSelectedParticipants": {
+    "description": "Количество выбранных участников ставки.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "createWagerNoMembers": "Участников пока нет.",
+  "@createWagerNoMembers": {
+    "description": "Пустое состояние выбора участников."
+  },
+  "createWagerParticipantsRequired": "Выберите двух участников для этого типа ставки.",
+  "@createWagerParticipantsRequired": {
+    "description": "Ошибка валидации типа участник против участника."
+  },
+  "createWagerType": "Тип ставки",
+  "@createWagerType": {
+    "description": "Подпись выбора типа ставки."
+  },
+  "createWagerTypeYesNo": "Да / Нет",
+  "@createWagerTypeYesNo": {
+    "description": "Тип ставки да/нет."
+  },
+  "createWagerTypeParticipants": "Участник 1 / Участник 2",
+  "@createWagerTypeParticipants": {
+    "description": "Тип ставки участник против участника."
+  },
+  "createWagerTypeCustom": "Кастом",
+  "@createWagerTypeCustom": {
+    "description": "Кастомный тип ставки."
+  },
+  "createWagerTypeHintYesNo": "Подходит для исходов с четким да или нет.",
+  "@createWagerTypeHintYesNo": {
+    "description": "Подсказка типа да/нет."
+  },
+  "createWagerTypeHintParticipants": "Выбери ровно двух людей. Они станут сторонами и не смогут ставить.",
+  "@createWagerTypeHintParticipants": {
+    "description": "Подсказка типа участник против участника."
+  },
+  "createWagerTypeHintCustom": "Напиши свои надписи для обеих сторон.",
+  "@createWagerTypeHintCustom": {
+    "description": "Подсказка кастомного типа."
+  },
+  "createWagerLeftLabel": "Надпись левой кнопки",
+  "@createWagerLeftLabel": {
+    "description": "Подпись кастомной левой кнопки."
+  },
+  "createWagerRightLabel": "Надпись правой кнопки",
+  "@createWagerRightLabel": {
+    "description": "Подпись кастомной правой кнопки."
+  },
+  "createWagerOptionLabelRequired": "Введите надписи обеих кнопок.",
+  "@createWagerOptionLabelRequired": {
+    "description": "Ошибка валидации пустых кастомных вариантов."
+  },
+  "createWagerOptionLabelTooLong": "Надписи должны быть до {max} символов.",
+  "@createWagerOptionLabelTooLong": {
+    "description": "Ошибка валидации слишком длинных надписей вариантов ставки.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "createWagerPreview": "Кнопки исхода",
+  "@createWagerPreview": {
+    "description": "Подпись предпросмотра вариантов ставки."
+  },
+  "createWagerPreviewHint": "Стартовый коэффициент x2. Участники исхода не смогут ставить.",
+  "@createWagerPreviewHint": {
+    "description": "Подсказка предпросмотра создаваемой ставки."
+  },
+  "createWagerStakeRangeHint": "Диапазон ставки: {min}-{max} фишек.",
+  "@createWagerStakeRangeHint": {
+    "description": "Подсказка диапазона ставки.",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "createWagerError": "Ставка не создана. Попробуйте еще раз.",
+  "@createWagerError": {
+    "description": "Сообщение ошибки создания ставки."
+  },
+  "commonSave": "Сохранить",
+  "@commonSave": {
+    "description": "Общее действие сохранения."
+  },
+  "commonCancel": "Отмена",
+  "@commonCancel": {
+    "description": "Общее действие отмены."
+  },
+  "commonConfirm": "Подтвердить",
+  "@commonConfirm": {
+    "description": "Общее действие подтверждения."
+  },
+  "commonRetry": "Повторить",
+  "@commonRetry": {
+    "description": "Общее действие повтора."
+  },
+  "sampleGroupNamePrimary": "Утренние соперники",
+  "@sampleGroupNamePrimary": {
+    "description": "Локализованное название примерной группы для начального UI."
+  },
+  "sampleGroupNameSecondary": "Офисные вызовы",
+  "@sampleGroupNameSecondary": {
+    "description": "Локализованное название примерной группы для начального UI."
+  },
+  "sampleProfileName": "Алексей",
+  "@sampleProfileName": {
+    "description": "Локализованное имя профиля для начального UI."
+  },
+  "sampleWagerCondition": "Кто первым закончит тренировку?",
+  "@sampleWagerCondition": {
+    "description": "Локализованное условие примерной ставки."
+  },
+  "wagerOptionYes": "Да",
+  "@wagerOptionYes": {
+    "description": "Вариант ставки да."
+  },
+  "wagerOptionNo": "Нет",
+  "@wagerOptionNo": {
+    "description": "Вариант ставки нет."
+  },
+  "wagerOdds": "x{odds}",
+  "@wagerOdds": {
+    "description": "Множитель коэффициента.",
+    "placeholders": {
+      "odds": {
+        "type": "String"
+      }
+    }
+  },
+  "wagerStakeRatio": "{left} / {right}",
+  "@wagerStakeRatio": {
+    "description": "Соотношение людей по сторонам ставки.",
+    "placeholders": {
+      "left": {
+        "type": "int"
+      },
+      "right": {
+        "type": "int"
+      }
+    }
+  },
+  "wagerConfirmTitle": "Подтвердить ставку",
+  "@wagerConfirmTitle": {
+    "description": "Заголовок подтверждения ставки."
+  },
+  "wagerStakeAmountLabel": "Сколько фишек поставить",
+  "@wagerStakeAmountLabel": {
+    "description": "Подпись поля суммы ставки."
+  },
+  "wagerStakeAmountRequired": "Введите количество фишек.",
+  "@wagerStakeAmountRequired": {
+    "description": "Ошибка валидации пустой суммы ставки."
+  },
+  "wagerStakeAmountInvalid": "Введите положительное целое число.",
+  "@wagerStakeAmountInvalid": {
+    "description": "Ошибка валидации некорректной суммы ставки."
+  },
+  "wagerStakeAmountTooHigh": "Максимальная ставка — {max} фишек.",
+  "@wagerStakeAmountTooHigh": {
+    "description": "Ошибка, когда сумма ставки больше лимита приложения.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "wagerStakeInsufficientBalance": "В этой группе недостаточно фишек.",
+  "@wagerStakeInsufficientBalance": {
+    "description": "Ошибка, когда сумма ставки больше баланса."
+  },
+  "wagerPotentialPayout": "Можно получить: {amount} фишек",
+  "@wagerPotentialPayout": {
+    "description": "Потенциальная выплата перед размещением ставки.",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "wagerCreatedAt": "Создано {value}",
+  "@wagerCreatedAt": {
+    "description": "Время создания ставки.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "wagerCompletedAt": "Завершено {value}",
+  "@wagerCompletedAt": {
+    "description": "Время завершения ставки.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "wagerStakeUnavailable": "Вы не можете поставить на эту ставку.",
+  "@wagerStakeUnavailable": {
+    "description": "Сообщение для участника ставки или повторной ставки."
+  },
+  "wagerStakeError": "Ставка не сделана. Попробуйте еще раз.",
+  "@wagerStakeError": {
+    "description": "Общая ошибка размещения ставки."
+  },
+  "wagerResolveTitle": "Подтвердить результат",
+  "@wagerResolveTitle": {
+    "description": "Заголовок подтверждения исхода админом."
+  },
+  "wagerResolveBody": "Ставка закроется, а победители получат выплату.",
+  "@wagerResolveBody": {
+    "description": "Текст подтверждения исхода админом."
+  },
+  "wagerResolveAs": "Завершить как {label}",
+  "@wagerResolveAs": {
+    "description": "Действие админа для завершения ставки выбранной стороной.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "wagerResolveError": "Результат не подтвержден. Попробуйте еще раз.",
+  "@wagerResolveError": {
+    "description": "Общая ошибка подтверждения исхода."
+  },
+  "wagerCancelTitle": "Отменить ставку?",
+  "@wagerCancelTitle": {
+    "description": "Заголовок подтверждения отмены ставки."
+  },
+  "wagerCancelBody": "Все поставленные фишки вернутся участникам, а ставка уйдет в архив.",
+  "@wagerCancelBody": {
+    "description": "Текст подтверждения отмены ставки."
+  },
+  "wagerCancelAction": "Отменить ставку",
+  "@wagerCancelAction": {
+    "description": "Действие отмены ставки админом."
+  },
+  "wagerCancelError": "Ставка не отменена. Попробуйте еще раз.",
+  "@wagerCancelError": {
+    "description": "Ошибка отмены ставки."
+  },
+  "wagerConfirmBody": "Фишки будут заморожены, пока админ не подтвердит результат.",
+  "@wagerConfirmBody": {
+    "description": "Пояснение подтверждения ставки."
+  },
+  "wagerArchiveTitle": "Архив ставок",
+  "@wagerArchiveTitle": {
+    "description": "Заголовок экрана архива ставок."
+  },
+  "wagerDetailsTitle": "Детали ставки",
+  "@wagerDetailsTitle": {
+    "description": "Заголовок экрана деталей ставки."
+  },
+  "wagerDetailsOpen": "Открыть детали",
+  "@wagerDetailsOpen": {
+    "description": "Действие открытия деталей ставки."
+  },
+  "wagerDetailsStatusActive": "Активна",
+  "@wagerDetailsStatusActive": {
+    "description": "Статус активной ставки."
+  },
+  "wagerDetailsStatusResolved": "Завершена",
+  "@wagerDetailsStatusResolved": {
+    "description": "Статус завершенной ставки."
+  },
+  "wagerDetailsStatusCancelled": "Отменена",
+  "@wagerDetailsStatusCancelled": {
+    "description": "Статус отмененной ставки."
+  },
+  "wagerDetailsMyStake": "Моя ставка",
+  "@wagerDetailsMyStake": {
+    "description": "Секция ставки текущего пользователя."
+  },
+  "wagerDetailsNoStakes": "Пока никто не поставил.",
+  "@wagerDetailsNoStakes": {
+    "description": "Пустое состояние ставок участников."
+  },
+  "wagerArchiveEmpty": "Завершенных ставок пока нет.",
+  "@wagerArchiveEmpty": {
+    "description": "Пустое состояние архива ставок."
+  },
+  "wagerArchiveSearchHint": "Поиск ставок",
+  "@wagerArchiveSearchHint": {
+    "description": "Подсказка поля поиска на экране архива ставок."
+  },
+  "wagerArchiveFilterAll": "Все",
+  "@wagerArchiveFilterAll": {
+    "description": "Фильтр архива для всех статусов."
+  },
+  "wagerArchiveFilterResolved": "Завершены",
+  "@wagerArchiveFilterResolved": {
+    "description": "Фильтр архива для завершенных ставок."
+  },
+  "wagerArchiveFilterCancelled": "Отменены",
+  "@wagerArchiveFilterCancelled": {
+    "description": "Фильтр архива для отмененных ставок."
+  },
+  "wagerArchiveSortLabel": "Сортировка",
+  "@wagerArchiveSortLabel": {
+    "description": "Подпись поля сортировки архива."
+  },
+  "wagerArchiveSortNewest": "Новые",
+  "@wagerArchiveSortNewest": {
+    "description": "Сортировка архива по новым ставкам."
+  },
+  "wagerArchiveSortLargestPool": "Крупный пул",
+  "@wagerArchiveSortLargestPool": {
+    "description": "Сортировка архива по общему пулу."
+  },
+  "wagerArchiveSortMostStakes": "Больше ставок",
+  "@wagerArchiveSortMostStakes": {
+    "description": "Сортировка архива по количеству ставок."
+  },
+  "wagerArchiveFilteredEmpty": "По этому поиску ничего нет.",
+  "@wagerArchiveFilteredEmpty": {
+    "description": "Пустое состояние архива, когда фильтры скрывают все ставки."
+  },
+  "wagerArchiveResultCount": "{count, plural, one {{count} ставка} few {{count} ставки} many {{count} ставок} other {{count} ставки}}",
+  "@wagerArchiveResultCount": {
+    "description": "Количество результатов в архиве ставок.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "wagerArchiveWinner": "Победитель: {label}",
+  "@wagerArchiveWinner": {
+    "description": "Победившая сторона завершенной ставки.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "wagerArchiveTotalPool": "Пул: {amount}",
+  "@wagerArchiveTotalPool": {
+    "description": "Общий пул завершенной ставки.",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "wagerArchiveWinningPool": "На победителя: {amount}",
+  "@wagerArchiveWinningPool": {
+    "description": "Пул фишек на победившей стороне.",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "wagerArchiveStakes": "Ставки участников",
+  "@wagerArchiveStakes": {
+    "description": "Заголовок списка ставок участников в архиве."
+  },
+  "wagerArchiveStakeSide": "{label}: {amount}",
+  "@wagerArchiveStakeSide": {
+    "description": "Сторона и сумма ставки участника.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "wagerArchivePayout": "+{amount}",
+  "@wagerArchivePayout": {
+    "description": "Выплата участнику по завершенной ставке.",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "groupPreviewTitle": "Предпросмотр группы",
+  "@groupPreviewTitle": {
+    "description": "Заголовок предпросмотра группы после поиска по коду."
+  },
+  "groupSaveSuccess": "Группа обновлена.",
+  "@groupSaveSuccess": {
+    "description": "Сообщение успешного сохранения настроек группы."
+  },
+  "groupSaveError": "Группа не обновлена. Попробуйте еще раз.",
+  "@groupSaveError": {
+    "description": "Ошибка сохранения настроек группы."
+  },
+  "groupLeaveAction": "Выйти из группы",
+  "@groupLeaveAction": {
+    "description": "Действие выхода из группы."
+  },
+  "groupLeaveTitle": "Выйти из группы?",
+  "@groupLeaveTitle": {
+    "description": "Заголовок подтверждения выхода из группы."
+  },
+  "groupLeaveBody": "Вы выйдете из группы. История завершенных ставок останется в архиве группы.",
+  "@groupLeaveBody": {
+    "description": "Текст подтверждения выхода из группы."
+  },
+  "groupLeaveConfirm": "Выйти",
+  "@groupLeaveConfirm": {
+    "description": "Кнопка подтверждения выхода из группы."
+  },
+  "groupLeaveError": "Сейчас нельзя выйти из этой группы.",
+  "@groupLeaveError": {
+    "description": "Ошибка выхода из группы."
+  },
+  "wagerResultWon": "Вы выиграли эту ставку.",
+  "@wagerResultWon": {
+    "description": "Snackbar о выигранной ставке."
+  },
+  "wagerResultLost": "Вы проиграли эту ставку.",
+  "@wagerResultLost": {
+    "description": "Snackbar о проигранной ставке."
+  },
+  "wagerResultWonInGroup": "Вы выиграли в группе {groupName}.",
+  "@wagerResultWonInGroup": {
+    "description": "Верхнее уведомление о выигранной ставке с названием группы.",
+    "placeholders": {
+      "groupName": {
+        "type": "String"
+      }
+    }
+  },
+  "wagerResultLostInGroup": "Вы проиграли в группе {groupName}.",
+  "@wagerResultLostInGroup": {
+    "description": "Верхнее уведомление о проигранной ставке с названием группы.",
+    "placeholders": {
+      "groupName": {
+        "type": "String"
+      }
+    }
+  },
+  "authGenericError": "Вход не завершился. Попробуйте еще раз.",
+  "@authGenericError": {
+    "description": "Общее сообщение об ошибке входа."
+  },
+  "achievementsTitle": "Достижения",
+  "@achievementsTitle": {
+    "description": "Заголовок секции и экрана достижений."
+  },
+  "achievementsSubtitle": "Открыто {earned} из {total}",
+  "@achievementsSubtitle": {
+    "description": "Сводка прогресса достижений.",
+    "placeholders": {
+      "earned": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "achievementsViewAll": "Все",
+  "@achievementsViewAll": {
+    "description": "Действие открытия всех достижений."
+  },
+  "achievementsUnlockedSection": "Открытые",
+  "@achievementsUnlockedSection": {
+    "description": "Заголовок секции открытых достижений."
+  },
+  "achievementsNearestSection": "Ближайшие",
+  "@achievementsNearestSection": {
+    "description": "Заголовок секции ближайших достижений."
+  },
+  "achievementStatusUnlocked": "Открыто",
+  "@achievementStatusUnlocked": {
+    "description": "Статус открытого достижения."
+  },
+  "achievementUnlockedToast": "Достижение открыто: {title}",
+  "@achievementUnlockedToast": {
+    "description": "Верхнее уведомление при открытии нового достижения.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "achievementProgress": "{current} из {target}",
+  "@achievementProgress": {
+    "description": "Прогресс достижения.",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "achievementRequirementTotalWagers": "Сделать {target} ставок",
+  "@achievementRequirementTotalWagers": {
+    "description": "Условие достижения по количеству ставок.",
+    "placeholders": {
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "achievementRequirementCorrectWagers": "Выиграть {target} ставок",
+  "@achievementRequirementCorrectWagers": {
+    "description": "Условие достижения по верным ставкам.",
+    "placeholders": {
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "achievementRequirementEarnedChips": "Заработать {target} фишек",
+  "@achievementRequirementEarnedChips": {
+    "description": "Условие достижения по заработанным фишкам.",
+    "placeholders": {
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "achievementRequirementLevel": "Достичь {target} уровня",
+  "@achievementRequirementLevel": {
+    "description": "Условие достижения по уровню.",
+    "placeholders": {
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "achievementFirstWagerTitle": "Первый ход",
+  "@achievementFirstWagerTitle": {
+    "description": "Название достижения."
+  },
+  "achievementFirstWagerDescription": "Сделайте первую ставку в любой группе.",
+  "@achievementFirstWagerDescription": {
+    "description": "Описание достижения."
+  },
+  "achievementFiveWagersTitle": "Завсегдатай",
+  "@achievementFiveWagersTitle": {
+    "description": "Название достижения."
+  },
+  "achievementFiveWagersDescription": "Сделайте 5 ставок.",
+  "@achievementFiveWagersDescription": {
+    "description": "Описание достижения."
+  },
+  "achievementTwentyFiveWagersTitle": "Читает риск",
+  "@achievementTwentyFiveWagersTitle": {
+    "description": "Название достижения."
+  },
+  "achievementTwentyFiveWagersDescription": "Сделайте 25 ставок.",
+  "@achievementTwentyFiveWagersDescription": {
+    "description": "Описание достижения."
+  },
+  "achievementHundredWagersTitle": "Всегда в игре",
+  "@achievementHundredWagersTitle": {
+    "description": "Название достижения."
+  },
+  "achievementHundredWagersDescription": "Сделайте 100 ставок.",
+  "@achievementHundredWagersDescription": {
+    "description": "Описание достижения."
+  },
+  "achievementFirstWinTitle": "Угадал",
+  "@achievementFirstWinTitle": {
+    "description": "Название достижения."
+  },
+  "achievementFirstWinDescription": "Выиграйте первую ставку.",
+  "@achievementFirstWinDescription": {
+    "description": "Описание достижения."
+  },
+  "achievementFiveWinsTitle": "Точный расчет",
+  "@achievementFiveWinsTitle": {
+    "description": "Название достижения."
+  },
+  "achievementFiveWinsDescription": "Выиграйте 5 ставок.",
+  "@achievementFiveWinsDescription": {
+    "description": "Описание достижения."
+  },
+  "achievementTwentyFiveWinsTitle": "Острый глаз",
+  "@achievementTwentyFiveWinsTitle": {
+    "description": "Название достижения."
+  },
+  "achievementTwentyFiveWinsDescription": "Выиграйте 25 ставок.",
+  "@achievementTwentyFiveWinsDescription": {
+    "description": "Описание достижения."
+  },
+  "achievementHundredWinsTitle": "Легендарный выбор",
+  "@achievementHundredWinsTitle": {
+    "description": "Название достижения."
+  },
+  "achievementHundredWinsDescription": "Выиграйте 100 ставок.",
+  "@achievementHundredWinsDescription": {
+    "description": "Описание достижения."
+  },
+  "achievementHundredChipsTitle": "Первый стек",
+  "@achievementHundredChipsTitle": {
+    "description": "Название достижения."
+  },
+  "achievementHundredChipsDescription": "Заработайте 100 фишек во всех группах.",
+  "@achievementHundredChipsDescription": {
+    "description": "Описание достижения."
+  },
+  "achievementThousandChipsTitle": "Коллекционер фишек",
+  "@achievementThousandChipsTitle": {
+    "description": "Название достижения."
+  },
+  "achievementThousandChipsDescription": "Заработайте 1 000 фишек во всех группах.",
+  "@achievementThousandChipsDescription": {
+    "description": "Описание достижения."
+  },
+  "achievementTenThousandChipsTitle": "Строит банк",
+  "@achievementTenThousandChipsTitle": {
+    "description": "Название достижения."
+  },
+  "achievementTenThousandChipsDescription": "Заработайте 10 000 фишек во всех группах.",
+  "@achievementTenThousandChipsDescription": {
+    "description": "Описание достижения."
+  },
+  "achievementLevelTwoTitle": "Искра уровня",
+  "@achievementLevelTwoTitle": {
+    "description": "Название достижения."
+  },
+  "achievementLevelTwoDescription": "Достигните 2 уровня.",
+  "@achievementLevelTwoDescription": {
+    "description": "Описание достижения."
+  },
+  "achievementLevelFiveTitle": "Разгон",
+  "@achievementLevelFiveTitle": {
+    "description": "Название достижения."
+  },
+  "achievementLevelFiveDescription": "Достигните 5 уровня.",
+  "@achievementLevelFiveDescription": {
+    "description": "Описание достижения."
+  },
+  "achievementLevelTenTitle": "Две цифры",
+  "@achievementLevelTenTitle": {
+    "description": "Название достижения."
+  },
+  "achievementLevelTenDescription": "Достигните 10 уровня.",
+  "@achievementLevelTenDescription": {
+    "description": "Описание достижения."
+  },
+  "achievementLevelTwentyFiveTitle": "Круг ветеранов",
+  "@achievementLevelTwentyFiveTitle": {
+    "description": "Название достижения."
+  },
+  "achievementLevelTwentyFiveDescription": "Достигните 25 уровня.",
+  "@achievementLevelTwentyFiveDescription": {
+    "description": "Описание достижения."
   }
 }

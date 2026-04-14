@@ -1,0 +1,217 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:point_rivals/app/session/app_session_controller.dart';
+import 'package:point_rivals/core/l10n/l10n.dart';
+import 'package:point_rivals/features/achievements/presentation/achievements_page.dart';
+import 'package:point_rivals/features/activity/presentation/activity_page.dart';
+import 'package:point_rivals/features/groups/domain/group_models.dart';
+import 'package:point_rivals/features/groups/presentation/create_group_page.dart';
+import 'package:point_rivals/features/groups/presentation/group_page.dart';
+import 'package:point_rivals/features/groups/presentation/group_settings_page.dart';
+import 'package:point_rivals/features/groups/presentation/groups_page.dart';
+import 'package:point_rivals/features/groups/presentation/join_group_scanner_page.dart';
+import 'package:point_rivals/features/onboarding/presentation/onboarding_page.dart';
+import 'package:point_rivals/features/profile/presentation/profile_page.dart';
+import 'package:point_rivals/features/profile/presentation/public_member_profile_page.dart';
+import 'package:point_rivals/features/settings/presentation/settings_page.dart';
+import 'package:point_rivals/features/wagers/presentation/create_wager_page.dart';
+import 'package:point_rivals/features/wagers/presentation/my_wagers_page.dart';
+import 'package:point_rivals/features/wagers/presentation/wager_archive_page.dart';
+import 'package:point_rivals/features/wagers/presentation/wager_details_page.dart';
+
+abstract final class AppRoutes {
+  static const String onboarding = '/onboarding';
+  static const String splash = '/splash';
+  static const String groups = '/groups';
+  static const String createGroup = '/groups/create';
+  static const String joinGroupScanner = '/groups/join/scan';
+  static const String profile = '/profile';
+  static const String settings = '/settings';
+  static const String myWagers = '/profile/wagers';
+  static const String activity = '/profile/activity';
+  static const String achievements = '/profile/achievements';
+
+  static String group(String groupId) => '/groups/$groupId';
+
+  static String groupSettings(String groupId) => '/groups/$groupId/settings';
+
+  static String wagerArchive(String groupId) =>
+      '/groups/$groupId/wagers/archive';
+
+  static String createWager(String groupId) => '/groups/$groupId/wagers/create';
+
+  static String wagerDetails(String groupId, String wagerId) =>
+      '/groups/$groupId/wagers/$wagerId';
+
+  static String memberProfile(String userId) => '/members/$userId';
+}
+
+GoRouter createAppRouter(AppSessionController sessionController) {
+  return GoRouter(
+    initialLocation: AppRoutes.splash,
+    refreshListenable: sessionController,
+    redirect: (context, state) {
+      final bool isSplash = state.uri.path == AppRoutes.splash;
+      final bool isOnboarding = state.uri.path == AppRoutes.onboarding;
+      if (sessionController.isLoading) {
+        return isSplash ? null : AppRoutes.splash;
+      }
+
+      if (!sessionController.isSignedIn) {
+        return isOnboarding ? null : AppRoutes.onboarding;
+      }
+
+      return isOnboarding || isSplash ? AppRoutes.groups : null;
+    },
+    routes: [
+      GoRoute(
+        path: AppRoutes.splash,
+        builder: (context, state) => const _SplashPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.onboarding,
+        builder: (context, state) => const OnboardingPage(),
+      ),
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) {
+          return AppShell(navigationShell: navigationShell);
+        },
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.groups,
+                builder: (context, state) => const GroupsPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.profile,
+                builder: (context, state) => const ProfilePage(),
+              ),
+            ],
+          ),
+        ],
+      ),
+      GoRoute(
+        path: AppRoutes.createGroup,
+        builder: (context, state) => const CreateGroupPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.joinGroupScanner,
+        builder: (context, state) => const JoinGroupScannerPage(),
+      ),
+      GoRoute(
+        path: '/groups/:groupId',
+        builder: (context, state) {
+          return GroupPage(
+            groupId: state.pathParameters['groupId']!,
+            previewGroup: state.extra is RivalGroup
+                ? state.extra! as RivalGroup
+                : null,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/groups/:groupId/settings',
+        builder: (context, state) {
+          return GroupSettingsPage(groupId: state.pathParameters['groupId']!);
+        },
+      ),
+      GoRoute(
+        path: '/groups/:groupId/wagers/archive',
+        builder: (context, state) {
+          return WagerArchivePage(groupId: state.pathParameters['groupId']!);
+        },
+      ),
+      GoRoute(
+        path: '/groups/:groupId/wagers/create',
+        builder: (context, state) {
+          return CreateWagerPage(groupId: state.pathParameters['groupId']!);
+        },
+      ),
+      GoRoute(
+        path: '/groups/:groupId/wagers/:wagerId',
+        builder: (context, state) {
+          return WagerDetailsPage(
+            groupId: state.pathParameters['groupId']!,
+            wagerId: state.pathParameters['wagerId']!,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.settings,
+        builder: (context, state) => const SettingsPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.myWagers,
+        builder: (context, state) => const MyWagersPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.activity,
+        builder: (context, state) => const ActivityPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.achievements,
+        builder: (context, state) => const AchievementsPage(),
+      ),
+      GoRoute(
+        path: '/members/:userId',
+        builder: (context, state) {
+          return PublicMemberProfilePage(
+            userId: state.pathParameters['userId']!,
+            member: state.extra is PublicMemberProfile
+                ? state.extra! as PublicMemberProfile
+                : null,
+          );
+        },
+      ),
+    ],
+  );
+}
+
+class _SplashPage extends StatelessWidget {
+  const _SplashPage();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(body: SizedBox.expand());
+  }
+}
+
+class AppShell extends StatelessWidget {
+  const AppShell({required this.navigationShell, super.key});
+
+  final StatefulNavigationShell navigationShell;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = context.l10n;
+
+    return Scaffold(
+      body: navigationShell,
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: NavigationBar(
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+          selectedIndex: navigationShell.currentIndex,
+          onDestinationSelected: navigationShell.goBranch,
+          destinations: [
+            NavigationDestination(
+              icon: const Icon(Icons.groups_2_rounded),
+              selectedIcon: const Icon(Icons.groups_2_rounded),
+              label: l10n.navGroups,
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.person_outline_rounded),
+              selectedIcon: const Icon(Icons.person_rounded),
+              label: l10n.navProfile,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

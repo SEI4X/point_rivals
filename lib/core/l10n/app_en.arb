@@ -15,5 +15,1236 @@
   "homeBody": "Build every feature in small, tested layers.",
   "@homeBody": {
     "description": "Supporting message on the home screen."
+  },
+  "navGroups": "Groups",
+  "@navGroups": {
+    "description": "Bottom navigation label for groups."
+  },
+  "navProfile": "Profile",
+  "@navProfile": {
+    "description": "Bottom navigation label for profile."
+  },
+  "onboardingTitle": "Friendly wagers, no money",
+  "@onboardingTitle": {
+    "description": "Onboarding headline."
+  },
+  "onboardingBody": "Create a group, bet group chips on real-life outcomes, and let admins confirm the result.",
+  "@onboardingBody": {
+    "description": "Onboarding body explaining the app."
+  },
+  "onboardingGameNotice": "Chips stay inside each group. Point Rivals is a game, not gambling.",
+  "@onboardingGameNotice": {
+    "description": "Notice explaining wagers are not money."
+  },
+  "onboardingAppleButton": "Continue with Apple",
+  "@onboardingAppleButton": {
+    "description": "Apple sign-in button."
+  },
+  "onboardingGoogleButton": "Continue with Google",
+  "@onboardingGoogleButton": {
+    "description": "Google sign-in button."
+  },
+  "onboardingNameLabel": "Name",
+  "@onboardingNameLabel": {
+    "description": "Name input label."
+  },
+  "onboardingPhotoAction": "Add photo",
+  "@onboardingPhotoAction": {
+    "description": "Avatar selection action."
+  },
+  "onboardingNotificationsAction": "Allow notifications",
+  "@onboardingNotificationsAction": {
+    "description": "Notification permission action."
+  },
+  "onboardingNext": "Next",
+  "@onboardingNext": {
+    "description": "Onboarding next button."
+  },
+  "onboardingStart": "Start",
+  "@onboardingStart": {
+    "description": "Final onboarding action."
+  },
+  "onboardingAuthTitle": "Save your wins",
+  "@onboardingAuthTitle": {
+    "description": "Onboarding authorization step title."
+  },
+  "onboardingAuthBody": "Sign in so your groups, chips, and XP stay synced.",
+  "@onboardingAuthBody": {
+    "description": "Onboarding authorization step body."
+  },
+  "onboardingNotificationsTitle": "Stay in the loop",
+  "@onboardingNotificationsTitle": {
+    "description": "Onboarding notifications step title."
+  },
+  "onboardingNotificationsBody": "Get a heads-up when a wager is resolved or a group needs you.",
+  "@onboardingNotificationsBody": {
+    "description": "Onboarding notifications step body."
+  },
+  "groupsTitle": "Groups",
+  "@groupsTitle": {
+    "description": "Groups screen title."
+  },
+  "groupsSearchTooltip": "Find or create group",
+  "@groupsSearchTooltip": {
+    "description": "Tooltip for group search/join action."
+  },
+  "groupsCreateTooltip": "Create group",
+  "@groupsCreateTooltip": {
+    "description": "Tooltip for create group action."
+  },
+  "groupsMembersCount": "{count, plural, one {{count} member} other {{count} members}}",
+  "@groupsMembersCount": {
+    "description": "Number of members in a group.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "groupsActiveWagersCount": "{count, plural, one {{count} active wager} other {{count} active wagers}}",
+  "@groupsActiveWagersCount": {
+    "description": "Number of active wagers in a group.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "groupsMyBalance": "My chips: {amount}",
+  "@groupsMyBalance": {
+    "description": "Current user's group chip balance.",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "groupsMemberBalance": "Chips: {amount}",
+  "@groupsMemberBalance": {
+    "description": "Another member's group chip balance.",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "groupsEmptyTitle": "No groups yet",
+  "@groupsEmptyTitle": {
+    "description": "Empty state title for user's group list."
+  },
+  "groupsEmptyBody": "Create a group or join one with an invite code.",
+  "@groupsEmptyBody": {
+    "description": "Empty state body for user's group list."
+  },
+  "groupsLoadError": "Groups could not be loaded. Please try again.",
+  "@groupsLoadError": {
+    "description": "Error message shown when the user's group list cannot load."
+  },
+  "joinGroupTitle": "Join a group",
+  "@joinGroupTitle": {
+    "description": "Join group dialog title."
+  },
+  "joinGroupCodeLabel": "Invite code",
+  "@joinGroupCodeLabel": {
+    "description": "Invite code input label."
+  },
+  "joinGroupScanQr": "Scan QR",
+  "@joinGroupScanQr": {
+    "description": "Scan QR action."
+  },
+  "joinGroupPreviewButton": "Find",
+  "@joinGroupPreviewButton": {
+    "description": "Preview group action from invite code."
+  },
+  "joinGroupJoinButton": "Join",
+  "@joinGroupJoinButton": {
+    "description": "Join group button."
+  },
+  "profileTitle": "Profile",
+  "@profileTitle": {
+    "description": "Profile screen title."
+  },
+  "profileLoadError": "Profile could not be loaded. Please try again.",
+  "@profileLoadError": {
+    "description": "Error shown when a public profile cannot load."
+  },
+  "profileNotFound": "Profile was not found.",
+  "@profileNotFound": {
+    "description": "Empty state shown when a public profile does not exist."
+  },
+  "profileUnnamed": "Player",
+  "@profileUnnamed": {
+    "description": "Fallback display name when a user has not entered a name."
+  },
+  "profileLevel": "Level {level}",
+  "@profileLevel": {
+    "description": "Current global XP level.",
+    "placeholders": {
+      "level": {
+        "type": "int"
+      }
+    }
+  },
+  "profileXpProgress": "{current} / {target} XP",
+  "@profileXpProgress": {
+    "description": "XP progress in current level.",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "profileTotalWagers": "Total wagers",
+  "@profileTotalWagers": {
+    "description": "Profile total wagers label."
+  },
+  "profileCorrectWagers": "Correct wagers",
+  "@profileCorrectWagers": {
+    "description": "Profile correct wagers label."
+  },
+  "profileTotalEarned": "Chips earned",
+  "@profileTotalEarned": {
+    "description": "Profile total group chips earned label."
+  },
+  "profileMyWagers": "My wagers",
+  "@profileMyWagers": {
+    "description": "Profile action to open current user's wagers."
+  },
+  "profileActivity": "Activity",
+  "@profileActivity": {
+    "description": "Profile action to open current user's activity feed."
+  },
+  "activityTitle": "Activity",
+  "@activityTitle": {
+    "description": "Activity feed screen title."
+  },
+  "activityEmpty": "No activity yet.",
+  "@activityEmpty": {
+    "description": "Empty state for the activity feed."
+  },
+  "activityNewWagerTitle": "New wager",
+  "@activityNewWagerTitle": {
+    "description": "Activity title for a new wager."
+  },
+  "activityResolvedWonTitle": "You won {amount} chips",
+  "@activityResolvedWonTitle": {
+    "description": "Activity title for a won wager.",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "activityResolvedTitle": "Wager resolved",
+  "@activityResolvedTitle": {
+    "description": "Activity title for a resolved wager without payout."
+  },
+  "activityCancelledTitle": "Wager cancelled",
+  "@activityCancelledTitle": {
+    "description": "Activity title for a cancelled wager."
+  },
+  "activityOpenGroup": "Open group",
+  "@activityOpenGroup": {
+    "description": "Activity card action hint."
+  },
+  "activityCreatedAt": "Created {value}",
+  "@activityCreatedAt": {
+    "description": "Activity creation time.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "activityCompletedAt": "Completed {value}",
+  "@activityCompletedAt": {
+    "description": "Activity completion time.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "myWagersTitle": "My wagers",
+  "@myWagersTitle": {
+    "description": "My wagers screen title."
+  },
+  "myWagersEmpty": "No wagers yet.",
+  "@myWagersEmpty": {
+    "description": "Empty state for current user's wagers."
+  },
+  "myWagersActive": "Active",
+  "@myWagersActive": {
+    "description": "Active section in my wagers."
+  },
+  "myWagersHistory": "History",
+  "@myWagersHistory": {
+    "description": "History section in my wagers."
+  },
+  "myWagersStake": "Staked {amount}",
+  "@myWagersStake": {
+    "description": "Current user's wager stake amount.",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsTitle": "Settings",
+  "@settingsTitle": {
+    "description": "Settings screen title."
+  },
+  "settingsTheme": "Theme",
+  "@settingsTheme": {
+    "description": "Theme setting label."
+  },
+  "settingsThemeSystem": "System",
+  "@settingsThemeSystem": {
+    "description": "System theme option."
+  },
+  "settingsThemeLight": "Light",
+  "@settingsThemeLight": {
+    "description": "Light theme option."
+  },
+  "settingsThemeDark": "Dark",
+  "@settingsThemeDark": {
+    "description": "Dark theme option."
+  },
+  "settingsNotifications": "Notifications",
+  "@settingsNotifications": {
+    "description": "Notifications setting label."
+  },
+  "settingsProfileSaved": "Profile updated.",
+  "@settingsProfileSaved": {
+    "description": "Profile settings saved message."
+  },
+  "settingsProfileSaveError": "Profile was not updated. Please try again.",
+  "@settingsProfileSaveError": {
+    "description": "Profile settings save error."
+  },
+  "settingsProfileNameRequired": "Enter your name.",
+  "@settingsProfileNameRequired": {
+    "description": "Validation error for missing profile name."
+  },
+  "settingsAvatarAction": "Change photo",
+  "@settingsAvatarAction": {
+    "description": "Change profile photo action."
+  },
+  "settingsAvatarError": "Photo was not updated. Please try again.",
+  "@settingsAvatarError": {
+    "description": "Profile photo update error."
+  },
+  "settingsPhotoPermissionDenied": "Allow photo access to choose a profile picture.",
+  "@settingsPhotoPermissionDenied": {
+    "description": "Message shown when photo library permission is denied."
+  },
+  "settingsNotificationsError": "Notifications were not updated. Please try again.",
+  "@settingsNotificationsError": {
+    "description": "Notifications setting update error."
+  },
+  "settingsSignOut": "Sign out",
+  "@settingsSignOut": {
+    "description": "Sign out action."
+  },
+  "settingsDeleteAccount": "Delete account",
+  "@settingsDeleteAccount": {
+    "description": "Delete account action."
+  },
+  "settingsDeleteWarning": "Account deletion is available after a 10-second confirmation delay.",
+  "@settingsDeleteWarning": {
+    "description": "Soft-delete warning text."
+  },
+  "settingsDeleteTitle": "Delete account?",
+  "@settingsDeleteTitle": {
+    "description": "Delete account confirmation title."
+  },
+  "settingsDeleteBody": "Your account will be hidden and you will be signed out. This action is delayed for safety.",
+  "@settingsDeleteBody": {
+    "description": "Delete account confirmation body."
+  },
+  "settingsDeleteCountdown": "You can confirm in {seconds} s",
+  "@settingsDeleteCountdown": {
+    "description": "Delete account countdown label.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsDeleteError": "Account was not deleted. Please try again.",
+  "@settingsDeleteError": {
+    "description": "Delete account error."
+  },
+  "groupMembers": "{count, plural, one {{count} participant} other {{count} participants}}",
+  "@groupMembers": {
+    "description": "Group participant count.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "groupWeeklyLeaders": "Weekly leaders",
+  "@groupWeeklyLeaders": {
+    "description": "Weekly group leaderboard title."
+  },
+  "groupWindowLeaders": "{weeks, plural, one {Leaders this week} other {Leaders over {weeks} weeks}}",
+  "@groupWindowLeaders": {
+    "description": "Group leaderboard title for the configured weekly window.",
+    "placeholders": {
+      "weeks": {
+        "type": "int"
+      }
+    }
+  },
+  "groupAllTimeLeaders": "All-time leaders",
+  "@groupAllTimeLeaders": {
+    "description": "All-time group leaderboard title."
+  },
+  "groupWagerArchive": "Wager archive",
+  "@groupWagerArchive": {
+    "description": "Archive button label."
+  },
+  "groupActiveWagers": "Active wagers",
+  "@groupActiveWagers": {
+    "description": "Active wagers section title."
+  },
+  "groupLeaderboardWindowTitle": "Weekly leader window",
+  "@groupLeaderboardWindowTitle": {
+    "description": "Group leaderboard period setting title."
+  },
+  "groupLeaderboardWindowBody": "Weekly leaders reset on Monday. Choose how many weeks one leaderboard period lasts.",
+  "@groupLeaderboardWindowBody": {
+    "description": "Group leaderboard period setting body."
+  },
+  "groupLeaderboardWindowWeeks": "{count, plural, one {{count} week} other {{count} weeks}}",
+  "@groupLeaderboardWindowWeeks": {
+    "description": "Group leaderboard window length.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "groupNoActiveWagers": "No active wagers yet.",
+  "@groupNoActiveWagers": {
+    "description": "Empty state for active wagers list."
+  },
+  "groupAdminBadge": "Admin",
+  "@groupAdminBadge": {
+    "description": "Admin badge label."
+  },
+  "groupCreateWager": "Create wager",
+  "@groupCreateWager": {
+    "description": "Create wager action."
+  },
+  "groupSettingsTitle": "Group settings",
+  "@groupSettingsTitle": {
+    "description": "Group settings title."
+  },
+  "groupNameLabel": "Group name",
+  "@groupNameLabel": {
+    "description": "Group name input label."
+  },
+  "groupNameRequired": "Enter a group name.",
+  "@groupNameRequired": {
+    "description": "Validation error for missing group name."
+  },
+  "groupInviteCode": "Invite code",
+  "@groupInviteCode": {
+    "description": "Group invite code label."
+  },
+  "groupInviteQr": "Invite QR",
+  "@groupInviteQr": {
+    "description": "Group invite QR label."
+  },
+  "groupInviteShareAction": "Share invite",
+  "@groupInviteShareAction": {
+    "description": "Action that opens the system share sheet for a group invite."
+  },
+  "groupInviteCopyAction": "Copy code",
+  "@groupInviteCopyAction": {
+    "description": "Action that copies the group invite code."
+  },
+  "groupInviteCopied": "Invite code copied.",
+  "@groupInviteCopied": {
+    "description": "Snackbar shown after copying a group invite code."
+  },
+  "groupInviteShareText": "Join {groupName} in Point Rivals. Invite code: {inviteCode}",
+  "@groupInviteShareText": {
+    "description": "Text shared through the system share sheet for a group invite.",
+    "placeholders": {
+      "groupName": {
+        "type": "String"
+      },
+      "inviteCode": {
+        "type": "String"
+      }
+    }
+  },
+  "groupCreateError": "Group was not created. Please try again.",
+  "@groupCreateError": {
+    "description": "Create group failure message."
+  },
+  "joinGroupCodeRequired": "Enter an invite code.",
+  "@joinGroupCodeRequired": {
+    "description": "Validation error for missing invite code."
+  },
+  "joinGroupError": "Group was not found. Check the code and try again.",
+  "@joinGroupError": {
+    "description": "Join group lookup failure message."
+  },
+  "joinGroupMembersPreview": "{count, plural, one {{count} member} other {{count} members}}",
+  "@joinGroupMembersPreview": {
+    "description": "Member count shown in join group preview.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "joinGroupScanTitle": "Scan invite QR",
+  "@joinGroupScanTitle": {
+    "description": "Join group QR scanner title."
+  },
+  "joinGroupScanBody": "Point the camera at a group invite QR.",
+  "@joinGroupScanBody": {
+    "description": "Join group QR scanner helper text."
+  },
+  "joinGroupInvalidQr": "This QR does not contain an invite code.",
+  "@joinGroupInvalidQr": {
+    "description": "Invalid join QR error."
+  },
+  "joinGroupCameraError": "Camera is unavailable. Enter the code instead.",
+  "@joinGroupCameraError": {
+    "description": "QR scanner camera error."
+  },
+  "groupAdmins": "Admins",
+  "@groupAdmins": {
+    "description": "Group admins section title."
+  },
+  "groupParticipants": "Participants",
+  "@groupParticipants": {
+    "description": "Group participants section title."
+  },
+  "groupPromoteMember": "Make admin",
+  "@groupPromoteMember": {
+    "description": "Promote group member action."
+  },
+  "groupDemoteMember": "Remove admin",
+  "@groupDemoteMember": {
+    "description": "Demote group admin action."
+  },
+  "groupRemoveMember": "Remove from group",
+  "@groupRemoveMember": {
+    "description": "Remove group member action."
+  },
+  "groupMemberActionError": "Member was not updated. Please try again.",
+  "@groupMemberActionError": {
+    "description": "Group member management error."
+  },
+  "groupRemoveMemberTitle": "Remove member?",
+  "@groupRemoveMemberTitle": {
+    "description": "Remove member confirmation title."
+  },
+  "groupRemoveMemberBody": "This member will lose access to the group.",
+  "@groupRemoveMemberBody": {
+    "description": "Remove member confirmation body."
+  },
+  "groupSelfAdminHint": "You cannot change your own admin role.",
+  "@groupSelfAdminHint": {
+    "description": "Hint shown for current admin in group settings."
+  },
+  "createWagerTitle": "Create wager",
+  "@createWagerTitle": {
+    "description": "Create wager screen title."
+  },
+  "createWagerConditionLabel": "Wager condition",
+  "@createWagerConditionLabel": {
+    "description": "Wager condition input label."
+  },
+  "createWagerConditionRequired": "Enter a wager condition.",
+  "@createWagerConditionRequired": {
+    "description": "Validation error for missing wager condition."
+  },
+  "createWagerConditionTooLong": "Keep the condition under {max} characters.",
+  "@createWagerConditionTooLong": {
+    "description": "Validation error for an overly long wager condition.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "createWagerExcludedParticipants": "Participants in the wager",
+  "@createWagerExcludedParticipants": {
+    "description": "Participants excluded from betting."
+  },
+  "createWagerParticipantsHint": "People involved in the outcome cannot place bets.",
+  "@createWagerParticipantsHint": {
+    "description": "Helper text for wager participants."
+  },
+  "createWagerSelectedParticipants": "{count, plural, =0 {No participants selected} one {1 participant selected} other {{count} participants selected}}",
+  "@createWagerSelectedParticipants": {
+    "description": "Selected wager participants count.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "createWagerNoMembers": "No members available yet.",
+  "@createWagerNoMembers": {
+    "description": "Empty participant selector state."
+  },
+  "createWagerParticipantsRequired": "Choose two participants for this wager type.",
+  "@createWagerParticipantsRequired": {
+    "description": "Validation error for participant-vs-participant wager type."
+  },
+  "createWagerType": "Wager type",
+  "@createWagerType": {
+    "description": "Wager type section label."
+  },
+  "createWagerTypeYesNo": "Yes / No",
+  "@createWagerTypeYesNo": {
+    "description": "Yes/no wager type."
+  },
+  "createWagerTypeParticipants": "Participant 1 / Participant 2",
+  "@createWagerTypeParticipants": {
+    "description": "Participant-vs-participant wager type."
+  },
+  "createWagerTypeCustom": "Custom",
+  "@createWagerTypeCustom": {
+    "description": "Custom wager type."
+  },
+  "createWagerTypeHintYesNo": "Use this for outcomes with a clear yes or no.",
+  "@createWagerTypeHintYesNo": {
+    "description": "Yes/no wager type helper."
+  },
+  "createWagerTypeHintParticipants": "Choose exactly two people. They will become the two sides and cannot bet.",
+  "@createWagerTypeHintParticipants": {
+    "description": "Participant wager type helper."
+  },
+  "createWagerTypeHintCustom": "Write your own labels for both sides.",
+  "@createWagerTypeHintCustom": {
+    "description": "Custom wager type helper."
+  },
+  "createWagerLeftLabel": "Left button label",
+  "@createWagerLeftLabel": {
+    "description": "Custom left option label."
+  },
+  "createWagerRightLabel": "Right button label",
+  "@createWagerRightLabel": {
+    "description": "Custom right option label."
+  },
+  "createWagerOptionLabelRequired": "Enter both button labels.",
+  "@createWagerOptionLabelRequired": {
+    "description": "Validation error for missing custom option labels."
+  },
+  "createWagerOptionLabelTooLong": "Keep labels under {max} characters.",
+  "@createWagerOptionLabelTooLong": {
+    "description": "Validation error for overly long wager option labels.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "createWagerPreview": "Outcome buttons",
+  "@createWagerPreview": {
+    "description": "Create wager outcome preview label."
+  },
+  "createWagerPreviewHint": "Opening odds start at x2. Participants cannot stake on this wager.",
+  "@createWagerPreviewHint": {
+    "description": "Create wager preview helper text."
+  },
+  "createWagerStakeRangeHint": "Stake range: {min}-{max} chips.",
+  "@createWagerStakeRangeHint": {
+    "description": "Create wager stake range helper text.",
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "createWagerError": "Wager was not created. Please try again.",
+  "@createWagerError": {
+    "description": "Create wager failure message."
+  },
+  "commonSave": "Save",
+  "@commonSave": {
+    "description": "Generic save action."
+  },
+  "commonCancel": "Cancel",
+  "@commonCancel": {
+    "description": "Generic cancel action."
+  },
+  "commonConfirm": "Confirm",
+  "@commonConfirm": {
+    "description": "Generic confirm action."
+  },
+  "commonRetry": "Retry",
+  "@commonRetry": {
+    "description": "Generic retry action."
+  },
+  "sampleGroupNamePrimary": "Morning rivals",
+  "@sampleGroupNamePrimary": {
+    "description": "Localized sample group name for initial UI state."
+  },
+  "sampleGroupNameSecondary": "Office dares",
+  "@sampleGroupNameSecondary": {
+    "description": "Localized sample group name for initial UI state."
+  },
+  "sampleProfileName": "Alex",
+  "@sampleProfileName": {
+    "description": "Localized sample profile name for initial UI state."
+  },
+  "sampleWagerCondition": "Who finishes the workout first?",
+  "@sampleWagerCondition": {
+    "description": "Localized sample wager condition for initial UI state."
+  },
+  "wagerOptionYes": "Yes",
+  "@wagerOptionYes": {
+    "description": "Yes wager option."
+  },
+  "wagerOptionNo": "No",
+  "@wagerOptionNo": {
+    "description": "No wager option."
+  },
+  "wagerOdds": "x{odds}",
+  "@wagerOdds": {
+    "description": "Odds multiplier label.",
+    "placeholders": {
+      "odds": {
+        "type": "String"
+      }
+    }
+  },
+  "wagerStakeRatio": "{left} / {right}",
+  "@wagerStakeRatio": {
+    "description": "Ratio of people staking on each side.",
+    "placeholders": {
+      "left": {
+        "type": "int"
+      },
+      "right": {
+        "type": "int"
+      }
+    }
+  },
+  "wagerConfirmTitle": "Confirm stake",
+  "@wagerConfirmTitle": {
+    "description": "Stake confirmation title."
+  },
+  "wagerStakeAmountLabel": "Chips to stake",
+  "@wagerStakeAmountLabel": {
+    "description": "Stake amount input label."
+  },
+  "wagerStakeAmountRequired": "Enter how many chips to stake.",
+  "@wagerStakeAmountRequired": {
+    "description": "Validation error for missing stake amount."
+  },
+  "wagerStakeAmountInvalid": "Enter a positive whole number.",
+  "@wagerStakeAmountInvalid": {
+    "description": "Validation error for invalid stake amount."
+  },
+  "wagerStakeAmountTooHigh": "Maximum stake is {max} chips.",
+  "@wagerStakeAmountTooHigh": {
+    "description": "Validation error when stake amount exceeds app limit.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "wagerStakeInsufficientBalance": "You do not have enough chips in this group.",
+  "@wagerStakeInsufficientBalance": {
+    "description": "Validation error when stake amount exceeds balance."
+  },
+  "wagerPotentialPayout": "Potential payout: {amount} chips",
+  "@wagerPotentialPayout": {
+    "description": "Potential payout shown before placing a stake.",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "wagerCreatedAt": "Created {value}",
+  "@wagerCreatedAt": {
+    "description": "Wager creation time.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "wagerCompletedAt": "Completed {value}",
+  "@wagerCompletedAt": {
+    "description": "Wager completion time.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "wagerStakeUnavailable": "You cannot stake on this wager.",
+  "@wagerStakeUnavailable": {
+    "description": "Message for excluded or already staked user."
+  },
+  "wagerStakeError": "Stake was not placed. Please try again.",
+  "@wagerStakeError": {
+    "description": "Generic stake placement error."
+  },
+  "wagerResolveTitle": "Confirm result",
+  "@wagerResolveTitle": {
+    "description": "Admin resolve wager dialog title."
+  },
+  "wagerResolveBody": "This will close the wager and pay winning stakes.",
+  "@wagerResolveBody": {
+    "description": "Admin resolve wager confirmation body."
+  },
+  "wagerResolveAs": "Resolve as {label}",
+  "@wagerResolveAs": {
+    "description": "Admin action to resolve wager with selected side.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "wagerResolveError": "Result was not confirmed. Please try again.",
+  "@wagerResolveError": {
+    "description": "Generic wager resolution error."
+  },
+  "wagerCancelTitle": "Cancel wager?",
+  "@wagerCancelTitle": {
+    "description": "Cancel wager confirmation title."
+  },
+  "wagerCancelBody": "All placed chips will be returned and the wager will move to the archive.",
+  "@wagerCancelBody": {
+    "description": "Cancel wager confirmation body."
+  },
+  "wagerCancelAction": "Cancel wager",
+  "@wagerCancelAction": {
+    "description": "Cancel wager admin action."
+  },
+  "wagerCancelError": "Wager was not cancelled. Please try again.",
+  "@wagerCancelError": {
+    "description": "Cancel wager error."
+  },
+  "wagerConfirmBody": "Your chips are locked until the admin confirms the result.",
+  "@wagerConfirmBody": {
+    "description": "Stake confirmation explanation."
+  },
+  "wagerArchiveTitle": "Wager archive",
+  "@wagerArchiveTitle": {
+    "description": "Resolved wager archive screen title."
+  },
+  "wagerDetailsTitle": "Wager details",
+  "@wagerDetailsTitle": {
+    "description": "Wager details screen title."
+  },
+  "wagerDetailsOpen": "Open details",
+  "@wagerDetailsOpen": {
+    "description": "Open wager details action."
+  },
+  "wagerDetailsStatusActive": "Active",
+  "@wagerDetailsStatusActive": {
+    "description": "Active wager status."
+  },
+  "wagerDetailsStatusResolved": "Resolved",
+  "@wagerDetailsStatusResolved": {
+    "description": "Resolved wager status."
+  },
+  "wagerDetailsStatusCancelled": "Cancelled",
+  "@wagerDetailsStatusCancelled": {
+    "description": "Cancelled wager status."
+  },
+  "wagerDetailsMyStake": "Your stake",
+  "@wagerDetailsMyStake": {
+    "description": "Current user's stake section label."
+  },
+  "wagerDetailsNoStakes": "No one has staked yet.",
+  "@wagerDetailsNoStakes": {
+    "description": "Empty state for wager stakes."
+  },
+  "wagerArchiveEmpty": "No resolved wagers yet.",
+  "@wagerArchiveEmpty": {
+    "description": "Resolved wager archive empty state."
+  },
+  "wagerArchiveSearchHint": "Search wagers",
+  "@wagerArchiveSearchHint": {
+    "description": "Search field hint on the wager archive screen."
+  },
+  "wagerArchiveFilterAll": "All",
+  "@wagerArchiveFilterAll": {
+    "description": "Archive filter for all statuses."
+  },
+  "wagerArchiveFilterResolved": "Resolved",
+  "@wagerArchiveFilterResolved": {
+    "description": "Archive filter for resolved wagers."
+  },
+  "wagerArchiveFilterCancelled": "Cancelled",
+  "@wagerArchiveFilterCancelled": {
+    "description": "Archive filter for cancelled wagers."
+  },
+  "wagerArchiveSortLabel": "Sort",
+  "@wagerArchiveSortLabel": {
+    "description": "Archive sort field label."
+  },
+  "wagerArchiveSortNewest": "Newest",
+  "@wagerArchiveSortNewest": {
+    "description": "Archive sort option that keeps newest wagers first."
+  },
+  "wagerArchiveSortLargestPool": "Largest pool",
+  "@wagerArchiveSortLargestPool": {
+    "description": "Archive sort option by total pool."
+  },
+  "wagerArchiveSortMostStakes": "Most stakes",
+  "@wagerArchiveSortMostStakes": {
+    "description": "Archive sort option by stake count."
+  },
+  "wagerArchiveFilteredEmpty": "Nothing matches this search.",
+  "@wagerArchiveFilteredEmpty": {
+    "description": "Archive empty state when filters hide all wagers."
+  },
+  "wagerArchiveResultCount": "{count, plural, one {{count} wager} other {{count} wagers}}",
+  "@wagerArchiveResultCount": {
+    "description": "Filtered archive result count.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "wagerArchiveWinner": "Winner: {label}",
+  "@wagerArchiveWinner": {
+    "description": "Resolved wager winning side.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "wagerArchiveTotalPool": "Pool: {amount}",
+  "@wagerArchiveTotalPool": {
+    "description": "Resolved wager total pool.",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "wagerArchiveWinningPool": "Winning side: {amount}",
+  "@wagerArchiveWinningPool": {
+    "description": "Resolved wager winning side pool.",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "wagerArchiveStakes": "Participant stakes",
+  "@wagerArchiveStakes": {
+    "description": "Resolved wager participant stake list title."
+  },
+  "wagerArchiveStakeSide": "{label}: {amount}",
+  "@wagerArchiveStakeSide": {
+    "description": "Participant stake side and amount.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "wagerArchivePayout": "+{amount}",
+  "@wagerArchivePayout": {
+    "description": "Participant resolved wager payout.",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "groupPreviewTitle": "Group preview",
+  "@groupPreviewTitle": {
+    "description": "Title for group preview after invite lookup."
+  },
+  "groupSaveSuccess": "Group updated.",
+  "@groupSaveSuccess": {
+    "description": "Group settings saved message."
+  },
+  "groupSaveError": "Group was not updated. Please try again.",
+  "@groupSaveError": {
+    "description": "Group settings save error."
+  },
+  "groupLeaveAction": "Leave group",
+  "@groupLeaveAction": {
+    "description": "Leave group action."
+  },
+  "groupLeaveTitle": "Leave group?",
+  "@groupLeaveTitle": {
+    "description": "Leave group confirmation title."
+  },
+  "groupLeaveBody": "You will leave this group. Your resolved wager history stays in the group archive.",
+  "@groupLeaveBody": {
+    "description": "Leave group confirmation body."
+  },
+  "groupLeaveConfirm": "Leave",
+  "@groupLeaveConfirm": {
+    "description": "Leave group confirmation action."
+  },
+  "groupLeaveError": "You cannot leave this group right now.",
+  "@groupLeaveError": {
+    "description": "Leave group error."
+  },
+  "wagerResultWon": "You won this wager.",
+  "@wagerResultWon": {
+    "description": "Snackbar for a wager win."
+  },
+  "wagerResultLost": "You lost this wager.",
+  "@wagerResultLost": {
+    "description": "Snackbar for a wager loss."
+  },
+  "wagerResultWonInGroup": "You won in {groupName}.",
+  "@wagerResultWonInGroup": {
+    "description": "Top snackbar for a wager win with group name.",
+    "placeholders": {
+      "groupName": {
+        "type": "String"
+      }
+    }
+  },
+  "wagerResultLostInGroup": "You lost in {groupName}.",
+  "@wagerResultLostInGroup": {
+    "description": "Top snackbar for a wager loss with group name.",
+    "placeholders": {
+      "groupName": {
+        "type": "String"
+      }
+    }
+  },
+  "authGenericError": "Sign-in did not finish. Please try again.",
+  "@authGenericError": {
+    "description": "Generic sign-in failure message."
+  },
+  "achievementsTitle": "Achievements",
+  "@achievementsTitle": {
+    "description": "Achievements section and screen title."
+  },
+  "achievementsSubtitle": "{earned} of {total} unlocked",
+  "@achievementsSubtitle": {
+    "description": "Achievements progress summary.",
+    "placeholders": {
+      "earned": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "achievementsViewAll": "View all",
+  "@achievementsViewAll": {
+    "description": "Open all achievements action."
+  },
+  "achievementsUnlockedSection": "Unlocked",
+  "@achievementsUnlockedSection": {
+    "description": "Unlocked achievements section title."
+  },
+  "achievementsNearestSection": "Closest next",
+  "@achievementsNearestSection": {
+    "description": "Nearest locked achievements section title."
+  },
+  "achievementStatusUnlocked": "Unlocked",
+  "@achievementStatusUnlocked": {
+    "description": "Unlocked achievement status."
+  },
+  "achievementUnlockedToast": "Achievement unlocked: {title}",
+  "@achievementUnlockedToast": {
+    "description": "Top notification shown when a new achievement is unlocked.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "achievementProgress": "{current} of {target}",
+  "@achievementProgress": {
+    "description": "Achievement progress value.",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "achievementRequirementTotalWagers": "Place {target} wagers",
+  "@achievementRequirementTotalWagers": {
+    "description": "Total wager achievement requirement.",
+    "placeholders": {
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "achievementRequirementCorrectWagers": "Win {target} wagers",
+  "@achievementRequirementCorrectWagers": {
+    "description": "Correct wager achievement requirement.",
+    "placeholders": {
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "achievementRequirementEarnedChips": "Earn {target} chips",
+  "@achievementRequirementEarnedChips": {
+    "description": "Earned chips achievement requirement.",
+    "placeholders": {
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "achievementRequirementLevel": "Reach level {target}",
+  "@achievementRequirementLevel": {
+    "description": "Level achievement requirement.",
+    "placeholders": {
+      "target": {
+        "type": "int"
+      }
+    }
+  },
+  "achievementFirstWagerTitle": "First Move",
+  "@achievementFirstWagerTitle": {
+    "description": "Achievement title."
+  },
+  "achievementFirstWagerDescription": "Place your first wager in any group.",
+  "@achievementFirstWagerDescription": {
+    "description": "Achievement description."
+  },
+  "achievementFiveWagersTitle": "Table Regular",
+  "@achievementFiveWagersTitle": {
+    "description": "Achievement title."
+  },
+  "achievementFiveWagersDescription": "Place 5 wagers.",
+  "@achievementFiveWagersDescription": {
+    "description": "Achievement description."
+  },
+  "achievementTwentyFiveWagersTitle": "Risk Reader",
+  "@achievementTwentyFiveWagersTitle": {
+    "description": "Achievement title."
+  },
+  "achievementTwentyFiveWagersDescription": "Place 25 wagers.",
+  "@achievementTwentyFiveWagersDescription": {
+    "description": "Achievement description."
+  },
+  "achievementHundredWagersTitle": "Always In",
+  "@achievementHundredWagersTitle": {
+    "description": "Achievement title."
+  },
+  "achievementHundredWagersDescription": "Place 100 wagers.",
+  "@achievementHundredWagersDescription": {
+    "description": "Achievement description."
+  },
+  "achievementFirstWinTitle": "Called It",
+  "@achievementFirstWinTitle": {
+    "description": "Achievement title."
+  },
+  "achievementFirstWinDescription": "Win your first wager.",
+  "@achievementFirstWinDescription": {
+    "description": "Achievement description."
+  },
+  "achievementFiveWinsTitle": "Clean Read",
+  "@achievementFiveWinsTitle": {
+    "description": "Achievement title."
+  },
+  "achievementFiveWinsDescription": "Win 5 wagers.",
+  "@achievementFiveWinsDescription": {
+    "description": "Achievement description."
+  },
+  "achievementTwentyFiveWinsTitle": "Sharp Eye",
+  "@achievementTwentyFiveWinsTitle": {
+    "description": "Achievement title."
+  },
+  "achievementTwentyFiveWinsDescription": "Win 25 wagers.",
+  "@achievementTwentyFiveWinsDescription": {
+    "description": "Achievement description."
+  },
+  "achievementHundredWinsTitle": "Legend Pick",
+  "@achievementHundredWinsTitle": {
+    "description": "Achievement title."
+  },
+  "achievementHundredWinsDescription": "Win 100 wagers.",
+  "@achievementHundredWinsDescription": {
+    "description": "Achievement description."
+  },
+  "achievementHundredChipsTitle": "First Stack",
+  "@achievementHundredChipsTitle": {
+    "description": "Achievement title."
+  },
+  "achievementHundredChipsDescription": "Earn 100 chips across your groups.",
+  "@achievementHundredChipsDescription": {
+    "description": "Achievement description."
+  },
+  "achievementThousandChipsTitle": "Chip Collector",
+  "@achievementThousandChipsTitle": {
+    "description": "Achievement title."
+  },
+  "achievementThousandChipsDescription": "Earn 1,000 chips across your groups.",
+  "@achievementThousandChipsDescription": {
+    "description": "Achievement description."
+  },
+  "achievementTenThousandChipsTitle": "Vault Builder",
+  "@achievementTenThousandChipsTitle": {
+    "description": "Achievement title."
+  },
+  "achievementTenThousandChipsDescription": "Earn 10,000 chips across your groups.",
+  "@achievementTenThousandChipsDescription": {
+    "description": "Achievement description."
+  },
+  "achievementLevelTwoTitle": "Level Spark",
+  "@achievementLevelTwoTitle": {
+    "description": "Achievement title."
+  },
+  "achievementLevelTwoDescription": "Reach level 2.",
+  "@achievementLevelTwoDescription": {
+    "description": "Achievement description."
+  },
+  "achievementLevelFiveTitle": "Momentum",
+  "@achievementLevelFiveTitle": {
+    "description": "Achievement title."
+  },
+  "achievementLevelFiveDescription": "Reach level 5.",
+  "@achievementLevelFiveDescription": {
+    "description": "Achievement description."
+  },
+  "achievementLevelTenTitle": "Double Digits",
+  "@achievementLevelTenTitle": {
+    "description": "Achievement title."
+  },
+  "achievementLevelTenDescription": "Reach level 10.",
+  "@achievementLevelTenDescription": {
+    "description": "Achievement description."
+  },
+  "achievementLevelTwentyFiveTitle": "Veteran Circle",
+  "@achievementLevelTwentyFiveTitle": {
+    "description": "Achievement title."
+  },
+  "achievementLevelTwentyFiveDescription": "Reach level 25.",
+  "@achievementLevelTwentyFiveDescription": {
+    "description": "Achievement description."
   }
 }

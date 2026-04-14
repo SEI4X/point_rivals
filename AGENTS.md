@@ -6,6 +6,7 @@ These rules apply to the whole repository.
 
 - Build a Flutter app with Apple-like visual discipline: calm hierarchy, native-feeling motion, generous spacing, clear typography, and minimal ornament.
 - Prefer minimalist UX. Every screen should have one primary job, one obvious next action, and no explanatory copy that belongs in documentation.
+- Follow the Point Rivals visual language: dark-first sporty premium UI, near-black `#0B0C0D` background, charcoal panels, acid yellow `#FFD426` primary actions, pink-red `#FF3B64` accents, compact pill controls, rounded Material icons only, thin outlines, no heavy shadows, no decorative gradients, and soft rounded geometry with `18` default radius for cards/buttons.
 - Support English and Russian from the start. New languages must be additive and must not require touching feature code.
 
 ## Architecture

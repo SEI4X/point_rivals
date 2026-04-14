@@ -3,25 +3,21 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:point_rivals/app/app.dart';
 
 void main() {
-  testWidgets('renders the English home screen by default', (tester) async {
-    await tester.pumpWidget(const PointRivalsApp());
+  testWidgets('renders the English onboarding by default', (tester) async {
+    await tester.pumpWidget(PointRivalsApp());
+    await tester.pumpAndSettle();
 
-    expect(find.text('Ready for the next match'), findsOneWidget);
-    expect(
-      find.text('Build every feature in small, tested layers.'),
-      findsOneWidget,
-    );
+    expect(find.text('Friendly wagers, no money'), findsOneWidget);
+    expect(find.text('Next'), findsOneWidget);
   });
 
-  testWidgets('renders the Russian home screen when locale is Russian', (
+  testWidgets('renders the Russian onboarding when locale is Russian', (
     tester,
   ) async {
-    await tester.pumpWidget(const PointRivalsApp(locale: Locale('ru')));
+    await tester.pumpWidget(PointRivalsApp(locale: const Locale('ru')));
+    await tester.pumpAndSettle();
 
-    expect(find.text('Готовы к следующему матчу'), findsOneWidget);
-    expect(
-      find.text('Каждая функция создается маленькими тестируемыми слоями.'),
-      findsOneWidget,
-    );
+    expect(find.text('Дружеские ставки без денег'), findsOneWidget);
+    expect(find.text('Дальше'), findsOneWidget);
   });
 }

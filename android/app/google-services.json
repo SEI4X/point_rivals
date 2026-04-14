@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "31159783168",
+    "project_id": "point-rivals",
+    "storage_bucket": "point-rivals.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:31159783168:android:72ac22f50a570d72276de5",
+        "android_client_info": {
+          "package_name": "com.lexmashkov.pointRivals"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "31159783168-don5vd0178ggs89rkkt8rgsv3epvj3mj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.lexmashkov.pointRivals",
+            "certificate_hash": "44063da7b9b35d81ef430b74b6ae9b0e5a21b1da"
+          }
+        },
+        {
+          "client_id": "31159783168-meksoh49gs6hrrus5jomcll3qh51m0no.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnIFPUMzC1ArASNs3M2VbulXmZX-Dnz80"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "31159783168-meksoh49gs6hrrus5jomcll3qh51m0no.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "31159783168-0lm8prnsucere3rk3k9sejpbali1mqg5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.pointRivals"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
