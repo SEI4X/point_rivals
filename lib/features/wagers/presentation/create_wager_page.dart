@@ -23,6 +23,9 @@ class _CreateWagerPageState extends State<CreateWagerPage> {
   final _conditionController = TextEditingController();
   final _leftLabelController = TextEditingController();
   final _rightLabelController = TextEditingController();
+  final _rewardCoinsController = TextEditingController(
+    text: WagerConstraints.defaultRewardCoins.toString(),
+  );
 
   WagerType _type = WagerType.yesNo;
   final Set<String> _selectedParticipantIds = {};
@@ -33,6 +36,7 @@ class _CreateWagerPageState extends State<CreateWagerPage> {
     _conditionController.dispose();
     _leftLabelController.dispose();
     _rightLabelController.dispose();
+    _rewardCoinsController.dispose();
     super.dispose();
   }
 
@@ -111,6 +115,9 @@ class _CreateWagerPageState extends State<CreateWagerPage> {
       type: _type,
       leftOption: WagerOption(side: WagerSide.left, label: labels.$1),
       rightOption: WagerOption(side: WagerSide.right, label: labels.$2),
+      rewardCoins:
+          int.tryParse(_rewardCoinsController.text.trim()) ??
+          WagerConstraints.defaultRewardCoins,
       excludedUserIds: _selectedParticipantIds,
     );
   }
@@ -222,6 +229,35 @@ class _CreateWagerPageState extends State<CreateWagerPage> {
 
                           return null;
                         },
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: TextFormField(
+                        controller: _rewardCoinsController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: l10n.createWagerRewardCoinsLabel,
+                          helperText: l10n.createWagerRewardCoinsHelper,
+                        ),
+                        validator: (value) {
+                          final amount = int.tryParse(value?.trim() ?? '');
+                          if (amount == null || amount <= 0) {
+                            return l10n.wagerStakeAmountInvalid;
+                          }
+
+                          if (amount > WagerConstraints.maxRewardCoins) {
+                            return l10n.createWagerRewardCoinsTooHigh(
+                              WagerConstraints.maxRewardCoins,
+                            );
+                          }
+
+                          return null;
+                        },
+                        onChanged: (_) => setState(() {}),
                       ),
                     ),
                   ),
@@ -524,12 +560,7 @@ class _OutcomePreview extends StatelessWidget {
             const SizedBox(height: 10),
             Chip(
               avatar: const Icon(Icons.savings_rounded, size: 16),
-              label: Text(
-                l10n.createWagerStakeRangeHint(
-                  WagerConstraints.minStakeAmount,
-                  WagerConstraints.maxStakeAmount,
-                ),
-              ),
+              label: Text(l10n.createWagerRewardPreview),
             ),
             const SizedBox(height: 12),
             Row(

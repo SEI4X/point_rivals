@@ -100,18 +100,22 @@ class _OnboardingPageState extends State<OnboardingPage> {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
     final session = AppSessionScope.of(context);
-    final ColorScheme colors = Theme.of(context).colorScheme;
     final showAppleSignIn =
         defaultTargetPlatform == TargetPlatform.iOS ||
         defaultTargetPlatform == TargetPlatform.macOS;
 
     return Scaffold(
       body: SafeArea(
-        minimum: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+        minimum: const EdgeInsets.fromLTRB(20, 18, 20, 18),
         child: Column(
           children: [
             Row(
               children: [
+                Text(
+                  l10n.appTitle,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const Spacer(),
                 _StepDot(active: _pageIndex == 0),
                 const SizedBox(width: 6),
                 _StepDot(active: _pageIndex == 1),
@@ -191,12 +195,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 ],
               ),
             ),
-            Text(
-              l10n.appTitle,
-              style: Theme.of(
-                context,
-              ).textTheme.labelSmall?.copyWith(color: colors.onSurfaceVariant),
-            ),
           ],
         ),
       ),
@@ -248,60 +246,111 @@ class _OnboardingStep extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        DecoratedBox(
-          decoration: BoxDecoration(
-            color: colors.surfaceContainer,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: colors.outlineVariant),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CircleAvatar(
-                  backgroundColor: colors.primary,
-                  foregroundColor: colors.onPrimary,
-                  child: Icon(icon),
-                ),
-                const SizedBox(height: 22),
-                Text(
-                  '“',
-                  style: textTheme.headlineSmall?.copyWith(height: 0.8),
-                ),
-                Text(
-                  title,
-                  style: textTheme.headlineSmall?.copyWith(
-                    height: 1.08,
-                    fontFamily: 'Times New Roman',
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  body,
-                  style: textTheme.bodyMedium?.copyWith(
-                    color: colors.onSurfaceVariant,
-                    height: 1.32,
-                  ),
-                ),
-                if (notice != null) ...[
-                  const SizedBox(height: 14),
-                  Text(
-                    notice!,
-                    style: textTheme.bodyMedium?.copyWith(
+        Expanded(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: colors.surfaceContainer,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  DecoratedBox(
+                    decoration: BoxDecoration(
                       color: colors.primary,
-                      height: 1.3,
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Icon(icon, color: colors.onPrimary, size: 24),
                     ),
                   ),
+                  const SizedBox(height: 28),
+                  Text(title, style: textTheme.headlineMedium),
+                  const SizedBox(height: 12),
+                  Text(
+                    body,
+                    style: textTheme.bodyLarge?.copyWith(
+                      color: colors.onSurfaceVariant,
+                      height: 1.35,
+                    ),
+                  ),
+                  const Spacer(),
+                  _SignalCard(
+                    color: colors.primary,
+                    icon: Icons.sports_score_rounded,
+                    title: '2.40x',
+                    label: notice ?? body,
+                  ),
+                  const SizedBox(height: 10),
+                  _SignalCard(
+                    color: colors.secondary,
+                    icon: Icons.local_fire_department_rounded,
+                    title: '12 : 9',
+                    label: body,
+                  ),
                 ],
-              ],
+              ),
             ),
           ),
         ),
-        const Spacer(),
+        const SizedBox(height: 18),
         action,
       ],
+    );
+  }
+}
+
+class _SignalCard extends StatelessWidget {
+  const _SignalCard({
+    required this.color,
+    required this.icon,
+    required this.title,
+    required this.label,
+  });
+
+  final Color color;
+  final IconData icon;
+  final String title;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: Row(
+          children: [
+            Icon(icon, color: color, size: 20),
+            const SizedBox(width: 10),
+            Text(
+              title,
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(color: color),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

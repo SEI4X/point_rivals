@@ -5,8 +5,8 @@ import 'package:point_rivals/app/session/app_session_controller.dart';
 import 'package:point_rivals/core/formatters/app_date_formatter.dart';
 import 'package:point_rivals/core/l10n/l10n.dart';
 import 'package:point_rivals/core/widgets/app_refresh_indicator.dart';
+import 'package:point_rivals/core/widgets/app_shimmer.dart';
 import 'package:point_rivals/features/groups/domain/group_models.dart';
-import 'package:point_rivals/features/wagers/domain/odds_calculator.dart';
 import 'package:point_rivals/features/wagers/domain/wager_models.dart';
 
 class WagerDetailsPage extends StatelessWidget {
@@ -24,6 +24,7 @@ class WagerDetailsPage extends StatelessWidget {
     final l10n = context.l10n;
     final dependencies = AppDependenciesScope.of(context);
     final userId = AppSessionScope.of(context).currentUser?.id;
+    final refreshRevision = AppRefreshScope.revisionOf(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -33,6 +34,7 @@ class WagerDetailsPage extends StatelessWidget {
       body: SafeArea(
         minimum: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: StreamBuilder<List<GroupMember>>(
+          key: ValueKey('wager-members-$groupId-$refreshRevision'),
           stream: dependencies.groupRepository.watchMembers(groupId),
           builder: (context, membersSnapshot) {
             final membersById = {
@@ -42,6 +44,7 @@ class WagerDetailsPage extends StatelessWidget {
             };
 
             return StreamBuilder<Wager>(
+              key: ValueKey('wager-$groupId-$wagerId-$refreshRevision'),
               stream: dependencies.wagerRepository.watchWager(
                 groupId: groupId,
                 wagerId: wagerId,
@@ -51,14 +54,17 @@ class WagerDetailsPage extends StatelessWidget {
                   return Center(child: Text(l10n.authGenericError));
                 }
 
-                if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                return _WagerDetailsContent(
-                  wager: snapshot.data!,
-                  membersById: membersById,
-                  userId: userId,
+                final wager = snapshot.data;
+                return AppLoadingSwitcher(
+                  isLoading: wager == null,
+                  loading: const AppSkeletonList(itemCount: 3),
+                  child: wager == null
+                      ? const SizedBox.shrink()
+                      : _WagerDetailsContent(
+                          wager: wager,
+                          membersById: membersById,
+                          userId: userId,
+                        ),
                 );
               },
             );
@@ -137,7 +143,6 @@ class _SummaryCard extends StatelessWidget {
   const _SummaryCard({required this.wager});
 
   final Wager wager;
-  static const OddsCalculator _oddsCalculator = OddsCalculator();
 
   @override
   Widget build(BuildContext context) {
@@ -209,11 +214,7 @@ class _SummaryCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                _InfoPill(
-                  label:
-                      '${l10n.wagerOdds(_oddsCalculator.oddsForSide(wager, WagerSide.left).toStringAsFixed(2))} / '
-                      '${l10n.wagerOdds(_oddsCalculator.oddsForSide(wager, WagerSide.right).toStringAsFixed(2))}',
-                ),
+                _InfoPill(label: l10n.wagerRewardCoins(wager.rewardCoins)),
               ],
             ),
           ],
@@ -350,8 +351,5 @@ int _payoutFor(Wager wager, Stake stake) {
     return 0;
   }
 
-  return const OddsCalculator().payoutForStake(
-    wager: wager,
-    winningStake: stake,
-  );
+  return wager.rewardForSide(stake.side);
 }

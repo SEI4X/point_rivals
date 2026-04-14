@@ -197,6 +197,14 @@
       }
     }
   },
+  "profileChips": "Chips",
+  "@profileChips": {
+    "description": "Short label for a user's group chip balance."
+  },
+  "profileXp": "XP",
+  "@profileXp": {
+    "description": "Short label for a user's XP."
+  },
   "profileTotalWagers": "Total wagers",
   "@profileTotalWagers": {
     "description": "Profile total wagers label."
@@ -391,6 +399,10 @@
   "@groupWeeklyLeaders": {
     "description": "Weekly group leaderboard title."
   },
+  "groupWeeklyTab": "Week",
+  "@groupWeeklyTab": {
+    "description": "Short label for the weekly leaderboard tab."
+  },
   "groupWindowLeaders": "{weeks, plural, one {Leaders this week} other {Leaders over {weeks} weeks}}",
   "@groupWindowLeaders": {
     "description": "Group leaderboard title for the configured weekly window.",
@@ -404,6 +416,10 @@
   "@groupAllTimeLeaders": {
     "description": "All-time group leaderboard title."
   },
+  "groupAllTimeTab": "All time",
+  "@groupAllTimeTab": {
+    "description": "Short label for the all-time leaderboard tab."
+  },
   "groupWagerArchive": "Wager archive",
   "@groupWagerArchive": {
     "description": "Archive button label."
@@ -416,7 +432,7 @@
   "@groupLeaderboardWindowTitle": {
     "description": "Group leaderboard period setting title."
   },
-  "groupLeaderboardWindowBody": "Weekly leaders reset on Monday. Choose how many weeks one leaderboard period lasts.",
+  "groupLeaderboardWindowBody": "Choose how many weeks one sprint lasts. Multi-week sprints start from the anchor date.",
   "@groupLeaderboardWindowBody": {
     "description": "Group leaderboard period setting body."
   },
@@ -426,6 +442,19 @@
     "placeholders": {
       "count": {
         "type": "int"
+      }
+    }
+  },
+  "groupLeaderboardAnchorDateAction": "Choose sprint start",
+  "@groupLeaderboardAnchorDateAction": {
+    "description": "Action for choosing the leaderboard sprint anchor date."
+  },
+  "groupLeaderboardAnchorDateValue": "Sprint start: {value}",
+  "@groupLeaderboardAnchorDateValue": {
+    "description": "Selected leaderboard sprint anchor date.",
+    "placeholders": {
+      "value": {
+        "type": "String"
       }
     }
   },
@@ -452,6 +481,14 @@
   "groupNameRequired": "Enter a group name.",
   "@groupNameRequired": {
     "description": "Validation error for missing group name."
+  },
+  "groupAccentColorTitle": "Group color",
+  "@groupAccentColorTitle": {
+    "description": "Title for choosing a group's accent color."
+  },
+  "groupAccentColorSubtitle": "Used for group cards, actions, and highlights.",
+  "@groupAccentColorSubtitle": {
+    "description": "Short explanation of where the group accent color appears."
   },
   "groupInviteCode": "Invite code",
   "@groupInviteCode": {
@@ -657,9 +694,30 @@
   "@createWagerPreview": {
     "description": "Create wager outcome preview label."
   },
-  "createWagerPreviewHint": "Opening odds start at x2. Participants cannot stake on this wager.",
+  "createWagerPreviewHint": "Correct picks earn the reward. Unpopular correct picks earn 1.5x.",
   "@createWagerPreviewHint": {
     "description": "Create wager preview helper text."
+  },
+  "createWagerRewardCoinsLabel": "Reward coins",
+  "@createWagerRewardCoinsLabel": {
+    "description": "Input label for the reward earned by correct wager picks."
+  },
+  "createWagerRewardCoinsHelper": "Correct players earn this amount. Unpopular correct picks earn 1.5x.",
+  "@createWagerRewardCoinsHelper": {
+    "description": "Helper text for wager reward amount."
+  },
+  "createWagerRewardCoinsTooHigh": "Maximum reward is {max} coins.",
+  "@createWagerRewardCoinsTooHigh": {
+    "description": "Validation error when reward amount is too high.",
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "createWagerRewardPreview": "Default reward is 10 coins.",
+  "@createWagerRewardPreview": {
+    "description": "Create wager reward preview text."
   },
   "createWagerStakeRangeHint": "Stake range: {min}-{max} chips.",
   "@createWagerStakeRangeHint": {
@@ -738,11 +796,11 @@
       }
     }
   },
-  "wagerConfirmTitle": "Confirm stake",
+  "wagerConfirmTitle": "Confirm pick",
   "@wagerConfirmTitle": {
     "description": "Stake confirmation title."
   },
-  "wagerStakeAmountLabel": "Chips to stake",
+  "wagerStakeAmountLabel": "Coins to risk",
   "@wagerStakeAmountLabel": {
     "description": "Stake amount input label."
   },
@@ -767,7 +825,7 @@
   "@wagerStakeInsufficientBalance": {
     "description": "Validation error when stake amount exceeds balance."
   },
-  "wagerPotentialPayout": "Potential payout: {amount} chips",
+  "wagerPotentialPayout": "Reward: {amount} coins",
   "@wagerPotentialPayout": {
     "description": "Potential payout shown before placing a stake.",
     "placeholders": {
@@ -775,6 +833,23 @@
         "type": "int"
       }
     }
+  },
+  "wagerRewardCoins": "{amount} coins",
+  "@wagerRewardCoins": {
+    "description": "Reward amount for correct wager picks.",
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "wagerUnderdogBonus": "Includes unpopular pick bonus.",
+  "@wagerUnderdogBonus": {
+    "description": "Explains the 1.5x bonus for choosing the less popular correct outcome."
+  },
+  "wagerYourChoice": "Your pick",
+  "@wagerYourChoice": {
+    "description": "Badge shown on the wager option selected by the current user."
   },
   "wagerCreatedAt": "Created {value}",
   "@wagerCreatedAt": {
@@ -955,7 +1030,7 @@
   "@wagerArchiveStakes": {
     "description": "Resolved wager participant stake list title."
   },
-  "wagerArchiveStakeSide": "{label}: {amount}",
+  "wagerArchiveStakeSide": "{label}",
   "@wagerArchiveStakeSide": {
     "description": "Participant stake side and amount.",
     "placeholders": {
@@ -1246,5 +1321,9 @@
   "achievementLevelTwentyFiveDescription": "Reach level 25.",
   "@achievementLevelTwentyFiveDescription": {
     "description": "Achievement description."
+  },
+  "notificationChannelName": "Point Rivals alerts",
+  "@notificationChannelName": {
+    "description": "Android notification channel name."
   }
 }

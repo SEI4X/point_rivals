@@ -8,15 +8,15 @@ import 'package:point_rivals/core/formatters/app_date_formatter.dart';
 import 'package:point_rivals/core/l10n/l10n.dart';
 import 'package:point_rivals/core/routing/app_router.dart';
 import 'package:point_rivals/core/widgets/app_refresh_indicator.dart';
+import 'package:point_rivals/core/widgets/app_shimmer.dart';
 import 'package:point_rivals/core/widgets/app_snack_bar.dart';
 import 'package:point_rivals/features/groups/domain/group_models.dart';
 import 'package:point_rivals/features/groups/domain/leaderboard_calculator.dart';
 import 'package:point_rivals/features/groups/domain/leaderboard_period_id.dart';
+import 'package:point_rivals/features/groups/presentation/group_accent_color.dart';
 import 'package:point_rivals/features/profile/domain/profile_models.dart';
 import 'package:point_rivals/features/profile/domain/xp_progression.dart';
 import 'package:point_rivals/features/profile/presentation/public_member_profile_page.dart';
-import 'package:point_rivals/features/wagers/domain/odds_calculator.dart';
-import 'package:point_rivals/features/wagers/domain/wager_constraints.dart';
 import 'package:point_rivals/features/wagers/domain/wager_models.dart';
 
 class GroupPage extends StatefulWidget {
@@ -48,10 +48,14 @@ class _GroupPageState extends State<GroupPage> {
     final dependencies = AppDependenciesScope.of(context);
     final session = AppSessionScope.of(context);
     final user = session.currentUser;
+    final refreshRevision = AppRefreshScope.revisionOf(context);
 
     if (user == null) {
       return const Scaffold(
-        body: SafeArea(child: Center(child: CircularProgressIndicator())),
+        body: SafeArea(
+          minimum: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: AppSkeletonList(),
+        ),
       );
     }
 
@@ -65,39 +69,47 @@ class _GroupPageState extends State<GroupPage> {
       );
     }
 
-    return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: StreamBuilder<RivalGroup>(
+    return StreamBuilder<List<GroupMember>>(
+      key: ValueKey('group-members-${widget.groupId}-$refreshRevision'),
+      stream: dependencies.groupRepository.watchMembers(widget.groupId),
+      builder: (context, membersSnapshot) {
+        final members = membersSnapshot.data ?? const [];
+        final currentMember = members
+            .where((member) => member.userId == user.id)
+            .firstOrNull;
+        final isAdmin = currentMember?.role == GroupMemberRole.admin;
+
+        return StreamBuilder<RivalGroup>(
+          key: ValueKey('group-${widget.groupId}-$refreshRevision'),
           stream: dependencies.groupRepository.watchGroup(
             widget.groupId,
             userId: user.id,
           ),
-          builder: (context, snapshot) {
-            return AppBar(
-              title: Text(snapshot.data?.name ?? l10n.groupsTitle),
-              actions: [
-                StreamBuilder<List<GroupMember>>(
-                  stream: dependencies.groupRepository.watchMembers(
-                    widget.groupId,
-                  ),
-                  builder: (context, membersSnapshot) {
-                    final members = membersSnapshot.data ?? const [];
-                    final isAdmin = members.any(
-                      (member) =>
-                          member.userId == user.id &&
-                          member.role == GroupMemberRole.admin,
-                    );
-
-                    if (!isAdmin) {
-                      return IconButton(
-                        tooltip: l10n.groupLeaveAction,
-                        onPressed: () => _confirmLeaveGroup(context),
-                        icon: const Icon(Icons.logout_rounded),
-                      );
-                    }
-
-                    return Row(
+          builder: (context, groupSnapshot) {
+            final group = groupSnapshot.data;
+            final accentColor = group?.accentColor;
+            final leaderboardWindowWeeks =
+                group?.leaderboardWindowWeeks.clamp(1, 52) ?? 1;
+            final weeklyPeriodId = currentLeaderboardPeriodId(
+              windowWeeks: leaderboardWindowWeeks,
+              anchorDate: group?.leaderboardPeriodAnchorDate,
+            );
+            final leaders = _leaderboardCalculator.topMembers(
+              members: members,
+              period: _leaderboardPeriod,
+              weeklyPeriodId: weeklyPeriodId,
+            );
+            final scaffold = Scaffold(
+              appBar: AppBar(
+                actions: [
+                  if (!isAdmin)
+                    IconButton(
+                      tooltip: l10n.groupLeaveAction,
+                      onPressed: () => _confirmLeaveGroup(context),
+                      icon: const Icon(Icons.logout_rounded),
+                    )
+                  else
+                    Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
@@ -116,66 +128,34 @@ class _GroupPageState extends State<GroupPage> {
                           icon: const Icon(Icons.settings_rounded),
                         ),
                       ],
-                    );
-                  },
+                    ),
+                ],
+              ),
+              floatingActionButton: FloatingActionButton.extended(
+                onPressed: () =>
+                    context.push(AppRoutes.createWager(widget.groupId)),
+                icon: const Icon(Icons.add_rounded),
+                label: Text(l10n.groupCreateWager),
+              ),
+              body: SafeArea(
+                minimum: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
                 ),
-              ],
-            );
-          },
-        ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push(AppRoutes.createWager(widget.groupId)),
-        icon: const Icon(Icons.add_rounded),
-        label: Text(l10n.groupCreateWager),
-      ),
-      body: SafeArea(
-        minimum: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: StreamBuilder<RivalGroup>(
-          stream: dependencies.groupRepository.watchGroup(
-            widget.groupId,
-            userId: user.id,
-          ),
-          builder: (context, groupSnapshot) {
-            final group = groupSnapshot.data;
-            final leaderboardWindowWeeks =
-                group?.leaderboardWindowWeeks.clamp(1, 52) ?? 1;
-            final weeklyPeriodId = currentLeaderboardPeriodId(
-              windowWeeks: leaderboardWindowWeeks,
-            );
-
-            return StreamBuilder<List<GroupMember>>(
-              stream: dependencies.groupRepository.watchMembers(widget.groupId),
-              builder: (context, membersSnapshot) {
-                final members = membersSnapshot.data ?? const [];
-                final leaders = _leaderboardCalculator.topMembers(
-                  members: members,
-                  period: _leaderboardPeriod,
-                  weeklyPeriodId: weeklyPeriodId,
-                );
-                final currentMember = members
-                    .where((member) => member.userId == user.id)
-                    .firstOrNull;
-                final isAdmin = currentMember?.role == GroupMemberRole.admin;
-
-                return AppRefreshIndicator(
+                child: AppRefreshIndicator(
                   child: ListView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     padding: EdgeInsets.only(
-                      bottom: 96 + MediaQuery.paddingOf(context).bottom,
+                      bottom: 24 + MediaQuery.paddingOf(context).bottom,
                     ),
                     children: [
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(14),
-                          child: TextButton.icon(
-                            onPressed: members.isEmpty
-                                ? null
-                                : () => _showMembers(context, members),
-                            icon: const Icon(Icons.people_outline_rounded),
-                            label: Text(l10n.groupMembers(members.length)),
-                          ),
-                        ),
+                      _GroupHeroCard(
+                        group: group,
+                        members: members,
+                        currentMember: currentMember,
+                        onMembersPressed: members.isEmpty
+                            ? null
+                            : () => _showMembers(context, members),
                       ),
                       const SizedBox(height: 12),
                       _LeaderboardSwitcher(
@@ -225,15 +205,25 @@ class _GroupPageState extends State<GroupPage> {
                         groupId: widget.groupId,
                         currentMember: currentMember,
                         isAdmin: isAdmin,
+                        accentColor: accentColor,
                       ),
                     ],
                   ),
-                );
-              },
+                ),
+              ),
+            );
+
+            if (accentColor == null) {
+              return scaffold;
+            }
+
+            return Theme(
+              data: groupAccentTheme(context, accentColor),
+              child: scaffold,
             );
           },
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -301,6 +291,7 @@ class _GroupPageState extends State<GroupPage> {
     return showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
+      useRootNavigator: true,
       builder: (sheetContext) {
         return SafeArea(
           minimum: const EdgeInsets.all(20),
@@ -387,6 +378,148 @@ class _GroupPageState extends State<GroupPage> {
   }
 }
 
+class _GroupHeroCard extends StatelessWidget {
+  const _GroupHeroCard({
+    required this.group,
+    required this.members,
+    required this.currentMember,
+    required this.onMembersPressed,
+  });
+
+  final RivalGroup? group;
+  final List<GroupMember> members;
+  final GroupMember? currentMember;
+  final VoidCallback? onMembersPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final l10n = context.l10n;
+    final accentColor = group?.accentColor ?? colors.primary;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: accentColor,
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Icon(
+                      Icons.emoji_events_rounded,
+                      color: onGroupAccentColor(accentColor),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        group?.name ?? l10n.groupsTitle,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        l10n.groupMembers(members.length),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: colors.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _HeroMetric(
+                    icon: Icons.stars_rounded,
+                    label: l10n.groupsMyBalance(
+                      currentMember?.tokenBalance ?? 0,
+                    ),
+                    color: accentColor,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _HeroMetric(
+                    icon: Icons.local_fire_department_rounded,
+                    label: l10n.groupsActiveWagersCount(
+                      group?.activeWagerCount ?? 0,
+                    ),
+                    color: colors.secondary,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: onMembersPressed,
+              icon: const Icon(Icons.people_outline_rounded),
+              label: Text(l10n.groupMembers(members.length)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _HeroMetric extends StatelessWidget {
+  const _HeroMetric({
+    required this.icon,
+    required this.label,
+    required this.color,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: Row(
+          children: [
+            Icon(icon, color: color, size: 18),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                label,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.labelMedium,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 void openPublicMemberProfile(BuildContext context, GroupMember member) {
   pushPublicMemberProfile(GoRouter.of(context), member);
 }
@@ -419,7 +552,7 @@ class _GroupPreviewScaffold extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: Text(group.name)),
+      appBar: AppBar(),
       body: SafeArea(
         minimum: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: AppRefreshIndicator(
@@ -621,12 +754,12 @@ class _LeaderboardSwitcher extends StatelessWidget {
           segments: [
             ButtonSegment(
               value: LeaderboardPeriod.weekly,
-              label: Text(l10n.groupWeeklyLeaders),
+              label: Text(l10n.groupWeeklyTab),
               icon: const Icon(Icons.calendar_view_week_rounded),
             ),
             ButtonSegment(
               value: LeaderboardPeriod.allTime,
-              label: Text(l10n.groupAllTimeLeaders),
+              label: Text(l10n.groupAllTimeTab),
               icon: const Icon(Icons.emoji_events_rounded),
             ),
           ],
@@ -645,11 +778,13 @@ class _ActiveWagersList extends StatelessWidget {
     required this.groupId,
     required this.currentMember,
     required this.isAdmin,
+    required this.accentColor,
   });
 
   final String groupId;
   final GroupMember? currentMember;
   final bool isAdmin;
+  final Color? accentColor;
 
   @override
   Widget build(BuildContext context) {
@@ -674,7 +809,7 @@ class _ActiveWagersList extends StatelessWidget {
         }
 
         if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
+          return const AppShimmer(child: AppSkeletonCard(height: 128));
         }
 
         final wagers = snapshot.data!;
@@ -700,6 +835,7 @@ class _ActiveWagersList extends StatelessWidget {
                 wager: wager,
                 currentMember: currentMember,
                 isAdmin: isAdmin,
+                accentColor: accentColor,
               ),
               const SizedBox(height: 12),
             ],
@@ -716,19 +852,20 @@ class _ActiveWagerCard extends StatefulWidget {
     required this.wager,
     required this.currentMember,
     required this.isAdmin,
+    required this.accentColor,
   });
 
   final String groupId;
   final Wager wager;
   final GroupMember? currentMember;
   final bool isAdmin;
+  final Color? accentColor;
 
   @override
   State<_ActiveWagerCard> createState() => _ActiveWagerCardState();
 }
 
 class _ActiveWagerCardState extends State<_ActiveWagerCard> {
-  static const OddsCalculator _oddsCalculator = OddsCalculator();
   bool _isSettling = false;
 
   String get groupId => widget.groupId;
@@ -743,10 +880,12 @@ class _ActiveWagerCardState extends State<_ActiveWagerCard> {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = context.l10n;
     final ColorScheme colors = Theme.of(context).colorScheme;
-    final leftOdds = _oddsCalculator.oddsForSide(wager, WagerSide.left);
-    final rightOdds = _oddsCalculator.oddsForSide(wager, WagerSide.right);
+    final accentColor = widget.accentColor ?? colors.primary;
     final userId = currentMember?.userId;
     final canStake = userId != null && wager.canUserStake(userId);
+    final myStake = userId == null
+        ? null
+        : wager.stakes.where((stake) => stake.userId == userId).firstOrNull;
 
     return Card(
       child: InkWell(
@@ -774,24 +913,23 @@ class _ActiveWagerCardState extends State<_ActiveWagerCard> {
               Row(
                 children: [
                   Expanded(
-                    child: FilledButton(
-                      style: FilledButton.styleFrom(
-                        minimumSize: const Size.fromHeight(38),
-                      ),
+                    child: _WagerOptionButton(
+                      label: wager.leftOption.label,
+                      isSelected: myStake?.side == WagerSide.left,
+                      accentColor: accentColor,
                       onPressed: canStake
                           ? () {
                               unawaited(_confirmStake(context, WagerSide.left));
                             }
                           : null,
-                      child: Text(wager.leftOption.label),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(38),
-                      ),
+                    child: _WagerOptionButton(
+                      label: wager.rightOption.label,
+                      isSelected: myStake?.side == WagerSide.right,
+                      accentColor: accentColor,
                       onPressed: canStake
                           ? () {
                               unawaited(
@@ -799,7 +937,6 @@ class _ActiveWagerCardState extends State<_ActiveWagerCard> {
                               );
                             }
                           : null,
-                      child: Text(wager.rightOption.label),
                     ),
                   ),
                 ],
@@ -809,11 +946,7 @@ class _ActiveWagerCardState extends State<_ActiveWagerCard> {
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  _InfoPill(
-                    label:
-                        '${l10n.wagerOdds(leftOdds.toStringAsFixed(2))} / '
-                        '${l10n.wagerOdds(rightOdds.toStringAsFixed(2))}',
-                  ),
+                  _InfoPill(label: l10n.wagerRewardCoins(wager.rewardCoins)),
                   _InfoPill(
                     label: l10n.wagerStakeRatio(
                       wager.stakeCountForSide(WagerSide.left),
@@ -902,7 +1035,7 @@ class _ActiveWagerCardState extends State<_ActiveWagerCard> {
           groupId: groupId,
           wager: wager,
           side: side,
-          member: member,
+          userId: member.userId,
         );
       },
     );
@@ -1037,54 +1170,128 @@ class _InfoPill extends StatelessWidget {
   }
 }
 
+class _WagerOptionButton extends StatelessWidget {
+  const _WagerOptionButton({
+    required this.label,
+    required this.isSelected,
+    required this.accentColor,
+    required this.onPressed,
+  });
+
+  final String label;
+  final bool isSelected;
+  final Color accentColor;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final colors = Theme.of(context).colorScheme;
+    final isEnabled = onPressed != null;
+    final foregroundColor = isSelected
+        ? accentColor
+        : isEnabled
+        ? colors.onSurface
+        : colors.onSurfaceVariant;
+
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      enabled: isEnabled,
+      child: Material(
+        color: colors.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(18),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(18),
+          onTap: onPressed,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOutCubic,
+            constraints: const BoxConstraints(minHeight: 46),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(
+                color: isSelected
+                    ? accentColor
+                    : colors.outlineVariant.withValues(alpha: 0.55),
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: foregroundColor,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                if (isSelected) ...[
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.check_rounded, size: 14, color: accentColor),
+                      const SizedBox(width: 4),
+                      Text(
+                        l10n.wagerYourChoice,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: accentColor,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _StakeDialog extends StatefulWidget {
   const _StakeDialog({
     required this.groupId,
     required this.wager,
     required this.side,
-    required this.member,
+    required this.userId,
   });
 
   final String groupId;
   final Wager wager;
   final WagerSide side;
-  final GroupMember member;
+  final String userId;
 
   @override
   State<_StakeDialog> createState() => _StakeDialogState();
 }
 
 class _StakeDialogState extends State<_StakeDialog> {
-  final _formKey = GlobalKey<FormState>();
-  final _amountController = TextEditingController();
-  static const OddsCalculator _oddsCalculator = OddsCalculator();
   bool _isSaving = false;
 
-  @override
-  void dispose() {
-    _amountController.dispose();
-    super.dispose();
-  }
-
   Future<void> _placeStake() async {
-    if (_isSaving || !_formKey.currentState!.validate()) {
+    if (_isSaving) {
       return;
     }
 
     final l10n = context.l10n;
     final messenger = ScaffoldMessenger.of(context);
-    final amount = int.parse(_amountController.text.trim());
     setState(() => _isSaving = true);
 
     try {
       await AppDependenciesScope.of(context).wagerRepository.placeStake(
         groupId: widget.groupId,
         wagerId: widget.wager.id,
-        stake: Stake(
-          userId: widget.member.userId,
-          side: widget.side,
-          amount: amount,
-        ),
+        stake: Stake(userId: widget.userId, side: widget.side),
       );
 
       if (mounted) {
@@ -1107,66 +1314,30 @@ class _StakeDialogState extends State<_StakeDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final potentialPayout = _potentialPayout();
+    final reward = widget.wager.rewardForSide(widget.side);
 
     return AlertDialog(
       title: Text(l10n.wagerConfirmTitle),
-      content: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(l10n.wagerConfirmBody),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _amountController,
-              onChanged: (_) => setState(() {}),
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: l10n.wagerStakeAmountLabel,
-                helperText: l10n.groupsMyBalance(widget.member.tokenBalance),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l10n.wagerConfirmBody),
+          const SizedBox(height: 12),
+          Chip(
+            avatar: const Icon(Icons.savings_rounded, size: 16),
+            label: Text(l10n.wagerPotentialPayout(reward)),
+          ),
+          if (reward > widget.wager.rewardCoins) ...[
+            const SizedBox(height: 8),
+            Text(
+              l10n.wagerUnderdogBonus,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return l10n.wagerStakeAmountRequired;
-                }
-
-                final amount = int.tryParse(value.trim());
-                if (amount == null || amount <= 0) {
-                  return l10n.wagerStakeAmountInvalid;
-                }
-
-                if (amount > WagerConstraints.maxStakeAmount) {
-                  return l10n.wagerStakeAmountTooHigh(
-                    WagerConstraints.maxStakeAmount,
-                  );
-                }
-
-                if (amount > widget.member.tokenBalance) {
-                  return l10n.wagerStakeInsufficientBalance;
-                }
-
-                return null;
-              },
-              onFieldSubmitted: (_) => _placeStake(),
-            ),
-            const SizedBox(height: 12),
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 160),
-              child: potentialPayout == null
-                  ? const SizedBox.shrink()
-                  : Align(
-                      key: ValueKey(potentialPayout),
-                      alignment: AlignmentDirectional.centerStart,
-                      child: Chip(
-                        avatar: const Icon(Icons.savings_rounded, size: 16),
-                        label: Text(l10n.wagerPotentialPayout(potentialPayout)),
-                      ),
-                    ),
             ),
           ],
-        ),
+        ],
       ),
       actions: [
         TextButton(
@@ -1184,19 +1355,6 @@ class _StakeDialogState extends State<_StakeDialog> {
         ),
       ],
     );
-  }
-
-  int? _potentialPayout() {
-    final amount = int.tryParse(_amountController.text.trim());
-    if (amount == null ||
-        amount <= 0 ||
-        amount > WagerConstraints.maxStakeAmount ||
-        amount > widget.member.tokenBalance) {
-      return null;
-    }
-
-    final odds = _oddsCalculator.oddsForSide(widget.wager, widget.side);
-    return (amount * odds).floor();
   }
 }
 

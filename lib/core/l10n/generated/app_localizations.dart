@@ -344,6 +344,18 @@ abstract class AppLocalizations {
   /// **'{current} / {target} XP'**
   String profileXpProgress(int current, int target);
 
+  /// Short label for a user's group chip balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Chips'**
+  String get profileChips;
+
+  /// Short label for a user's XP.
+  ///
+  /// In en, this message translates to:
+  /// **'XP'**
+  String get profileXp;
+
   /// Profile total wagers label.
   ///
   /// In en, this message translates to:
@@ -590,6 +602,12 @@ abstract class AppLocalizations {
   /// **'Weekly leaders'**
   String get groupWeeklyLeaders;
 
+  /// Short label for the weekly leaderboard tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get groupWeeklyTab;
+
   /// Group leaderboard title for the configured weekly window.
   ///
   /// In en, this message translates to:
@@ -601,6 +619,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All-time leaders'**
   String get groupAllTimeLeaders;
+
+  /// Short label for the all-time leaderboard tab.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get groupAllTimeTab;
 
   /// Archive button label.
   ///
@@ -623,7 +647,7 @@ abstract class AppLocalizations {
   /// Group leaderboard period setting body.
   ///
   /// In en, this message translates to:
-  /// **'Weekly leaders reset on Monday. Choose how many weeks one leaderboard period lasts.'**
+  /// **'Choose how many weeks one sprint lasts. Multi-week sprints start from the anchor date.'**
   String get groupLeaderboardWindowBody;
 
   /// Group leaderboard window length.
@@ -631,6 +655,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, one {{count} week} other {{count} weeks}}'**
   String groupLeaderboardWindowWeeks(int count);
+
+  /// Action for choosing the leaderboard sprint anchor date.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose sprint start'**
+  String get groupLeaderboardAnchorDateAction;
+
+  /// Selected leaderboard sprint anchor date.
+  ///
+  /// In en, this message translates to:
+  /// **'Sprint start: {value}'**
+  String groupLeaderboardAnchorDateValue(String value);
 
   /// Empty state for active wagers list.
   ///
@@ -667,6 +703,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter a group name.'**
   String get groupNameRequired;
+
+  /// Title for choosing a group's accent color.
+  ///
+  /// In en, this message translates to:
+  /// **'Group color'**
+  String get groupAccentColorTitle;
+
+  /// Short explanation of where the group accent color appears.
+  ///
+  /// In en, this message translates to:
+  /// **'Used for group cards, actions, and highlights.'**
+  String get groupAccentColorSubtitle;
 
   /// Group invite code label.
   ///
@@ -935,8 +983,32 @@ abstract class AppLocalizations {
   /// Create wager preview helper text.
   ///
   /// In en, this message translates to:
-  /// **'Opening odds start at x2. Participants cannot stake on this wager.'**
+  /// **'Correct picks earn the reward. Unpopular correct picks earn 1.5x.'**
   String get createWagerPreviewHint;
+
+  /// Input label for the reward earned by correct wager picks.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward coins'**
+  String get createWagerRewardCoinsLabel;
+
+  /// Helper text for wager reward amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct players earn this amount. Unpopular correct picks earn 1.5x.'**
+  String get createWagerRewardCoinsHelper;
+
+  /// Validation error when reward amount is too high.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum reward is {max} coins.'**
+  String createWagerRewardCoinsTooHigh(int max);
+
+  /// Create wager reward preview text.
+  ///
+  /// In en, this message translates to:
+  /// **'Default reward is 10 coins.'**
+  String get createWagerRewardPreview;
 
   /// Create wager stake range helper text.
   ///
@@ -1025,13 +1097,13 @@ abstract class AppLocalizations {
   /// Stake confirmation title.
   ///
   /// In en, this message translates to:
-  /// **'Confirm stake'**
+  /// **'Confirm pick'**
   String get wagerConfirmTitle;
 
   /// Stake amount input label.
   ///
   /// In en, this message translates to:
-  /// **'Chips to stake'**
+  /// **'Coins to risk'**
   String get wagerStakeAmountLabel;
 
   /// Validation error for missing stake amount.
@@ -1061,8 +1133,26 @@ abstract class AppLocalizations {
   /// Potential payout shown before placing a stake.
   ///
   /// In en, this message translates to:
-  /// **'Potential payout: {amount} chips'**
+  /// **'Reward: {amount} coins'**
   String wagerPotentialPayout(int amount);
+
+  /// Reward amount for correct wager picks.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} coins'**
+  String wagerRewardCoins(int amount);
+
+  /// Explains the 1.5x bonus for choosing the less popular correct outcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Includes unpopular pick bonus.'**
+  String get wagerUnderdogBonus;
+
+  /// Badge shown on the wager option selected by the current user.
+  ///
+  /// In en, this message translates to:
+  /// **'Your pick'**
+  String get wagerYourChoice;
 
   /// Wager creation time.
   ///
@@ -1283,7 +1373,7 @@ abstract class AppLocalizations {
   /// Participant stake side and amount.
   ///
   /// In en, this message translates to:
-  /// **'{label}: {amount}'**
+  /// **'{label}'**
   String wagerArchiveStakeSide(String label, int amount);
 
   /// Participant resolved wager payout.
@@ -1621,6 +1711,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reach level 25.'**
   String get achievementLevelTwentyFiveDescription;
+
+  /// Android notification channel name.
+  ///
+  /// In en, this message translates to:
+  /// **'Point Rivals alerts'**
+  String get notificationChannelName;
 }
 
 class _AppLocalizationsDelegate

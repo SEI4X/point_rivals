@@ -93,7 +93,7 @@ class FirebaseWagerRepository implements WagerRepository {
         .orderBy(FirestoreFields.updatedAt, descending: true)
         .limit(_archiveWagersLimit)
         .snapshots()
-        .asyncMap(_wagersFromSnapshot);
+        .map(_wagersFromSnapshotWithoutStakes);
   }
 
   @override
@@ -120,22 +120,16 @@ class FirebaseWagerRepository implements WagerRepository {
               continue;
             }
 
-            final stakesSnapshot = await wagerReference
-                .collection(FirestoreCollections.stakes)
-                .limit(_stakesPerWagerLimit)
-                .get();
-            final stakes = stakesSnapshot.docs.map((document) {
-              return StakeMapper.fromFirestore(
-                userId: document.id,
-                data: document.data(),
-              );
-            }).toList();
-
             wagers.add(
               WagerMapper.fromFirestore(
                 id: wagerSnapshot.id,
                 data: wagerData,
-                stakes: stakes,
+                stakes: [
+                  StakeMapper.fromFirestore(
+                    userId: stakeDocument.id,
+                    data: stakeDocument.data(),
+                  ),
+                ],
               ),
             );
           }
@@ -198,24 +192,35 @@ class FirebaseWagerRepository implements WagerRepository {
     return wagers;
   }
 
+  List<Wager> _wagersFromSnapshotWithoutStakes(
+    QuerySnapshot<Map<String, dynamic>> snapshot,
+  ) {
+    return snapshot.docs.map((wagerDocument) {
+      return WagerMapper.fromFirestore(
+        id: wagerDocument.id,
+        data: wagerDocument.data(),
+      );
+    }).toList();
+  }
+
   @override
   Future<Wager> createWager(WagerDraft draft) async {
-    final groupReference = _firestore
-        .collection(FirestoreCollections.groups)
-        .doc(draft.groupId);
-    final wagerReference = groupReference
-        .collection(FirestoreCollections.wagers)
-        .doc();
-
-    await _firestore.runTransaction((transaction) async {
-      transaction.set(wagerReference, WagerMapper.draftToFirestore(draft));
-      transaction.update(groupReference, {
-        'activeWagerCount': FieldValue.increment(1),
-        FirestoreFields.updatedAt: FieldValue.serverTimestamp(),
-      });
+    final callable = _functions.httpsCallable('createWager');
+    final response = await callable.call<Map<Object?, Object?>>({
+      'groupId': draft.groupId,
+      'condition': draft.condition,
+      'type': draft.type.name,
+      'leftLabel': draft.leftOption.label,
+      'rightLabel': draft.rightOption.label,
+      'rewardCoins': draft.rewardCoins,
+      'excludedUserIds': draft.excludedUserIds.toList()..sort(),
     });
+    final wagerId = response.data['wagerId'];
+    if (wagerId is! String || wagerId.isEmpty) {
+      throw StateError('Wager was created without an id.');
+    }
 
-    return draft.toWager(id: wagerReference.id);
+    return draft.toWager(id: wagerId);
   }
 
   @override
@@ -229,7 +234,6 @@ class FirebaseWagerRepository implements WagerRepository {
       'groupId': groupId,
       'wagerId': wagerId,
       'side': stake.side.name,
-      'amount': stake.amount,
     });
   }
 

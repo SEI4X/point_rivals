@@ -18,6 +18,7 @@ void main() {
       type: WagerType.custom,
       leftOption: const WagerOption(side: WagerSide.left, label: 'Left'),
       rightOption: const WagerOption(side: WagerSide.right, label: 'Right'),
+      rewardCoins: 10,
       excludedUserIds: const {},
       stakes: stakes,
       status: status,

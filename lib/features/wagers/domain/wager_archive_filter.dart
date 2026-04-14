@@ -42,9 +42,7 @@ final class WagerArchiveFilter {
         }),
       WagerArchiveSort.mostStakes =>
         filtered..sort((left, right) {
-          final stakeComparison = right.stakes.length.compareTo(
-            left.stakes.length,
-          );
+          final stakeComparison = right.stakeCount.compareTo(left.stakeCount);
           if (stakeComparison != 0) {
             return stakeComparison;
           }

@@ -53,12 +53,14 @@ class _AchievementsPageState extends State<AchievementsPage> {
     final l10n = context.l10n;
     final profile = AppSessionScope.of(context).currentUser;
     final repository = AppDependenciesScope.of(context).achievementRepository;
+    final refreshRevision = AppRefreshScope.revisionOf(context);
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.achievementsTitle)),
       body: SafeArea(
         minimum: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: StreamBuilder<Set<AchievementId>>(
+          key: ValueKey('achievements-${profile?.id}-$refreshRevision'),
           stream: profile == null
               ? const Stream<Set<AchievementId>>.empty()
               : repository.watchEarnedAchievements(profile.id),

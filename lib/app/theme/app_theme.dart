@@ -14,7 +14,7 @@ abstract final class AppTheme {
   static const Color paper = Color(0xFFF7F7F4);
   static const Color paperPanel = Color(0xFFFFFFFF);
   static const Color paperSoft = Color(0xFFEDEEE8);
-  static const Color acidYellow = Color(0xFFE8C500);
+  static const Color acidYellow = Color(0xFFFFD426);
   static const Color ember = Color(0xFFFF3B64);
   static const Color steelBlue = Color(0xFF5F8BC8);
   static const Color moss = Color(0xFFA9C35D);
@@ -66,10 +66,13 @@ abstract final class AppTheme {
     final TextTheme textTheme = baseTextTheme.copyWith(
       headlineMedium: baseTextTheme.headlineMedium?.copyWith(
         fontWeight: FontWeight.w800,
+        fontSize: 32,
+        height: 1.05,
         letterSpacing: 0,
       ),
       headlineSmall: baseTextTheme.headlineSmall?.copyWith(
         fontWeight: FontWeight.w800,
+        height: 1.08,
         letterSpacing: 0,
       ),
       titleLarge: baseTextTheme.titleLarge?.copyWith(
@@ -86,6 +89,7 @@ abstract final class AppTheme {
       ),
       labelLarge: baseTextTheme.labelLarge?.copyWith(
         fontWeight: FontWeight.w800,
+        fontSize: 14,
         letterSpacing: 0,
       ),
       labelMedium: baseTextTheme.labelMedium?.copyWith(
@@ -107,7 +111,15 @@ abstract final class AppTheme {
         textTheme: CupertinoTextThemeData(primaryColor: colorScheme.primary),
       ),
       scaffoldBackgroundColor: colorScheme.surface,
-      splashFactory: InkSparkle.splashFactory,
+      splashFactory: NoSplash.splashFactory,
+      visualDensity: VisualDensity.standard,
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+        },
+      ),
       appBarTheme: AppBarTheme(
         backgroundColor: colorScheme.surface,
         foregroundColor: colorScheme.onSurface,
@@ -128,7 +140,6 @@ abstract final class AppTheme {
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(radius),
-          side: BorderSide(color: colorScheme.outlineVariant),
         ),
       ),
       chipTheme: ChipThemeData(
@@ -147,7 +158,7 @@ abstract final class AppTheme {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          minimumSize: const Size.fromHeight(44),
+          minimumSize: const Size.fromHeight(48),
           foregroundColor: colorScheme.onPrimary,
           backgroundColor: colorScheme.primary,
           disabledBackgroundColor: colorScheme.surfaceContainerHighest,
@@ -156,17 +167,19 @@ abstract final class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(radius),
           ),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          minimumSize: const Size.fromHeight(44),
+          minimumSize: const Size.fromHeight(48),
           foregroundColor: colorScheme.primary,
           side: BorderSide(color: colorScheme.outline),
           textStyle: textTheme.labelLarge,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(radius),
           ),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
@@ -242,10 +255,10 @@ abstract final class AppTheme {
         }),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        height: 48,
+        height: 56,
         elevation: 0,
-        backgroundColor: colorScheme.surface,
-        indicatorColor: Colors.transparent,
+        backgroundColor: Colors.transparent,
+        indicatorColor: colorScheme.surfaceContainerHigh,
         surfaceTintColor: Colors.transparent,
         iconTheme: WidgetStateProperty.resolveWith((states) {
           return IconThemeData(

@@ -8,8 +8,11 @@ import 'package:point_rivals/app/dependencies/app_dependencies.dart';
 import 'package:point_rivals/app/session/app_session_controller.dart';
 import 'package:point_rivals/core/l10n/l10n.dart';
 import 'package:point_rivals/core/routing/app_router.dart';
+import 'package:point_rivals/core/widgets/app_shimmer.dart';
 import 'package:point_rivals/core/widgets/app_snack_bar.dart';
+import 'package:point_rivals/features/groups/domain/group_accent_colors.dart';
 import 'package:point_rivals/features/groups/domain/group_models.dart';
+import 'package:point_rivals/features/groups/presentation/group_accent_color.dart';
 import 'package:point_rivals/features/profile/domain/xp_progression.dart';
 import 'package:point_rivals/features/profile/presentation/public_member_profile_page.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -28,7 +31,9 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   bool _isNameDirty = false;
+  bool _isColorDirty = false;
   bool _isSaving = false;
+  int _selectedAccentColorValue = GroupAccentColors.defaultValue;
   String? _busyMemberId;
 
   @override
@@ -48,13 +53,24 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
 
     try {
       final repository = AppDependenciesScope.of(context).groupRepository;
-      await repository.updateGroupName(
-        groupId: widget.groupId,
-        name: _nameController.text.trim(),
-      );
+      if (_isNameDirty) {
+        await repository.updateGroupName(
+          groupId: widget.groupId,
+          name: _nameController.text.trim(),
+        );
+      }
+      if (_isColorDirty) {
+        await repository.updateGroupAccentColor(
+          groupId: widget.groupId,
+          accentColorValue: _selectedAccentColorValue,
+        );
+      }
 
       if (mounted) {
-        setState(() => _isNameDirty = false);
+        setState(() {
+          _isNameDirty = false;
+          _isColorDirty = false;
+        });
         showAppSnackBarOnMessenger(
           messenger: messenger,
           message: l10n.groupSaveSuccess,
@@ -83,6 +99,26 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
       ).groupRepository.updateGroupLeaderboardWindowWeeks(
         groupId: widget.groupId,
         weeks: weeks,
+      );
+    } on Object {
+      if (mounted) {
+        showAppSnackBarOnMessenger(
+          messenger: messenger,
+          message: l10n.groupSaveError,
+        );
+      }
+    }
+  }
+
+  Future<void> _updateLeaderboardAnchorDate(DateTime anchorDate) async {
+    final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await AppDependenciesScope.of(
+        context,
+      ).groupRepository.updateGroupLeaderboardPeriodAnchorDate(
+        groupId: widget.groupId,
+        anchorDate: anchorDate,
       );
     } on Object {
       if (mounted) {
@@ -177,7 +213,10 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
 
     if (user == null) {
       return const Scaffold(
-        body: SafeArea(child: Center(child: CircularProgressIndicator())),
+        body: SafeArea(
+          minimum: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: AppSkeletonList(itemCount: 5),
+        ),
       );
     }
 
@@ -187,6 +226,9 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
         title: Text(l10n.groupSettingsTitle),
         actions: [
           TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: Color(_selectedAccentColorValue),
+            ),
             onPressed: _isSaving ? null : _save,
             child: _isSaving
                 ? const SizedBox.square(
@@ -209,6 +251,17 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
             if (group != null && !_isNameDirty) {
               _nameController.text = group.name;
             }
+            if (group != null && !_isColorDirty) {
+              final nextAccentColorValue = group.accentColorValue;
+              if (_selectedAccentColorValue != nextAccentColorValue) {
+                _selectedAccentColorValue = nextAccentColorValue;
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted && !_isColorDirty) {
+                    setState(() {});
+                  }
+                });
+              }
+            }
 
             return StreamBuilder<List<GroupMember>>(
               stream: dependencies.groupRepository.watchMembers(widget.groupId),
@@ -221,77 +274,204 @@ class _GroupSettingsPageState extends State<GroupSettingsPage> {
                     .where((member) => member.role == GroupMemberRole.member)
                     .toList();
 
-                return Form(
-                  key: _formKey,
-                  child: ListView(
-                    children: [
-                      Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(14),
-                          child: TextFormField(
-                            controller: _nameController,
-                            decoration: InputDecoration(
-                              labelText: l10n.groupNameLabel,
-                              prefixIcon: const Icon(Icons.edit_rounded),
-                            ),
-                            textInputAction: TextInputAction.done,
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return l10n.groupNameRequired;
-                              }
+                final content = AppLoadingSwitcher(
+                  isLoading: group == null || !membersSnapshot.hasData,
+                  loading: const AppSkeletonList(itemCount: 5),
+                  child: Form(
+                    key: _formKey,
+                    child: ListView(
+                      children: [
+                        Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(14),
+                            child: TextFormField(
+                              controller: _nameController,
+                              decoration: InputDecoration(
+                                labelText: l10n.groupNameLabel,
+                                prefixIcon: const Icon(Icons.edit_rounded),
+                              ),
+                              textInputAction: TextInputAction.done,
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return l10n.groupNameRequired;
+                                }
 
-                              return null;
-                            },
-                            onChanged: (_) => setState(() {
-                              _isNameDirty = true;
-                            }),
-                            onFieldSubmitted: (_) => _save(),
+                                return null;
+                              },
+                              onChanged: (_) => setState(() {
+                                _isNameDirty = true;
+                              }),
+                              onFieldSubmitted: (_) => _save(),
+                            ),
                           ),
                         ),
-                      ),
-                      if (group != null) ...[
+                        if (group != null) ...[
+                          const SizedBox(height: 16),
+                          _GroupAccentColorCard(
+                            selectedValue: _selectedAccentColorValue,
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedAccentColorValue = value;
+                                _isColorDirty = true;
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          _LeaderboardWindowCard(
+                            group: group,
+                            onChanged: _updateLeaderboardWindowWeeks,
+                            onAnchorDateChanged: _updateLeaderboardAnchorDate,
+                          ),
+                          const SizedBox(height: 16),
+                          _InviteCard(group: group),
+                        ],
                         const SizedBox(height: 16),
-                        _LeaderboardWindowCard(
-                          group: group,
-                          onChanged: _updateLeaderboardWindowWeeks,
+                        _MembersSection(
+                          title: l10n.groupAdmins,
+                          members: admins,
+                          emptyLabel: l10n.groupAdmins,
+                          currentUserId: user.id,
+                          adminCount: admins.length,
+                          busyMemberId: _busyMemberId,
+                          onPromote: (member) =>
+                              _updateMemberRole(member, GroupMemberRole.admin),
+                          onDemote: (member) =>
+                              _updateMemberRole(member, GroupMemberRole.member),
+                          onRemove: _removeMember,
                         ),
                         const SizedBox(height: 16),
-                        _InviteCard(group: group),
+                        _MembersSection(
+                          title: l10n.groupParticipants,
+                          members: participants,
+                          emptyLabel: l10n.groupParticipants,
+                          currentUserId: user.id,
+                          adminCount: admins.length,
+                          busyMemberId: _busyMemberId,
+                          onPromote: (member) =>
+                              _updateMemberRole(member, GroupMemberRole.admin),
+                          onDemote: (member) =>
+                              _updateMemberRole(member, GroupMemberRole.member),
+                          onRemove: _removeMember,
+                        ),
                       ],
-                      const SizedBox(height: 16),
-                      _MembersSection(
-                        title: l10n.groupAdmins,
-                        members: admins,
-                        emptyLabel: l10n.groupAdmins,
-                        currentUserId: user.id,
-                        adminCount: admins.length,
-                        busyMemberId: _busyMemberId,
-                        onPromote: (member) =>
-                            _updateMemberRole(member, GroupMemberRole.admin),
-                        onDemote: (member) =>
-                            _updateMemberRole(member, GroupMemberRole.member),
-                        onRemove: _removeMember,
-                      ),
-                      const SizedBox(height: 16),
-                      _MembersSection(
-                        title: l10n.groupParticipants,
-                        members: participants,
-                        emptyLabel: l10n.groupParticipants,
-                        currentUserId: user.id,
-                        adminCount: admins.length,
-                        busyMemberId: _busyMemberId,
-                        onPromote: (member) =>
-                            _updateMemberRole(member, GroupMemberRole.admin),
-                        onDemote: (member) =>
-                            _updateMemberRole(member, GroupMemberRole.member),
-                        onRemove: _removeMember,
-                      ),
-                    ],
+                    ),
                   ),
+                );
+
+                return Theme(
+                  data: groupAccentTheme(
+                    context,
+                    Color(_selectedAccentColorValue),
+                  ),
+                  child: content,
                 );
               },
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+class _GroupAccentColorCard extends StatelessWidget {
+  const _GroupAccentColorCard({
+    required this.selectedValue,
+    required this.onChanged,
+  });
+
+  final int selectedValue;
+  final ValueChanged<int> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final colors = Theme.of(context).colorScheme;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              l10n.groupAccentColorTitle,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              l10n.groupAccentColorSubtitle,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
+            ),
+            const SizedBox(height: 14),
+            GridView.count(
+              crossAxisCount: 6,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              children: [
+                for (final color in groupAccentColorOptions())
+                  _AccentColorButton(
+                    color: color,
+                    isSelected: color.toARGB32() == selectedValue,
+                    onTap: () => onChanged(color.toARGB32()),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AccentColorButton extends StatelessWidget {
+  const _AccentColorButton({
+    required this.color,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final Color color;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final outlineColor = Theme.of(context).colorScheme.outlineVariant;
+
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      child: Material(
+        color: color,
+        borderRadius: BorderRadius.circular(18),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(18),
+          onTap: onTap,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(
+                color: isSelected ? onGroupAccentColor(color) : outlineColor,
+                width: isSelected ? 2 : 1,
+              ),
+            ),
+            child: Center(
+              child: AnimatedScale(
+                scale: isSelected ? 1 : 0,
+                duration: const Duration(milliseconds: 160),
+                curve: Curves.easeOutCubic,
+                child: Icon(
+                  Icons.check_rounded,
+                  color: onGroupAccentColor(color),
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -563,15 +743,21 @@ class _InviteCard extends StatelessWidget {
 }
 
 class _LeaderboardWindowCard extends StatelessWidget {
-  const _LeaderboardWindowCard({required this.group, required this.onChanged});
+  const _LeaderboardWindowCard({
+    required this.group,
+    required this.onChanged,
+    required this.onAnchorDateChanged,
+  });
 
   final RivalGroup group;
   final ValueChanged<int> onChanged;
+  final ValueChanged<DateTime> onAnchorDateChanged;
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final weeks = group.leaderboardWindowWeeks.clamp(1, 52);
+    final anchorDate = group.leaderboardPeriodAnchorDate;
 
     return Card(
       child: Padding(
@@ -609,10 +795,41 @@ class _LeaderboardWindowCard extends StatelessWidget {
               selected: {weeks == 1 || weeks == 2 || weeks == 4 ? weeks : 1},
               onSelectionChanged: (selection) => onChanged(selection.single),
             ),
+            if (weeks > 1) ...[
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: () async {
+                  final now = DateTime.now();
+                  final selected = await showDatePicker(
+                    context: context,
+                    initialDate: anchorDate ?? now,
+                    firstDate: DateTime(now.year - 2),
+                    lastDate: DateTime(now.year + 2),
+                  );
+                  if (selected != null) {
+                    onAnchorDateChanged(selected);
+                  }
+                },
+                icon: const Icon(Icons.event_rounded),
+                label: Text(
+                  anchorDate == null
+                      ? l10n.groupLeaderboardAnchorDateAction
+                      : l10n.groupLeaderboardAnchorDateValue(
+                          _dateLabel(anchorDate),
+                        ),
+                ),
+              ),
+            ],
           ],
         ),
       ),
     );
+  }
+
+  static String _dateLabel(DateTime value) {
+    final month = value.month.toString().padLeft(2, '0');
+    final day = value.day.toString().padLeft(2, '0');
+    return '${value.year}-$month-$day';
   }
 }
 
@@ -651,7 +868,10 @@ class _MemberActions extends StatelessWidget {
     }
 
     return PopupMenuButton<_MemberAction>(
-      icon: const Icon(Icons.more_horiz_rounded),
+      icon: Icon(
+        Icons.more_horiz_rounded,
+        color: Theme.of(context).colorScheme.primary,
+      ),
       onSelected: (action) {
         switch (action) {
           case _MemberAction.promote:

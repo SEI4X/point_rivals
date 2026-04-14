@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:point_rivals/core/firebase/firebase_contracts.dart';
 import 'package:point_rivals/core/firebase/firestore_paths.dart';
 
@@ -20,6 +20,11 @@ class FirebaseNotificationRepository implements NotificationRepository {
 
   @override
   Future<bool> requestPermission() async {
+    await _messaging.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
     final settings = await _messaging.requestPermission();
 
     return settings.authorizationStatus == AuthorizationStatus.authorized ||
@@ -28,13 +33,40 @@ class FirebaseNotificationRepository implements NotificationRepository {
 
   @override
   Future<void> registerDeviceToken(String userId) async {
-    final token = await _messaging.getToken();
+    await _messaging.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+    final token = await _readMessagingToken();
     if (token == null) {
       return;
     }
 
     await _saveDeviceToken(userId: userId, token: token);
     _listenForTokenRefresh(userId);
+  }
+
+  Future<String?> _readMessagingToken() async {
+    if (defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.macOS) {
+      for (var attempt = 0; attempt < 10; attempt += 1) {
+        final apnsToken = await _messaging.getAPNSToken();
+        if (apnsToken != null) {
+          break;
+        }
+
+        await Future<void>.delayed(const Duration(milliseconds: 300));
+      }
+    }
+
+    try {
+      return await _messaging.getToken();
+    } on FirebaseException catch (error, stackTrace) {
+      debugPrint('FCM token was not available: ${error.code}');
+      debugPrintStack(stackTrace: stackTrace);
+      return null;
+    }
   }
 
   @override
@@ -58,7 +90,7 @@ class FirebaseNotificationRepository implements NotificationRepository {
     await _deviceTokenDocument(userId: userId, token: token).set({
       'token': token,
       'locale': _notificationLocale(),
-      'platform': 'flutter',
+      'platform': _notificationPlatform(),
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
@@ -102,6 +134,22 @@ class FirebaseNotificationRepository implements NotificationRepository {
   }
 
   @override
+  Stream<IncomingNotification> foregroundNotifications() {
+    return FirebaseMessaging.onMessage
+        .map((message) {
+          return IncomingNotification(
+            groupId: _groupIdFromMessage(message),
+            title: message.notification?.title ?? '',
+            body: message.notification?.body ?? '',
+          );
+        })
+        .where(
+          (notification) =>
+              notification.title.isNotEmpty || notification.body.isNotEmpty,
+        );
+  }
+
+  @override
   Future<void> setNotificationsEnabled({
     required String userId,
     required bool enabled,
@@ -129,5 +177,16 @@ class FirebaseNotificationRepository implements NotificationRepository {
     final languageCode = PlatformDispatcher.instance.locale.languageCode
         .toLowerCase();
     return languageCode == 'ru' ? 'ru' : 'en';
+  }
+
+  String _notificationPlatform() {
+    return switch (defaultTargetPlatform) {
+      TargetPlatform.android => 'android',
+      TargetPlatform.iOS => 'ios',
+      TargetPlatform.macOS => 'macos',
+      TargetPlatform.windows => 'windows',
+      TargetPlatform.linux => 'linux',
+      TargetPlatform.fuchsia => 'fuchsia',
+    };
   }
 }

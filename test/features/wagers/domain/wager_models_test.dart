@@ -33,6 +33,7 @@ void main() {
       type: WagerType.yesNo,
       leftOption: WagerOption(side: WagerSide.left, label: 'Yes'),
       rightOption: WagerOption(side: WagerSide.right, label: 'No'),
+      rewardCoins: 10,
       excludedUserIds: {},
       stakes: [Stake(userId: 'user-1', side: WagerSide.left, amount: 100)],
       status: WagerStatus.active,

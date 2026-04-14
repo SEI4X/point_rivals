@@ -38,12 +38,12 @@ class _AchievementBadgeState extends State<AchievementBadge> {
 
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(begin: 0.96, end: 1),
-      duration: const Duration(milliseconds: 420),
-      curve: Curves.easeOutBack,
+      duration: const Duration(milliseconds: 900),
+      curve: Curves.easeOutCubic,
       builder: (context, entranceScale, child) {
         return AnimatedScale(
           scale: _isPressed ? 0.98 : entranceScale,
-          duration: const Duration(milliseconds: 150),
+          duration: const Duration(milliseconds: 240),
           curve: Curves.easeOutCubic,
           child: child,
         );
@@ -57,36 +57,27 @@ class _AchievementBadgeState extends State<AchievementBadge> {
           child: Padding(
             padding: EdgeInsets.all(isCompact ? 12 : 14),
             child: SizedBox(
-              height: isCompact ? 126 : 184,
+              height: isCompact ? 138 : 196,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Align(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: foreground.withValues(alpha: 0.14),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.all(isCompact ? 11 : 15),
-                        child: TweenAnimationBuilder<double>(
-                          key: ValueKey(_symbolTrigger),
-                          tween: Tween<double>(begin: 0.82, end: 1),
-                          duration: const Duration(milliseconds: 520),
-                          curve: Curves.elasticOut,
-                          builder: (context, scale, child) {
-                            return Transform.scale(scale: scale, child: child);
-                          },
-                          child: Icon(
-                            _iconFor(widget.card.id),
-                            color: foreground,
-                            size: isCompact ? 28 : 38,
-                          ),
-                        ),
+                    child: TweenAnimationBuilder<double>(
+                      key: ValueKey(_symbolTrigger),
+                      tween: Tween<double>(begin: 0.82, end: 1),
+                      duration: const Duration(milliseconds: 1100),
+                      curve: Curves.elasticOut,
+                      builder: (context, scale, child) {
+                        return Transform.scale(scale: scale, child: child);
+                      },
+                      child: Icon(
+                        _iconFor(widget.card.id),
+                        color: foreground,
+                        size: isCompact ? 56 : 76,
                       ),
                     ),
                   ),
-                  SizedBox(height: isCompact ? 10 : 12),
+                  SizedBox(height: isCompact ? 8 : 10),
                   Text(
                     widget.card.id.title(l10n),
                     maxLines: 2,
@@ -116,7 +107,7 @@ class _AchievementBadgeState extends State<AchievementBadge> {
                   ],
                   const Spacer(),
                   AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 220),
+                    duration: const Duration(milliseconds: 420),
                     switchInCurve: Curves.easeOutCubic,
                     switchOutCurve: Curves.easeInCubic,
                     child: Text(
@@ -146,7 +137,7 @@ class _AchievementBadgeState extends State<AchievementBadge> {
                         begin: 0,
                         end: widget.card.progressFraction,
                       ),
-                      duration: const Duration(milliseconds: 520),
+                      duration: const Duration(milliseconds: 1200),
                       curve: Curves.easeOutCubic,
                       builder: (context, value, child) {
                         return LinearProgressIndicator(

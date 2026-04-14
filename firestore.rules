@@ -94,15 +94,39 @@ service cloud.firestore {
     function canAdminUpdateGroup(groupId) {
       return isGroupAdmin(groupId)
         && request.resource.data.diff(resource.data).affectedKeys()
-          .hasOnly(['name', 'leaderboardWindowWeeks', 'updatedAt'])
+          .hasOnly([
+            'name',
+            'accentColor',
+            'leaderboardWindowWeeks',
+            'leaderboardPeriodAnchorDate',
+            'updatedAt'
+          ])
         && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['name']) ||
           (request.resource.data.name is string &&
             request.resource.data.name.size() > 0 &&
             request.resource.data.name.size() <= 60))
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['accentColor']) ||
+          (request.resource.data.accentColor is int &&
+            request.resource.data.accentColor in [
+              4294956070,
+              4294916964,
+              4294913365,
+              4294942474,
+              4294929205,
+              4288931381,
+              4281648985,
+              4281193663,
+              4284797695,
+              4278879487,
+              4284374246,
+              4290730738
+            ]))
         && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['leaderboardWindowWeeks']) ||
           (request.resource.data.leaderboardWindowWeeks is int &&
             request.resource.data.leaderboardWindowWeeks >= 1 &&
-            request.resource.data.leaderboardWindowWeeks <= 52));
+            request.resource.data.leaderboardWindowWeeks <= 52))
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['leaderboardPeriodAnchorDate']) ||
+          request.resource.data.leaderboardPeriodAnchorDate is timestamp);
     }
 
     function canSelfDecreaseTokenBalance(groupId, userId) {
@@ -130,6 +154,7 @@ service cloud.firestore {
           'type',
           'leftLabel',
           'rightLabel',
+          'rewardCoins',
           'excludedUserIds',
           'status',
           'createdAt',
@@ -147,6 +172,9 @@ service cloud.firestore {
         && request.resource.data.rightLabel is string
         && request.resource.data.rightLabel.size() > 0
         && request.resource.data.rightLabel.size() <= 28
+        && request.resource.data.rewardCoins is int
+        && request.resource.data.rewardCoins > 0
+        && request.resource.data.rewardCoins <= 1000
         && request.resource.data.excludedUserIds is list
         && request.resource.data.status == 'active';
     }

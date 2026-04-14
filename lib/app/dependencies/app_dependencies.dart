@@ -11,11 +11,11 @@ import 'package:point_rivals/features/activity/data/firebase_activity_repository
 import 'package:point_rivals/features/activity/domain/activity_models.dart';
 import 'package:point_rivals/features/auth/data/firebase_auth_repository.dart';
 import 'package:point_rivals/features/groups/data/firebase_group_repository.dart';
+import 'package:point_rivals/features/groups/domain/group_accent_colors.dart';
 import 'package:point_rivals/features/groups/domain/group_models.dart';
 import 'package:point_rivals/features/profile/data/firebase_public_profile_repository.dart';
 import 'package:point_rivals/features/profile/domain/profile_models.dart';
 import 'package:point_rivals/features/wagers/data/firebase_wager_repository.dart';
-import 'package:point_rivals/features/wagers/domain/odds_calculator.dart';
 import 'package:point_rivals/features/wagers/domain/wager_models.dart';
 
 final class AppDependencies {
@@ -188,8 +188,10 @@ class MemoryGroupRepository implements GroupRepository {
       inviteCode: 'MEMORY',
       memberCount: 1,
       activeWagerCount: 0,
-      myTokenBalance: 1000,
+      myTokenBalance: 0,
       leaderboardWindowWeeks: 1,
+      leaderboardPeriodAnchorDate: DateTime.now().toUtc(),
+      accentColorValue: GroupAccentColors.defaultValue,
     );
     _groups.add(group);
     _groupsController.add(List.unmodifiable(_groups));
@@ -212,8 +214,10 @@ class MemoryGroupRepository implements GroupRepository {
       inviteCode: 'MEMORY',
       memberCount: 1,
       activeWagerCount: 0,
-      myTokenBalance: 1000,
+      myTokenBalance: 0,
       leaderboardWindowWeeks: 1,
+      leaderboardPeriodAnchorDate: DateTime.now().toUtc(),
+      accentColorValue: GroupAccentColors.defaultValue,
     );
     _groups.add(group);
     _groupsController.add(List.unmodifiable(_groups));
@@ -244,6 +248,33 @@ class MemoryGroupRepository implements GroupRepository {
       activeWagerCount: group.activeWagerCount,
       myTokenBalance: group.myTokenBalance,
       leaderboardWindowWeeks: group.leaderboardWindowWeeks,
+      leaderboardPeriodAnchorDate: group.leaderboardPeriodAnchorDate,
+      accentColorValue: group.accentColorValue,
+    );
+    _groupsController.add(List.unmodifiable(_groups));
+  }
+
+  @override
+  Future<void> updateGroupAccentColor({
+    required String groupId,
+    required int accentColorValue,
+  }) async {
+    final index = _groups.indexWhere((group) => group.id == groupId);
+    if (index < 0) {
+      return;
+    }
+
+    final group = _groups[index];
+    _groups[index] = RivalGroup(
+      id: group.id,
+      name: group.name,
+      inviteCode: group.inviteCode,
+      memberCount: group.memberCount,
+      activeWagerCount: group.activeWagerCount,
+      myTokenBalance: group.myTokenBalance,
+      leaderboardWindowWeeks: group.leaderboardWindowWeeks,
+      leaderboardPeriodAnchorDate: group.leaderboardPeriodAnchorDate,
+      accentColorValue: GroupAccentColors.normalize(accentColorValue),
     );
     _groupsController.add(List.unmodifiable(_groups));
   }
@@ -274,6 +305,33 @@ class MemoryGroupRepository implements GroupRepository {
       activeWagerCount: group.activeWagerCount,
       myTokenBalance: group.myTokenBalance,
       leaderboardWindowWeeks: weeks,
+      leaderboardPeriodAnchorDate: DateTime.now().toUtc(),
+      accentColorValue: group.accentColorValue,
+    );
+    _groupsController.add(List.unmodifiable(_groups));
+  }
+
+  @override
+  Future<void> updateGroupLeaderboardPeriodAnchorDate({
+    required String groupId,
+    required DateTime anchorDate,
+  }) async {
+    final index = _groups.indexWhere((group) => group.id == groupId);
+    if (index < 0) {
+      return;
+    }
+
+    final group = _groups[index];
+    _groups[index] = RivalGroup(
+      id: group.id,
+      name: group.name,
+      inviteCode: group.inviteCode,
+      memberCount: group.memberCount,
+      activeWagerCount: group.activeWagerCount,
+      myTokenBalance: group.myTokenBalance,
+      leaderboardWindowWeeks: group.leaderboardWindowWeeks,
+      leaderboardPeriodAnchorDate: anchorDate,
+      accentColorValue: group.accentColorValue,
     );
     _groupsController.add(List.unmodifiable(_groups));
   }
@@ -294,6 +352,8 @@ class MemoryGroupRepository implements GroupRepository {
       activeWagerCount: 0,
       myTokenBalance: 0,
       leaderboardWindowWeeks: 1,
+      leaderboardPeriodAnchorDate: DateTime.now().toUtc(),
+      accentColorValue: GroupAccentColors.defaultValue,
     );
   }
 
@@ -316,8 +376,10 @@ class MemoryGroupRepository implements GroupRepository {
         inviteCode: 'MEMORY',
         memberCount: 1,
         activeWagerCount: 0,
-        myTokenBalance: 1000,
+        myTokenBalance: 0,
         leaderboardWindowWeeks: 1,
+        leaderboardPeriodAnchorDate: DateTime.now().toUtc(),
+        accentColorValue: GroupAccentColors.defaultValue,
       ),
     );
 
@@ -332,7 +394,7 @@ class MemoryGroupRepository implements GroupRepository {
         displayName: 'Alex',
         avatarUrl: null,
         role: GroupMemberRole.admin,
-        tokenBalance: 1000,
+        tokenBalance: 0,
         weeklyTokensEarned: 120,
         weeklyScorePeriodId: 'memory-week',
         allTimeTokensEarned: 1000,
@@ -400,14 +462,6 @@ class MemoryWagerRepository implements WagerRepository {
       throw StateError('User cannot stake on this wager.');
     }
 
-    final odds = const OddsCalculator().oddsForSide(wager, stake.side);
-    final quotedStake = Stake(
-      userId: stake.userId,
-      side: stake.side,
-      amount: stake.amount,
-      odds: odds,
-    );
-
     _wagers[index] = Wager(
       id: wager.id,
       groupId: wager.groupId,
@@ -416,8 +470,9 @@ class MemoryWagerRepository implements WagerRepository {
       type: wager.type,
       leftOption: wager.leftOption,
       rightOption: wager.rightOption,
+      rewardCoins: wager.rewardCoins,
       excludedUserIds: wager.excludedUserIds,
-      stakes: [...wager.stakes, quotedStake],
+      stakes: [...wager.stakes, stake],
       status: wager.status,
       winningSide: wager.winningSide,
       settlement: wager.settlement,
@@ -449,16 +504,19 @@ class MemoryWagerRepository implements WagerRepository {
       type: wager.type,
       leftOption: wager.leftOption,
       rightOption: wager.rightOption,
+      rewardCoins: wager.rewardCoins,
       excludedUserIds: wager.excludedUserIds,
       stakes: wager.stakes,
       status: WagerStatus.resolved,
       winningSide: winningSide,
       settlement: WagerSettlement(
         totalPool: wager.totalPool,
-        winningSideTotal: wager.totalForSide(winningSide),
+        winningSideTotal: wager.stakeCountForSide(winningSide),
         payouts: {
           for (final stake in wager.stakes)
-            stake.userId: stake.side == winningSide ? stake.amount * 2 : 0,
+            stake.userId: stake.side == winningSide
+                ? wager.rewardForSide(winningSide)
+                : 0,
         },
       ),
       createdAt: wager.createdAt,
@@ -488,6 +546,7 @@ class MemoryWagerRepository implements WagerRepository {
       type: wager.type,
       leftOption: wager.leftOption,
       rightOption: wager.rightOption,
+      rewardCoins: wager.rewardCoins,
       excludedUserIds: wager.excludedUserIds,
       stakes: wager.stakes,
       status: WagerStatus.cancelled,
@@ -495,7 +554,7 @@ class MemoryWagerRepository implements WagerRepository {
       settlement: WagerSettlement(
         totalPool: wager.totalPool,
         winningSideTotal: 0,
-        payouts: {for (final stake in wager.stakes) stake.userId: stake.amount},
+        payouts: {for (final stake in wager.stakes) stake.userId: 0},
       ),
       createdAt: wager.createdAt,
       resolvedAt: DateTime.now(),
@@ -577,6 +636,11 @@ class MemoryNotificationRepository implements NotificationRepository {
 
   @override
   Stream<String> notificationGroupOpenRequests() {
+    return const Stream.empty();
+  }
+
+  @override
+  Stream<IncomingNotification> foregroundNotifications() {
     return const Stream.empty();
   }
 

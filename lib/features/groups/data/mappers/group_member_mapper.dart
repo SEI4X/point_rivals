@@ -26,7 +26,7 @@ abstract final class GroupMemberMapper {
     required String displayName,
     required String? avatarUrl,
     required GroupMemberRole role,
-    int initialTokenBalance = 1000,
+    int initialTokenBalance = 0,
     int xp = 0,
   }) {
     return {

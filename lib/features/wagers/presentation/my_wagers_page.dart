@@ -6,6 +6,7 @@ import 'package:point_rivals/core/formatters/app_date_formatter.dart';
 import 'package:point_rivals/core/l10n/l10n.dart';
 import 'package:point_rivals/core/routing/app_router.dart';
 import 'package:point_rivals/core/widgets/app_refresh_indicator.dart';
+import 'package:point_rivals/core/widgets/app_shimmer.dart';
 import 'package:point_rivals/features/wagers/domain/wager_models.dart';
 
 class MyWagersPage extends StatelessWidget {
@@ -16,10 +17,14 @@ class MyWagersPage extends StatelessWidget {
     final l10n = context.l10n;
     final dependencies = AppDependenciesScope.of(context);
     final user = AppSessionScope.of(context).currentUser;
+    final refreshRevision = AppRefreshScope.revisionOf(context);
 
     if (user == null) {
       return const Scaffold(
-        body: SafeArea(child: Center(child: CircularProgressIndicator())),
+        body: SafeArea(
+          minimum: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: AppSkeletonList(showHeader: true),
+        ),
       );
     }
 
@@ -31,17 +36,19 @@ class MyWagersPage extends StatelessWidget {
       body: SafeArea(
         minimum: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: StreamBuilder<List<Wager>>(
+          key: ValueKey('my-wagers-${user.id}-$refreshRevision'),
           stream: dependencies.wagerRepository.watchUserWagers(user.id),
           builder: (context, snapshot) {
             if (snapshot.hasError) {
               return Center(child: Text(l10n.groupsLoadError));
             }
 
-            if (!snapshot.hasData) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            return _MyWagersList(userId: user.id, wagers: snapshot.data!);
+            final wagers = snapshot.data ?? const <Wager>[];
+            return AppLoadingSwitcher(
+              isLoading: !snapshot.hasData,
+              loading: const AppSkeletonList(showHeader: true),
+              child: _MyWagersList(userId: user.id, wagers: wagers),
+            );
           },
         ),
       ),
@@ -208,7 +215,6 @@ class _MyWagerCard extends StatelessWidget {
                       l10n.wagerArchiveStakeSide(sideLabel, stake.amount),
                     ),
                   ),
-                  Chip(label: Text(l10n.myWagersStake(stake.amount))),
                   Chip(
                     label: Text(
                       l10n.wagerCreatedAt(

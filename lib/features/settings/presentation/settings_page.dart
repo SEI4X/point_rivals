@@ -1,15 +1,14 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:point_rivals/app/dependencies/app_dependencies.dart';
 import 'package:point_rivals/app/session/app_session_controller.dart';
 import 'package:point_rivals/app/settings/app_settings_controller.dart';
 import 'package:point_rivals/core/l10n/l10n.dart';
 import 'package:point_rivals/core/routing/app_router.dart';
+import 'package:point_rivals/core/widgets/app_shimmer.dart';
 import 'package:point_rivals/core/widgets/app_snack_bar.dart';
 import 'package:point_rivals/features/profile/domain/profile_models.dart';
 
@@ -135,8 +134,15 @@ class _SettingsPageState extends State<SettingsPage> {
       return;
     }
 
-    final hasPhotoAccess = await _ensurePhotoAccess();
-    if (!hasPhotoAccess) {
+    final XFile? image;
+    try {
+      image = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 88,
+      );
+    } on Object {
       if (mounted) {
         showAppSnackBarOnMessenger(
           messenger: messenger,
@@ -146,12 +152,6 @@ class _SettingsPageState extends State<SettingsPage> {
       return;
     }
 
-    final image = await _imagePicker.pickImage(
-      source: ImageSource.gallery,
-      maxWidth: 1024,
-      maxHeight: 1024,
-      imageQuality: 88,
-    );
     if (image == null) {
       return;
     }
@@ -187,15 +187,6 @@ class _SettingsPageState extends State<SettingsPage> {
         setState(() => _isUploadingAvatar = false);
       }
     }
-  }
-
-  Future<bool> _ensurePhotoAccess() async {
-    if (!Platform.isIOS) {
-      return true;
-    }
-
-    final status = await Permission.photos.request();
-    return status.isGranted || status.isLimited;
   }
 
   Future<void> _confirmDeleteAccount() async {
@@ -245,7 +236,10 @@ class _SettingsPageState extends State<SettingsPage> {
 
     if (profile == null) {
       return const Scaffold(
-        body: SafeArea(child: Center(child: CircularProgressIndicator())),
+        body: SafeArea(
+          minimum: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: AppSkeletonList(),
+        ),
       );
     }
 
